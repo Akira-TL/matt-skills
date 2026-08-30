@@ -31,6 +31,8 @@ Three of the five options at a phase boundary preserve different things: `/compa
 
 The document carries the live thread — what's in flight, why, and what's next — plus a **suggested skills** section naming what the next agent should reach for. Secrets are redacted before it's written.
 
+Once the file is saved, the completion reply also gives you the full path and a fenced `text` block containing a ready-to-paste pickup prompt for the next agent. That prompt is transport UI, not part of the artifact: it tells the next agent to read the handoff file and continue, but it is never written into the handoff document itself.
+
 What it deliberately does not carry is anything already written down. Specs, plans, ADRs, issues, commits and diffs are referenced by path or URL, never copied. That keeps the file small, and it keeps the settled detail in one place instead of two that drift.
 
 ## Common questions
@@ -48,7 +50,7 @@ The temp directory, which is the most-reported friction with the skill: the path
 Some environments clear temp between sessions — Codex is the reported case — and `/private/tmp` goes on reboot. If the next session isn't starting within the hour, or is starting under a different harness, copy the file somewhere durable yourself as soon as it's written. The same applies to anything the document *points at*: a dispatch that references other files in temp is a dispatch the next agent can't follow.
 
 **How do I actually hand it to the next agent?**
-Open the fresh session and point it at the path: read this file, then continue. Point at the file rather than pasting the summary into a shell command — a summary containing backticks or `$(...)` gets mangled when it's interpolated into `claude "<summary>"`, and the usual failure is silent truncation rather than an error, so the new agent starts with a quietly incomplete brief.
+Paste the fenced pickup prompt from the completion reply into the fresh session. It includes the full handoff path and tells the next agent to read the file and continue, so you do not need to reconstruct that instruction yourself. Point at the file rather than pasting the summary into a shell command — a summary containing backticks or `$(...)` gets mangled when it's interpolated into `claude "<summary>"`, and the usual failure is silent truncation rather than an error, so the new agent starts with a quietly incomplete brief.
 
 **Is this the same as `/branch`, `--fork-session`, or the built-in `/handoff`?**
 Analogous, not identical, and `/branch` isn't a shipped skill here — `/handoff` is the canonical name. A fork inherits an exact copy of the context; this skill produces a *targeted* compression aimed at a stated next task, in a file. Where a fork will do — same machine, same harness, same directory — a fork is less work. The file wins the moment the destination is somewhere the fork can't go.
@@ -69,6 +71,7 @@ Both work; they suit different situations. As a skill it ships and updates throu
 - The fresh agent starts working instead of asking you to re-explain the setup.
 - In the fork case, your original session is still sitting there untouched when you come back to it.
 - The suggested-skills section names the skill you'd have reached for yourself.
+- The completion reply contains the full, untruncated handoff path and a fenced pickup prompt you can paste directly into the next session.
 - Nothing in it is a key, a token, or a password.
 
 ## Where it fits
