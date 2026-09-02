@@ -18,13 +18,18 @@ Create a new file under `.scratch/<feature-slug>/` (creating the directory if ne
 
 Read the file at the referenced path. The user will normally pass the path or the issue number directly.
 
+## Work item operations
+
+Used by skills that coordinate work through local issue files.
+
+- **Blocking**: a `Blocked by: NN, NN` line near the top. A work item is unblocked when every file it lists is in the owning workflow's resolved state.
+- **Frontier**: scan the workflow's issue directory for work items that are open, unblocked, and unclaimed, then preserve the workflow's ordering when choosing among them.
+- **Claim**: for ordinary local work, update the workflow's `Status:` field to its claimed state and save it as the session's first write. When several Agents can claim concurrently, the coordinating workflow must use its deterministic mutex before or atomically with the tracker update; `Status:` text alone is not mutual exclusion.
+
 ## Wayfinding operations
 
-Used by `/wayfinder`. The **map** is a file with one **child** file per ticket.
+Used by `/wayfinder`. The **map** is a file with one **child** file per ticket. Its tickets use the shared blocking, frontier, and claim operations above.
 
 - **Map**: `.scratch/<effort>/map.md` — the Notes / Decisions-so-far / Fog body.
 - **Child ticket**: `.scratch/<effort>/issues/NN-<slug>.md`, numbered from `01`, with the question in the body. A `Type:` line records the ticket type (`research`/`prototype`/`grilling`/`task`); a `Status:` line records `claimed`/`resolved`.
-- **Blocking**: a `Blocked by: NN, NN` line near the top. A ticket is unblocked when every file it lists is `resolved`.
-- **Frontier**: scan `.scratch/<effort>/issues/` for files that are open, unblocked, and unclaimed; first by number wins.
-- **Claim**: set `Status: claimed` and save before any work.
 - **Resolve**: append the answer under an `## Answer` heading, set `Status: resolved`, then append a context pointer (gist + link) to the map's Decisions-so-far in `map.md`.

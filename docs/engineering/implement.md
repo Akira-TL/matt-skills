@@ -2,7 +2,7 @@
 
 `implement` builds work that has already been decided. You point it at a [ticket](https://www.aihero.dev/ai-coding-dictionary/ticket), a [spec](https://www.aihero.dev/ai-coding-dictionary/spec), or the plan you just agreed in the conversation, and it writes the code, drives [tdd](https://aihero.dev/skills-tdd) at the seams, typechecks as it goes, runs [code-review](https://aihero.dev/skills-code-review) at the end, and commits to the current branch.
 
-It never reopens the plan. There is no interview, no clarifying round, no proposal of a different approach. Whatever was settled upstream is the input, and the skill's whole job is to turn that into a commit. That is what separates it from typing "build this" at a fresh [agent](https://www.aihero.dev/ai-coding-dictionary/agent), which will happily redesign the work while it builds it.
+It never reopens the plan. For a ticket, it follows the ticket's local scope and loads its Source Spec and linked ADRs when present, so cross-ticket implementation decisions stay canonical upstream rather than being silently reinvented in a fresh [agent](https://www.aihero.dev/ai-coding-dictionary/agent) session. In an Akira Parallel Task, the coordination layer adds claim and lifecycle handling around the same Matt implementation loop; it does not replace it.
 
 ## When to reach for it
 
@@ -12,7 +12,8 @@ Where the work currently lives decides whether this is the right skill:
 
 | The work is… | Reach for |
 | --- | --- |
-| A ticket on the tracker | `/implement #42`, one ticket per [session](https://www.aihero.dev/ai-coding-dictionary/session), [clearing](https://www.aihero.dev/ai-coding-dictionary/clearing) context between tickets |
+| An ordinary ticket on the tracker | `/implement #42`, one ticket per [session](https://www.aihero.dev/ai-coding-dictionary/session), [clearing](https://www.aihero.dev/ai-coding-dictionary/clearing) context between tickets |
+| An Akira Parallel Task | `/implement <task>`; the run loads `parallel-execution`, claims the task, follows its Parent Gate and Source Matt Ticket back to the Source Spec, then returns to the normal Matt loop |
 | A spec, not yet split up, and the build spans sessions | [to-tickets](https://aihero.dev/skills-to-tickets) first, then `/implement` per ticket |
 | A spec, and the build is small | `/implement` directly against the spec |
 | Only in the conversation you just had, and it's still small | `/implement` right there, in the same window |
@@ -30,15 +31,17 @@ If the tickets came from [to-tickets](https://aihero.dev/skills-to-tickets), the
 
 ## What one run does
 
-A run is five beats, in order:
+A run first resolves the work's evidence chain: ticket → Source Spec → relevant ADRs. If the work is an Akira Parallel Task, the run also loads `parallel-execution`, claims before implementation setup or production-code writes, and resolves Parent Gate → Source Matt Ticket → Source Spec before returning to the normal implementation loop.
 
-1. Read the ticket or spec and work out the seams.
+The Matt loop remains five beats:
+
+1. Work out the seams from the resolved ticket/spec context.
 2. Drive [tdd](https://aihero.dev/skills-tdd) at the pre-agreed seams, one red-green slice at a time.
 3. Typecheck often, run single test files as it goes.
 4. Run the full test suite once, at the end.
 5. Run [code-review](https://aihero.dev/skills-code-review), then commit to the current branch.
 
-One run covers one ticket. The tickets [to-tickets](https://aihero.dev/skills-to-tickets) produces are tracer-bullet vertical slices sized to fit a single fresh [context window](https://www.aihero.dev/ai-coding-dictionary/context-window), so the intended rhythm is: clear context, implement one ticket, commit, clear again. Each ticket is self-contained, which is what makes the previous ticket's context disposable.
+One run covers one implementation work item. Matt tickets are tracer-bullet vertical slices sized to fit a single fresh [context window](https://www.aihero.dev/ai-coding-dictionary/context-window); their Source Spec pointer is what makes the previous session's context disposable without turning each ticket into a duplicate specification. A Parallel Task adds only execution scope and coordination state around that source chain.
 
 ## Pre-agreed seams
 
@@ -48,13 +51,13 @@ The word "pre-agreed" is doing real work, and it is also the skill's weakest joi
 
 ## Common questions
 
-**It finished, but my ticket is still open and the acceptance criteria are still unchecked.**
+**It finished, but my ordinary Matt ticket is still open and the acceptance criteria are still unchecked.**
 
-Correct, and expected. `implement` has no completion step. It ends at the commit and never touches the work item, confirmed on GitHub Issues and on the local markdown tracker, so it is not a tracker integration problem. It also does not act on the findings `code-review` produced, and does not tick the `- [ ]` boxes on the originating issue. Close the ticket and reconcile the criteria yourself. This bites hardest on a dependency chain, because `to-tickets` defines the frontier as tickets whose blockers are all closed. If nothing gets closed, nothing ever becomes visibly unblocked.
+That remains expected for ordinary execution: `implement` commits the implementation but does not own the tracker workflow that closes a normal Matt ticket. A Parallel Task is different. After its commit, `parallel-execution` records `ready-for-review` and emits the worker report; the worker still does not mark it `accepted` or close it, because the Coordinator owns Task and Gate review.
 
 **Can I point it at all my tickets at once, or run several in parallel?**
 
-No. One invocation, one ticket. Batch dispatch across a ticket queue and [subagent](https://www.aihero.dev/ai-coding-dictionary/subagent) fan-out are both requested repeatedly, and neither exists. Running several `/implement` sessions side by side in one checkout is worse than unsupported: one field report describes a `git commit --amend` in one session landing on another session's commit, a stash vanishing from `refs/stash`, and commits landing on the wrong branch, all in a single afternoon across three issues. The sessions share one working directory, one index, and one HEAD. Git worktrees are the community workaround, and note that `refs/stash` is shared across worktrees too, so worktrees alone do not fix the stash case. If you want parallelism today, you are assembling it yourself.
+One `/implement` invocation still owns one implementation work item. Raw side-by-side runs in one checkout remain unsafe because they share the working tree, index, and HEAD. In the Akira-maintained environment, coordinated multi-Agent execution is instead routed through the Parallel Coordinator: it publishes Parallel Tasks, assigns execution isolation, and gives each worker a claim/lifecycle protocol before that worker enters `/implement`. Parallelism belongs to the coordination layer, not to a batch mode inside this skill.
 
 **Can it open a pull request instead of committing?**
 
@@ -76,7 +79,7 @@ Probably the ticket is too big rather than the skill being misused. A run does c
 
 ## It's working if
 
-- The session opens by reading the ticket or spec and restating what it will build, rather than asking you what to build.
+- The session opens by resolving the ticket/spec source chain rather than asking you what to build; a published Matt ticket loads its Source Spec, and a Parallel Task resolves through its Parent Gate and Source Matt Ticket.
 - You can see an actual `/tdd` invocation in the trace, not just tests appearing in the diff.
 - Typechecks and single test files run repeatedly during the run, and the full suite runs once near the end.
 - The run reaches a commit on your current branch without you prompting it to carry on.
@@ -90,7 +93,7 @@ Probably the ticket is too big rather than the skill being misused. A run does c
 grill-with-docs → to-spec → to-tickets → implement → code-review
 ```
 
-Its neighbours are [to-tickets](https://aihero.dev/skills-to-tickets), which produces the tickets it consumes and declares the blocking edges that decide their order; [tdd](https://aihero.dev/skills-tdd), which it drives internally at each seam; and [code-review](https://aihero.dev/skills-code-review), which it runs before committing. It sits downstream of the planning skills and trusts them. It does not re-validate the shape of what it was handed, so a badly-structured map or a horizontally-layered ticket gets built as written.
+Its neighbours are [to-tickets](https://aihero.dev/skills-to-tickets), which produces the Matt tickets and their Source Spec pointers; [tdd](https://aihero.dev/skills-tdd), which it drives internally at each seam; and [code-review](https://aihero.dev/skills-code-review), which it runs before committing. In the Akira coordinated path, `parallel-execution` wraps this step with claim, Parent Gate context, lifecycle state, and worker reporting while leaving Matt's implementation method unchanged.
 
 That trust is why [wayfinder](https://aihero.dev/skills-wayfinder) merges onto the chain at [to-spec](https://aihero.dev/skills-to-spec) rather than looping its map straight into `implement`. Go straight to `implement` from a map only when the effort turned out genuinely small.
 

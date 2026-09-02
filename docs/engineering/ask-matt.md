@@ -2,7 +2,7 @@
 
 `ask-matt` is the router over the skills in this repo. You describe the situation you are in — an idea you cannot start, a pile of incoming bug reports, a [session](https://www.aihero.dev/ai-coding-dictionary/session) that has run long — and it names the skill or the sequence of skills that fits, plus where the human decisions in that sequence sit.
 
-It recommends and stops. It does not grill, write a [spec](https://www.aihero.dev/ai-coding-dictionary/spec), open a file or fire the skill it just named; what you get back is the next thing to type, and you type it. It is also a hand-written map of the skills in this repo rather than a scan of what you have installed, so it will not route you over your own skills or another author's.
+It recommends and stops. It does not grill, write a [spec](https://www.aihero.dev/ai-coding-dictionary/spec), open a file or fire the skill it just named; what you get back is the next thing to type, and you type it. This Akira-maintained fork keeps Matt's flow as the engineering backbone and adds one explicit external branch after `to-tickets`: coordinated multi-Agent execution can route to Akira's Parallel Coordinator instead of sending every Matt ticket straight to `implement`.
 
 ## When to reach for it
 
@@ -10,7 +10,7 @@ You invoke this by typing `/ask-matt` — the agent won't reach for it on its ow
 
 | Your situation | What the router gives back |
 | --- | --- |
-| An idea, and no idea where to start | The head of the main flow, and whether the build is small enough to skip the spec |
+| An idea, and no idea where to start | The head of the main flow, whether the build is small enough to skip the spec, and after `to-tickets` whether execution is ordinary or coordinated multi-Agent |
 | Bugs and requests arriving from other people | The [triage](https://aihero.dev/skills-triage) on-ramp, and why [tickets](https://www.aihero.dev/ai-coding-dictionary/ticket) you generated yourself don't belong on it |
 | Two skills that look interchangeable | The line between them, and it is usually one concrete test rather than a matter of taste. [grill-me](https://aihero.dev/skills-grill-me) or [grill-with-docs](https://aihero.dev/skills-grill-with-docs) turns on whether you are in a working directory; [grill-with-docs](https://aihero.dev/skills-grill-with-docs) or [wayfinder](https://aihero.dev/skills-wayfinder) turns on whether the effort fits one session |
 | A long session and a decision about the [context](https://www.aihero.dev/ai-coding-dictionary/context) | The ordered tree over the five options at a phase boundary |
@@ -18,7 +18,7 @@ You invoke this by typing `/ask-matt` — the agent won't reach for it on its ow
 
 ## Prerequisites
 
-The router names skills; it does not install them. Everything it points at has to be installed for the recommendation to be actionable, and it only knows the promoted skills in this repo.
+The router names skills; it does not install them. Everything it points at has to be installed for the recommendation to be actionable. Its maintained map is the promoted Matt set plus the explicit Akira Parallel Coordinator extension point; it does not scan arbitrary installed skills.
 
 The tracker-dependent routes — triage, `to-spec`, `to-tickets`, `implement` — assume [setup-matt-pocock-skills](https://aihero.dev/skills-setup-matt-pocock-skills) has already configured an issue tracker in the repo. The router will happily recommend them before that has happened.
 
@@ -26,7 +26,7 @@ The tracker-dependent routes — triage, `to-spec`, `to-tickets`, `implement` �
 
 The word the skill gives you to think with is **flow**: a path *through* the skills, not a single one. Naming your situation places you on a flow at a step, which is a different answer from "here is the skill that matches your keywords". Four kinds of route exist, and the skill itself carries them in full:
 
-- **The main flow**, idea to ship. Grill, spec, tickets, implement, review, with two branches inside it: a prototype detour when a question needs runnable code to settle, and the spec-and-tickets split, which only earns its cost when the build spans more than one session.
+- **The main flow**, idea to ship. Grill, spec, tickets, implement, review, with three branches inside it: a prototype detour when a question needs runnable code to settle; the spec-and-tickets split, which only earns its cost when the build spans more than one session; and, after `to-tickets`, an execution-mode split between ordinary `/implement` runs and Akira coordinated multi-Agent execution.
 - **On-ramps**, for a situation that generates work and then merges onto the main flow: incoming bug reports, something broken, or an effort too foggy and too large to hold in one session.
 - **Standalones**, off every flow, reached for on their own terms — the prototype, the questionnaire, the merge conflict you are already sitting in.
 - **A vocabulary layer underneath**, the two references the other skills pull in when the words rather than the process are the problem.
@@ -65,7 +65,7 @@ A fair complaint, filed as an open issue arguing that most of the routing is det
 
 **Can it route over my own skills, or another author's?**
 
-No. Three separate proposals have asked for a router that reads your local `skills/` directory and recommends from whatever is installed. `ask-matt` is not that. It is a map of one set, maintained by hand, and it knows nothing about skills you wrote or installed from elsewhere.
+Not generically. Three separate proposals have asked for a router that scans your local `skills/` directory and recommends from whatever is installed; `ask-matt` still does not do that. This fork has one deliberate integration point for Akira's Parallel Coordinator because that coordinator extends Matt's execution stage without replacing Matt's planning, TDD, review, or implementation methods.
 
 **It told me to edit a SKILL.md.**
 
@@ -85,6 +85,6 @@ Check the changelog for a rename before assuming it is gone. `writing-great-skil
 
 ## Where it fits
 
-`ask-matt` is a **standalone router** that sits over the whole set. It is never a step in a chain; it points into every chain, and it is the node the other docs pages link back to so none of them has to redraw the graph. From here you most often land on [grill-with-docs](https://aihero.dev/skills-grill-with-docs), the head of the main flow, or [triage](https://aihero.dev/skills-triage), the on-ramp for work that arrived rather than work you started.
+`ask-matt` is a **standalone router** that sits over the Matt set plus the fork's explicit Akira Parallel execution extension. It is never a step in a chain; it points into the chain and chooses the execution branch after `to-tickets`. From here you most often land on [grill-with-docs](https://aihero.dev/skills-grill-with-docs), the head of the main flow, or [triage](https://aihero.dev/skills-triage), the on-ramp for work that arrived rather than work you started.
 
 It is a [secondary source](https://www.aihero.dev/ai-coding-dictionary/secondary-source) over the skills it describes. Where the router and a `SKILL.md` disagree, the `SKILL.md` is right.

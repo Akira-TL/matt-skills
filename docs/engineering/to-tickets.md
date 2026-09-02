@@ -2,7 +2,7 @@
 
 `to-tickets` takes a plan, a [spec](https://www.aihero.dev/ai-coding-dictionary/spec), or the conversation you are in, and breaks it into a set of **[tickets](https://www.aihero.dev/ai-coding-dictionary/ticket)** on your issue tracker. Each ticket declares its **blocking edges** — the other tickets that have to finish before it can start.
 
-Every ticket is a **tracer bullet**: a narrow but complete path through every layer of the change — schema, API, UI, tests — that can be demoed on its own the moment it lands. That is the constraint that makes it behave differently from the obvious way to split work, which is to cut one layer at a time and integrate at the end. It also sizes each ticket to fit in a single fresh [context window](https://www.aihero.dev/ai-coding-dictionary/context-window), because the thing that will pick the ticket up is a [session](https://www.aihero.dev/ai-coding-dictionary/session) that has never seen your spec.
+Every ticket is a **tracer bullet**: a narrow but complete path through every layer of the change — schema, API, UI, tests — that can be demoed on its own the moment it lands. That is the constraint that makes it behave differently from the obvious way to split work, which is to cut one layer at a time and integrate at the end. It also sizes each ticket to fit in a single fresh [context window](https://www.aihero.dev/ai-coding-dictionary/context-window), while preserving a **Source Spec** pointer so the new [session](https://www.aihero.dev/ai-coding-dictionary/session) can recover the canonical cross-ticket implementation and testing decisions instead of duplicating them into every ticket.
 
 ## When to reach for it
 
@@ -39,7 +39,9 @@ The edges are the point of the artifact. They read two ways depending on the tra
 | Local markdown | Text in one file per ticket under `.scratch/<feature>/issues/<NN>-<slug>.md`, numbered blockers-first | Top to bottom, by hand |
 | A real tracker (GitHub, Linear) | Native blocking links, or sub-issues where the tracker has them | Any ticket whose blockers are done is on the **frontier** and can be grabbed |
 
-The edges live in the ticket either way. The medium only decides whether anything can act on them in parallel. `to-tickets` produces the artifact; running it — one session at a time, or a fleet — is your job, not the skill's.
+The edges live in the ticket either way. When the tickets came from a published spec, the Source Spec lives there too. A ticket is independently executable, but it is not a second copy of the spec: shared architecture, interfaces, schema/API contracts, and testing decisions remain in the spec or its linked ADRs.
+
+The medium only decides how the frontier is represented. `to-tickets` produces the artifact; ordinary execution works that frontier with one `/implement` session per ticket, while an external coordination layer can further split those tickets into parallel execution tasks without changing what the Matt tickets mean.
 
 ## The wide-refactor exception
 
@@ -77,7 +79,7 @@ A very large spec can outgrow what a tracker issue serves back cleanly, and ther
 The template asks for criteria and says nothing about whether they can fail, so this happens. Three shapes recur: a criterion already true at the base commit, a criterion that can only be satisfied by work another ticket owns, and one that restates the request rather than deriving from the artifact. Vertical slicing prevents most of it — a slice that delivers behaviour which didn't exist before is red at the base commit by construction — but the check is worth doing by hand. For each criterion, name the observation that would show it false, and confirm it fails at the commit the implementer starts from.
 
 **The tickets are published. How do I actually run them?**
-The skill stops at the artifact, and there is no auto-dispatch mode. Dispatch is manual: look at the board, count the tickets with no open blockers, and open that many agent sessions. One ticket per fresh context, cleared between them. Be aware that [implement](https://aihero.dev/skills-implement) does not reliably close or check off the ticket when it finishes, on GitHub or in local markdown, so the ticket's state is yours to update.
+The skill stops at the artifact. In ordinary execution, work the frontier with one [implement](https://aihero.dev/skills-implement) session per ticket and clear context between tickets. In the Akira-maintained environment, coordinated multi-Agent execution can hand the same Matt tickets to the Akira Parallel Coordinator, which publishes execution-only Parallel Tasks while keeping these tickets and their Source Spec as the engineering source of truth.
 
 ## It's working if
 
@@ -85,7 +87,7 @@ The skill stops at the artifact, and there is no auto-dispatch mode. Dispatch is
 - The list comes back to you numbered, with a "Blocked by" line on each, before anything is published.
 - The ticket at the top has no blockers and can be started immediately.
 - Nothing in a ticket body is a file path or a line number, except a snippet a prototype produced.
-- Each ticket reads like something a fresh session could finish without you in the room.
+- Each ticket reads like something a fresh session could finish without you in the room, and a ticket derived from a published spec points back to that Source Spec.
 - Prefactoring, where it found any, is at the front of the order rather than mixed into feature tickets.
 
 ## Where it fits
@@ -96,4 +98,4 @@ The skill stops at the artifact, and there is no auto-dispatch mode. Dispatch is
 grill-with-docs → to-spec → to-tickets → implement → code-review
 ```
 
-Upstream is [to-spec](https://aihero.dev/skills-to-spec), which hands it a settled spec to slice against — keep both in one unbroken context window. Downstream is [implement](https://aihero.dev/skills-implement), which builds one ticket per fresh session, driving [tdd](https://aihero.dev/skills-tdd) for the tests and closing with [code-review](https://aihero.dev/skills-code-review). When you're unsure which skill or flow fits, [ask-matt](https://aihero.dev/skills-ask-matt) routes you.
+Upstream is [to-spec](https://aihero.dev/skills-to-spec), which hands it a settled spec to slice against — keep both in one unbroken context window. Downstream, ordinary execution uses [implement](https://aihero.dev/skills-implement) per Matt ticket; the Akira-maintained coordinated path inserts its Parallel Coordinator after `to-tickets`, while workers still drive [tdd](https://aihero.dev/skills-tdd) and close with [code-review](https://aihero.dev/skills-code-review). When you're unsure which flow fits, [ask-matt](https://aihero.dev/skills-ask-matt) routes you.

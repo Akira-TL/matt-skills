@@ -34,13 +34,18 @@ Create a GitLab issue.
 
 Run `glab issue view <number> --comments`.
 
+## Work item operations
+
+Used by skills that coordinate work through issues.
+
+- **Blocking**: GitLab's **native blocking link** is the canonical, UI-visible representation. Add it with the `/blocked_by #<n>` quick action, posted as a note (`glab issue note <child> --message "/blocked_by #<blocker>"`). Native blocking links are a Premium/Ultimate feature; on the free tier (or where unavailable) fall back to a `Blocked by: #<n>, #<n>` line at the top of the description. A work item is unblocked when every blocker is closed or otherwise resolved by the owning workflow.
+- **Frontier query**: list the relevant work items with `glab issue list -F json`, then drop any with an open blocker — a native `blocked_by` link to an open issue (`glab api projects/:id/issues/:iid/links`), or an unresolved issue in the `Blocked by` line — or a workflow-defined active claim. Preserve the owning workflow's ordering when choosing among the remainder.
+- **Claim**: `glab issue update <n> --assignee @me` is the tracker-visible claim when workers have distinct GitLab identities. A coordination workflow may require a stronger claim when several Agents share one GitLab user; follow that workflow's deterministic claim protocol and treat the assignee as visibility rather than mutual exclusion.
+
 ## Wayfinding operations
 
-Used by `/wayfinder`. The **map** is a single issue with **child** issues as tickets.
+Used by `/wayfinder`. The **map** is a single issue with **child** issues as tickets. Its tickets use the shared blocking, frontier, and claim operations above.
 
 - **Map**: a single issue labelled `wayfinder:map`, holding the Notes / Decisions-so-far / Fog body. `glab issue create --label wayfinder:map`. (On GitLab tiers with native epics, an epic may hold the map instead; a labelled issue works everywhere.)
 - **Child ticket**: an issue carrying `Part of #<map>` at the top of its description and labels `wayfinder:<type>` (`research`/`prototype`/`grilling`/`task`). Once claimed, the ticket is assigned to the driving dev.
-- **Blocking**: GitLab's **native blocking link** — the canonical, UI-visible representation. Add it with the `/blocked_by #<n>` quick action, posted as a note (`glab issue note <child> --message "/blocked_by #<blocker>"`). Native blocking links are a Premium/Ultimate feature; on the free tier (or where unavailable) fall back to a `Blocked by: #<n>, #<n>` line at the top of the description. A ticket is unblocked when every blocker is closed.
-- **Frontier query**: `glab issue list -F json` scoped to the map's children, drop any with an open blocker — a native `blocked_by` link to an open issue (`glab api projects/:id/issues/:iid/links`), or an open issue in the `Blocked by` line — or an assignee; first in map order wins.
-- **Claim**: `glab issue update <n> --assignee @me` — the session's first write.
 - **Resolve**: `glab issue note <n> --message "<answer>"`, then `glab issue close <n>`, then append a context pointer (gist + link) to the map's Decisions-so-far.
