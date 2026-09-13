@@ -1,0 +1,5 @@
+interface:
+  display_name: "Parallel Coordinator"
+  short_description: "Coordinate gated multi-Agent execution"
+policy:
+  allow_implicit_invocation: false

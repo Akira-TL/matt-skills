@@ -33,6 +33,16 @@ Keep steps 1–3 in **one unbroken context window** — don't compact or clear u
 
 The limit on this is the **[smart zone](https://www.aihero.dev/ai-coding-dictionary/smart-zone)**: the window (~150k tokens on state-of-the-art models) within which the model still reasons sharply. If a session approaches it before `/to-tickets`, don't push on degraded — `/compact` at the nearest phase boundary and carry on (see Phase boundaries).
 
+## Akira extensions
+
+The Akira fork keeps its engineering deltas in this same repository so they stay next to the Matt flows they extend:
+
+- **`/ask-akira`** — user-invoked execution-policy override for `rapid`, `emergency`, and `competition`. It trims ceremony around Matt; it does not replace Matt's specialist skills.
+- **`/parallel-coordinator`** — user-invoked coordination layer for multi-Agent execution when the work needs an Execution Map, Gates, claimable Parallel Tasks, a dynamic frontier, and cross-task acceptance.
+- **`parallel-execution`** — model-invoked worker protocol used only when the current work item is a Parallel Task. It owns claim/lifecycle/reporting, then returns actual implementation to Matt `implement`, `tdd`, and `code-review` when the task comes from the standard Matt flow.
+
+These remain beta under `skills/in-progress/`: they are part of our Matt fork, not a separate Engineering product repository.
+
 ## On-ramps
 
 A starting situation that generates work, then merges onto the main flow.

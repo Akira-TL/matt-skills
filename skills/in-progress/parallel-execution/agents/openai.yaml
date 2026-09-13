@@ -1,0 +1,3 @@
+interface:
+  display_name: "Parallel Execution"
+  short_description: "Claim and execute coordinated parallel tasks"

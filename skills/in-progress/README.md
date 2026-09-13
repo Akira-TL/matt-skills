@@ -14,3 +14,6 @@ npx skills@latest add mattpocock/skills --skill=<name>
 - **[writing-shape](./writing-shape/SKILL.md)** — Take a markdown file of raw material and shape it into an article paragraph by paragraph, arguing format choices at each step.
 - **[claude-handoff](./claude-handoff/SKILL.md)** — Hand the current conversation off to a fresh background agent that picks up the work immediately, seeded with a handoff summary via `claude --bg`. User-invoked.
 - **[setup-ts-deep-modules](./setup-ts-deep-modules/SKILL.md)** — Wire dependency-cruiser into a TypeScript repo so each package is a deep module — implementation hidden in subfolders, reachable only through its entry-point files, tests exercising it through those. User-invoked.
+- **[ask-akira](./ask-akira/SKILL.md)** — Akira 的 Matt 执行策略扩展；显式切换 rapid、emergency 或 competition 模式，不重写 Matt 的专业能力。User-invoked.
+- **[parallel-coordinator](./parallel-coordinator/SKILL.md)** — 在 Matt Ticket / Spec 或 Akira mode Work State 之上建立 Execution Map、Gate 与 Parallel Tasks，并负责跨任务验收。User-invoked.
+- **[parallel-execution](./parallel-execution/SKILL.md)** — Worker 侧的 Parallel Task claim、Ownership、生命周期与阶段汇报协议；实际实现继续复用 Matt implement / tdd / code-review。Model-invoked.

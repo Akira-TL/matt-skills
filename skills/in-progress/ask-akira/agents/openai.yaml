@@ -1,0 +1,5 @@
+interface:
+  display_name: "Ask Akira"
+  short_description: "Switch Matt into an Akira rapid execution mode"
+policy:
+  allow_implicit_invocation: false
