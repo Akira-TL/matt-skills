@@ -5,15 +5,13 @@ set -euo pipefail
 # It is not a supported installer. Modifications to it — or requests for
 # modifications — will not be approved.
 #
-# Links all skills in the repository into the local skill directories used by
-# each agent harness:
-#   - ~/.claude/skills  — Claude Code
-#   - ~/.agents/skills  — Codex and other Agent Skills-compatible harnesses
-# Each entry is a symlink into this repo, so a `git pull` is all that's needed
-# to keep installed skills up to date.
+# Links all skills in the repository into the maintainer's Claude Code
+# development directory. The Akira machine registry at ~/.agents/skills is
+# intentionally excluded: it is managed from remote GitHub checkouts by the
+# Akira installer and must never point directly at this local checkout.
 
 REPO="$(cd "$(dirname "$0")/.." && pwd)"
-DESTS=("$HOME/.claude/skills" "$HOME/.agents/skills")
+DESTS=("$HOME/.claude/skills")
 
 # Collect the repo's skills once, link into every destination.
 names=()
