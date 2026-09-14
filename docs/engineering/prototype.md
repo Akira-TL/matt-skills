@@ -2,7 +2,7 @@
 
 `prototype` writes **throwaway code that answers a question** — does this state model feel right, or what should this screen look like. The question comes first and decides the shape of everything that follows; a prototype that answers the wrong question is pure waste, however good it looks.
 
-Throwaway is a constraint on how the code is *written*, not a promise to destroy it. No tests, no error handling beyond what makes it run, no abstractions, no persistence — because none of that helps you learn the one thing you're trying to learn. What survives is the answer, folded into the real code, and the prototype itself, parked on a branch out of main as the evidence the answer came from.
+Throwaway is a constraint on how the code is *written*, not a promise to destroy it. No tests, no error handling beyond what makes it run, no abstractions, no persistence — because none of that helps you learn the one thing you're trying to learn. What survives is the answer, folded into the real work, and—when the repository/user explicitly approves capture—the prototype itself, parked on a throwaway branch based on the repository's integration branch as evidence for that answer.
 
 ## When to reach for it
 
@@ -27,12 +27,12 @@ A finished prototype leaves two things, and they go to different places.
 
 The **answer** — the verdict plus the question it settled — is captured durably: a commit message, an ADR, the implementation issue. That is what the main branch keeps, folded into the real code.
 
-The **prototype** is the runnable evidence the answer came from, and it is not deleted. It doesn't belong in main either — there is nothing there to maintain and it rots fast — so it is committed to a throwaway `prototype/<name>` branch out of main, never merged, with a context pointer to that branch left on the implementation issue. Main stays clean; the exploration stays findable and re-runnable by whoever picks the work up next.
+The **prototype** is runnable evidence for the answer, but persisting it is a Git-state decision rather than an automatic side effect. When the current repository/workflow already authorizes prototype capture—or the user approves the proposed capture—the prototype goes to a throwaway `prototype/<name>` branch based on the repository's actual integration/base branch and is never merged as production code. The Skill preserves the current checkout and unrelated work, preferring an already-available isolated worktree over switching a dirty checkout. The branch is linked from the originating durable work artifact when one exists (implementation issue, Wayfinder ticket/map, spec or handoff); without one, the branch/reference is simply reported to the user rather than inventing a tracker artifact.
 
 ## Common questions
 
 **Wait — isn't the prototype supposed to be deleted?**
-Not any more. It used to be: build it, keep the answer, bin the code. The sharpest objection to that was never about speed — it was *who picks up the work next session, and what do they have to work from?* A prose summary of a prototype loses the thing that made it convincing. So the prototype is now treated as a primary source: it lands on a `prototype/<name>` branch out of main and the implementation issue points at it. What changed is where the code lives, not the discipline — it still never merges into main.
+Not necessarily. It used to be: build it, keep the answer, bin the code. The sharpest objection was *who picks up the work next session, and what do they have to work from?* A prose summary can lose the thing that made the prototype convincing. The current rule is therefore conditional: preserve the runnable prototype as a primary source when the repository workflow already authorizes that capture or the user approves it; otherwise keep the answer and do not silently create/switch branches or commit. A captured prototype never merges into the integration branch as production code.
 
 **It used to build a terminal app. Where did that go?**
 The logic branch now emits a single shareable HTML file instead. A terminal app can only be driven by someone with the repo cloned and a runtime installed, which rules out exactly the people whose opinion the prototype needs — the designer, the PM, the domain expert who knows what the state model is supposed to mean. One self-contained file that opens by double-click and survives being emailed can be driven by anyone. The pure logic module underneath is unchanged, and is still the part that lifts into the real code.
@@ -56,7 +56,7 @@ It can be, if you prototype questions you could have answered by talking, or let
 - Someone says "wait, that shouldn't be possible" or "huh, I assumed X". That's a bug in the *idea*, which is the entire point.
 - The UI variants disagree about layout and information hierarchy, not just colour and copy — and the feedback you get is "the header from B with the sidebar from C".
 - It is answered in one sitting. If you're still building it a day later, the question was too big; split it.
-- When it's over, main contains the decision and none of the prototype, and the implementation issue points at the branch that still holds it.
+- When capture was approved, the repository's integration branch contains the validated decision and none of the throwaway prototype, while the originating work artifact—or the completion message when no durable artifact exists—points at the prototype branch.
 
 ## Where it fits
 
