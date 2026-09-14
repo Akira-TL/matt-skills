@@ -25,7 +25,7 @@ Both keep state in memory, start with no thinking required, and show you the ful
 
 A finished prototype leaves two things, and they go to different places.
 
-The **answer** — the verdict plus the question it settled — is captured durably: a commit message, an ADR, the implementation issue. That is what the main branch keeps, folded into the real code.
+The **answer** — the verdict plus the question it settled — is captured durably in the repository's normal decision/work artifacts: for example an ADR, implementation issue, Wayfinder decision, spec, or an implementation commit when code actually changes. That is what the real work keeps; it does not require the throwaway prototype branch itself to enter the integration branch.
 
 The **prototype** is runnable evidence for the answer, but persisting it is a Git-state decision rather than an automatic side effect. When the current repository/workflow already authorizes prototype capture—or the user approves the proposed capture—the prototype goes to a throwaway `prototype/<name>` branch based on the repository's actual integration/base branch and is never merged as production code. The Skill preserves the current checkout and unrelated work, preferring an already-available isolated worktree over switching a dirty checkout. The branch is linked from the originating durable work artifact when one exists (implementation issue, Wayfinder ticket/map, spec or handoff); without one, the branch/reference is simply reported to the user rather than inventing a tracker artifact.
 
