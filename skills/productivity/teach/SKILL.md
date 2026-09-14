@@ -73,6 +73,8 @@ Reuse is the default, not the exception. Before authoring a lesson, read `<teach
 
 A shared stylesheet is the first component every workspace earns: every lesson links it, so the lessons look like one consistent course rather than a pile of one-offs. As the workspace grows, so should the component library.
 
+For the first multiple-choice quiz, if `<teaching-workspace>/assets/quiz.js` does not exist, copy the Skill-local seed [QUIZ-ASSET.js](./QUIZ-ASSET.js) there without modifying the Skill source. Once copied, the workspace owns that asset; do not overwrite later user/project edits on subsequent lessons. Multiple-choice lessons must load the workspace asset so option order is shuffled at browser render time. If the asset cannot be created or loaded, use free-response retrieval instead of emitting a static multiple-choice quiz with a predictable answer position.
+
 ## The Mission
 
 Every lesson should be tied into the mission - the reason that the user is interested in learning about the topic.
@@ -112,7 +114,7 @@ For skill acquisition, difficulty is the tool. Effortful retrieval is what build
 
 Each of these should be based on a **feedback loop**, where the user receives feedback on their performance. This feedback loop should be as tight as possible, giving feedback immediately - and ideally automatically.
 
-For quizzes, each answer should be exactly the same number of words (and characters, if possible). Don't give the user any clues about the answer through formatting.
+For multiple-choice quizzes, keep option length and formatting comparable so they do not leak the answer. Correctness must be attached to the semantic option (`data-correct="true"` in the shared quiz asset contract), never inferred from source order or an A/B/C label. The browser-rendered component must shuffle the options each load. Do not author a static multiple-choice quiz if that shuffling component is unavailable.
 
 ## Acquiring Wisdom
 
