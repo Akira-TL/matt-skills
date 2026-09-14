@@ -7,7 +7,7 @@ Every `SKILL.md` in this repo is a Skill. The primary invocation axis is **who m
 
 Different Agent executors expose these metadata fields differently. The repository keeps the frontmatter and `agents/openai.yaml` representations consistent, but the engineering method must not depend on one executor's command syntax or UI.
 
-A user-invoked Skill may depend on model-invoked Skills; it must not silently start another user-invoked Skill that requires separate human intent.
+A user-invoked Skill may depend on model-invoked Skills. No Skill may start a user-invoked Skill unless that target was already entered by explicit user action in the current flow; model-invoked Skills may recommend the user-invoked Skill and pass forward context, but must stop short of starting it on the user's behalf.
 
 Bucket `README.md`s and the top-level `README.md` group entries into **User-invoked** and **Model-invoked**.
 

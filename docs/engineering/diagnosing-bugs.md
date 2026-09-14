@@ -51,7 +51,7 @@ The phases are gates, not a checklist. Each one refuses to open until something 
 | Into Phase 5 | Probes map to a specific prediction, one variable at a time, every debug log tagged `[DEBUG-a4f2]`-style so cleanup is one grep |
 | Done | Original repro no longer reproduces, instrumentation gone, and the hypothesis that turned out correct is written into the commit message |
 
-Phase 5 has an escape hatch worth knowing about. The regression test is written before the fix, but only if a **correct seam** exists for it — one where the test exercises the real bug pattern as it occurs at the call site. Where the only available seam is too shallow, the skill is told to say so rather than write a test that gives false confidence. That absence is itself the finding, and it is what routes the post-mortem to `improve-codebase-architecture`.
+Phase 5 has an escape hatch worth knowing about. The regression test is written before the fix, but only if a **correct seam** exists for it — one where the test exercises the real bug pattern as it occurs at the call site. Where the only available seam is too shallow, the skill is told to say so rather than write a test that gives false confidence. That absence is itself the finding, and it is what makes the post-mortem recommend `improve-codebase-architecture` for explicit user invocation.
 
 ## Common questions
 
@@ -90,4 +90,4 @@ Renamed to `/diagnosing-bugs` in v1.0.0. The old name no longer exists. Anything
 
 `diagnosing-bugs` is a reach-for-it-anytime standalone. You drop into it when something is broken and drop out when the fix and its regression test are in; it holds no state and needs no prior setup. ask-matt routes "Something's broken" here.
 
-Two neighbours matter. improve-codebase-architecture takes the handoff when the real finding is that the code has no seam to lock the bug down — the recommendation is made after the fix is in, when there is more information. triage sits upstream of it for bugs that arrive as raw reports from other people, and does a shallower version of the same first two phases.
+Two neighbours matter. When the real finding is that the code has no seam to lock the bug down, `diagnosing-bugs` recommends `improve-codebase-architecture` after the fix is in, when there is more information; because that Skill is user-invoked, the diagnosis does not start it automatically. triage sits upstream for bugs that arrive as raw reports from other people, and does a shallower version of the same first two phases.

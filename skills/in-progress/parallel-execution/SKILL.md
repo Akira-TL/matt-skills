@@ -103,7 +103,7 @@ ready-for-agent
 
 协作预检完成后先按 Task 自身范围判断是否允许生产写入：
 
-- **有 Source Matt Ticket 的写入型 Task**：继续 Matt 的实现方法。使用 Matt `implement` 执行当前 Task，按 Matt `tdd` 与项目测试约束验证行为，使用 Matt `code-review` 完成 Worker 层审查，并按当前项目 Git 原子提交规则形成归属明确的 commit。
+- **有 Source Matt Ticket 的写入型 Task**：实现方法仍由 Matt `implement` 拥有。如果本 Skill 是从已经由用户显式启动的 `implement` 内部加载，完成协作预检后返回原 `implement` 流程，由它按需加载 `tdd`、执行项目验证并完成 `code-review`。如果当前是独立进入 `parallel-execution`，不得反向启动 user-invoked `implement`；保留当前 Task / claim 上下文并明确要求用户从这个 Task 显式进入 `implement`，随后由同一 Worker identity 重新加载本协议并以幂等 claim 继续。
 - **来自 Akira 特殊模式的写入型 Task**：继续当前 Rapid / Emergency / Competition 已选择的 execution 分支；Parallel 只增加领取、状态和汇报，不把模式重新包装成 Matt `implement` ceremony。需要 Matt 的专业能力时仍按当前模式 Router 原有边界调用。
 - **明确只读的调查 Task**：不进入 `implement`，不创建实现 branch/worktree，不修改 production/test 或写入调查交付物，也不制造调查 deliverable commit。第 2、4 节要求的 Tracker lifecycle projection 仍然执行；若本地 Tracker 由 Git 跟踪，可以形成只包含当前 Task Ownership / Status / blocker / Acceptance Criteria 等生命周期状态的 Tracker lifecycle commit，这类 commit 是协作状态证据，不把只读 Task 变成写入型 Task。按 Task 要求返回可复核事实、命令/位置、证据与它支持或排除的判断；需要专业方法时仍复用相应 Matt 能力，例如 `diagnosing-bugs` 或 `research`。
 
