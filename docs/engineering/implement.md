@@ -21,7 +21,7 @@ Where the work currently lives decides whether this is the right skill:
 | One concrete behaviour you want test-first, with no spec | tdd directly |
 | Already built, and you want it checked | code-review directly |
 
-The same-session case is worth naming because the skill's own first line doesn't cover it. `SKILL.md` says "the spec or tickets", which nudges the model to go hunting for a file that doesn't exist. If the plan lives only in the thread, say so when you invoke it.
+The same-session case is now part of the canonical contract: if there is no external ticket/spec reference but the current conversation already contains one concrete agreed slice, `implement` uses that plan directly rather than inventing a file to satisfy the workflow.
 
 ## Prerequisites
 
@@ -71,9 +71,9 @@ Because `code-review` reviews a Git range against a fixed point. Committing the 
 
 Treat that as evidence that the slice may be too large or its source context too diffuse; do not rely on a fixed token threshold that assumes a particular model or harness. The upstream lever is to right-size tickets in `to-tickets`, keep shared decisions in the Source Spec/ADRs, and split a work item when it no longer fits a reliable implementation/review cycle.
 
-**`/implement #2` in a fresh session worked on something completely unrelated.**
+**What does `/implement #2` mean in a fresh session?**
 
-`#2` is resolved against whatever numbered list the agent can see, which in a fresh session may be a todo file, a checklist, or another work list rather than the configured tracker. The resolution is confident rather than fail-closed, so the mistake is not obvious until it has started. Pass the full reference, the issue URL or `owner/repo#2`, and ask it to confirm the title back before it begins.
+With a configured real tracker, it means issue `#2` in that repository and nothing else: `implement` resolves it through the tracker adapter, confirms the canonical title/type, and stops if the issue does not resolve. It must not reinterpret `#2` as a todo/checklist index or fall back to a PR/MR. With local markdown, a bare number is accepted only when the active `.scratch/<effort>/issues/` directory makes that number unique; otherwise the run stops for an explicit path rather than guessing.
 
 ## It's working if
 

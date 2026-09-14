@@ -16,7 +16,7 @@ Create a new file under `.scratch/<feature-slug>/` (creating the directory if ne
 
 ## When a skill says "fetch the relevant ticket"
 
-Read the file at the referenced path. The user will normally pass the path or the issue number directly.
+Read the file at the referenced path. A bare ticket number is valid only when the active `.scratch/<effort>/issues/` directory makes that number unique; if several effort directories contain the same number, require an explicit path instead of guessing.
 
 ## Work item operations
 

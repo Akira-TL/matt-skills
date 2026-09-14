@@ -1,14 +1,21 @@
 ---
 name: implement
-description: "Implement a piece of work based on a spec or set of tickets."
+description: "Implement one already-decided work item from a ticket, spec, or the current conversation."
 disable-model-invocation: true
 ---
 
-Implement the work described by the user in the spec or ticket.
+Implement one already-decided work item from the referenced ticket/spec or, when no external reference exists, from the concrete plan already established in the current conversation.
 
 ## Load the work
 
-Read the referenced work item before changing code.
+Resolve the work item **before any project write**.
+
+- Explicit issue URL, repository-qualified reference, spec path, ticket path, or Parallel Task identifier: resolve exactly that artifact.
+- Bare `#<n>` with a configured real issue tracker: resolve issue `<n>` through that repository's configured tracker adapter and confirm the returned title/type before proceeding. Do not reinterpret the token as a checklist/todo index, and do not fall back from an issue lookup to a pull/merge request or unrelated numbered list.
+- Bare local ticket number: use it only when the active local effort makes the ticket path unique. If multiple `.scratch/<effort>/issues/<NN>-*.md` candidates exist, or the effort is otherwise ambiguous, stop and require an explicit path rather than guessing.
+- No external reference: use the current conversation only when it already contains a concrete, agreed implementation slice; do not invent a ticket artifact merely because none was supplied.
+
+After resolution, echo the canonical work-item title/reference you are about to implement. If the reference cannot be resolved unambiguously, stop before code changes.
 
 - If it is an ordinary implementation ticket, read its **Source Spec** when present, plus any ADRs that source points to. The ticket owns the delivery slice; the Source Spec and ADRs remain canonical for cross-ticket Implementation Decisions and Testing Decisions.
 - If it identifies itself as a Parallel Task, has Parallel metadata such as an Execution Map or Parent Gate, or is otherwise a child of a parallel Gate, `parallel-execution` is a required conditional dependency. Load and follow its canonical installed Skill before implementation. Complete that protocol's claim step before creating implementation branches/worktrees or modifying production code, then read the Parent Gate, Source Matt Ticket, Source Spec, and relevant ADRs it points to. If `parallel-execution` cannot be loaded, stop before project writes; do not imitate its claim protocol from memory. `parallel-execution` governs coordination state and reporting; this skill still governs implementation.
