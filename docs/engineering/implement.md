@@ -39,7 +39,7 @@ The Matt loop remains five beats:
 2. Drive TDD at the pre-agreed seams where it is appropriate, one red-green slice at a time.
 3. Run focused tests, typechecking, build or other validators required by the current slice.
 4. Commit the completed atomic implementation state through the repository's guarded commit path. A full-project suite is not automatic; run broader validation only when the repository contract, acceptance criteria, scope or risk requires it.
-5. Run code-review against the fixed point so it reviews the committed change. Findings that require edits become separate atomic fix commits with the necessary focused re-validation/review.
+5. Run code-review against the fixed point so it reviews the committed change. Findings that require edits become separate atomic fix commits with the necessary focused re-validation/review. For an ordinary implementation ticket, once that evidence establishes every acceptance criterion, update the ticket artifact and close/resolve it through the configured tracker; Parallel Tasks stop at `ready-for-review` for Coordinator acceptance.
 
 One run covers one implementation work item. Matt tickets are tracer-bullet vertical slices sized to fit a single fresh context window; their Source Spec pointer is what makes the previous session's context disposable without turning each ticket into a duplicate specification. A Parallel Task adds only execution scope and coordination state around that source chain.
 
@@ -51,9 +51,9 @@ The word "pre-agreed" is doing real work, and it is also the skill's weakest joi
 
 ## Common questions
 
-**It finished, but my ordinary Matt ticket is still open and the acceptance criteria are still unchecked.**
+**What happens to the ordinary Matt ticket when implementation finishes?**
 
-That remains expected for ordinary execution: `implement` commits the implementation but does not own the tracker workflow that closes a normal Matt ticket. A Parallel Task is different. After its commit, `parallel-execution` records `ready-for-review` and emits the worker report; the worker still does not mark it `accepted` or close it, because the Coordinator owns Task and Gate review.
+After the committed implementation, required review and any fix commits establish every acceptance criterion, `implement` updates the ticket artifact so the criteria are checked and closes/resolves the ticket through the configured tracker adapter. If any criterion remains unmet, the ticket stays open and the run names the unmet criterion explicitly. A Parallel Task is different: after its commit, `parallel-execution` records `ready-for-review` and emits the worker report; the worker still does not mark it `accepted` or close it, because the Coordinator owns Task and Gate review.
 
 **Can I point it at all my tickets at once, or run several in parallel?**
 
