@@ -26,7 +26,7 @@ The **design tree** is the model of the subject: decisions with decisions hangin
 
 Inside a round every question arrives in a fixed shape: numbered and titled behind a `❓`, then the body, then the agent's recommended answer alone on a `➡️` line. That is what makes a round answerable by number — "1 yes, 2 the second option, 3 no, here's why" — instead of by quoting questions back. The format has one known rough edge: the recommendation sometimes argues *against* the question as it was worded, so agreeing with the recommendation means answering "no" to the question. When that happens, answer the recommendation and say so.
 
-The other half of the design is the split between facts and decisions. Facts are the skill's own job: when a frontier question needs something the environment can settle, it dispatches a sub-agent to go and find out rather than asking you. It does not block on that — only the questions downstream of a running exploration wait. Decisions are yours, and it must wait for them. An agent running `grilling` that answers its own decisions has broken the skill, not interpreted it liberally. The session ends when the frontier is empty, and it will not act on what you agreed until you confirm you have reached a shared understanding.
+The other half of the design is the split between facts and decisions. Facts are the skill's own job: when a frontier question needs something the environment can settle, the Agent looks it up rather than asking you. If the current harness genuinely provides isolated workers, an independent fact lookup may be delegated while unrelated frontier questions continue; without that capability, the lookup is done synchronously before dependent questions proceed. Parallelism is an optimisation, not a prerequisite. Decisions are yours, and the Skill must wait for them. An Agent running `grilling` that answers its own decisions has broken the Skill, not interpreted it liberally. The session ends when the frontier is empty, and it will not act on what you agreed until you confirm you have reached a shared understanding.
 
 The honest limit: the frontier is the agent's judgement, not a computed graph. It can put two questions in one round and only afterwards discover that one answer should have changed the other. There is no guard against that beyond telling it, which reopens the affected branch in the next round.
 
@@ -78,8 +78,8 @@ A real and unfixed rough edge, reported across harnesses and models: a skill tha
 - When multiple independent frontier questions exist, they arrive together in the same round rather than being serialized one by one.
 - Nothing in a round needs another question in the same round answered first.
 - Later rounds ask things the first round could not have asked.
-- It goes and looks facts up — reading files, dispatching a sub-agent — rather than asking you something it could have found out.
-- Research running in the background does not stall the round; only the questions that depend on it wait.
+- It goes and looks facts up itself — directly or through an actually available isolated worker — rather than asking you something it could have found out.
+- When independent lookup can really run concurrently, only dependent questions wait; without parallel capability, the Skill resolves the fact synchronously instead of pretending a background task exists.
 - It stops at the end and asks you to confirm the understanding is shared, instead of starting work.
 - Question count stays high while round count stays low.
 

@@ -1,73 +1,60 @@
+# research
+
 ## What it does
 
-`research` answers a question by reading the sources that own the answer, then leaves a cited Markdown file in the repo. It works only from **primary sources** — official docs, source code, specs, first-party APIs — and follows every claim back to the source that owns it, so it will not repeat a blog post's account of an API when the API's own docs are reachable.
+`research` answers a focused engineering question from the sources that own the answer, then leaves a cited Markdown artifact that another session, ticket, spec, or reviewer can inspect.
 
-It does not answer you in the conversation. The output is a file, written where the repo already keeps such notes, with a link on each claim. That is the point: a document you can react to, hand to another agent, or throw away, rather than an answer that vanishes when the session ends.
+The defining contract is **primary-source research + durable cited output**. Background execution is optional; it is not part of the semantic definition of the Skill.
 
-## When to reach for it
+## When to use it
 
-Type `/research`, or the agent reaches for it automatically when a task turns into reading legwork.
+Use `research` when an engineering decision is waiting on a fact outside the current working tree, for example:
 
-Reach for it when the next step is *finding something out* from outside the working directory — how a third-party API behaves, what a spec actually says, whether a version claim holds — and you'd rather not stall your own thread doing the reading. What you need decides which skill:
+- how an external API or SDK actually behaves;
+- what an official specification requires;
+- whether a feature exists in a particular version;
+- what upstream source code does;
+- which documented limitation or compatibility boundary applies.
 
-| What you need | Reach for |
-| --- | --- |
-| An external fact a decision is waiting on | `research` |
-| A decision made *with* you, by interview | grilling |
-| A durable architecture decision, written into `CONTEXT.md` and ADRs | grill-with-docs |
-| To find out whether an approach works in your codebase | prototype |
-| A plan too big to hold in one session | wayfinder |
+If the open question is a decision to make with the user rather than a fact to establish, use `grilling` / `grill-with-docs`. If the question can only be answered by executing a local design, use `prototype`.
 
-The line between `research` and `grill-with-docs` is the **shelf life of what comes back**. Research produces short-lived assets — what this library's auth mechanism does as of this week. An ADR records a decision you keep. If what you are producing is a decision rather than a fact, you are grilling, not researching.
+## Execution model
 
-## Delegated legwork
+The Skill is harness-agnostic.
 
-The defining move is that the reading runs as a **background agent**. You keep working; it goes off, follows each claim to its primary source, writes one Markdown file, and reports back. Research is legwork you delegate, not thinking you outsource — you get a document to grill, plan, or design against, and you still make the call.
+1. First narrow the question to a checkable answer boundary.
+2. Prefer official documentation, specifications, first-party APIs and authoritative source code over secondary summaries.
+3. When the current harness genuinely provides an isolated/background worker and the research unit is independent, it may be delegated once so the caller can keep unrelated context clean. The delegated worker performs the research directly and must not recursively invoke `research` or create another research worker.
+4. When no isolated worker exists, perform the same work synchronously in the current context. Do not fail merely because a background-agent primitive is absent, and do not claim asynchronous work was started when it was not.
+5. Write one Markdown artifact. Cite the owning source for every material claim and mark unresolved points explicitly.
+6. Follow the repository's existing location convention for research/notes. If none exists, choose a sensible temporary or project location and report the exact path.
 
-The delegation is unguarded, and the background agent can spawn a further background agent of its own. This is the skill's best-documented rough edge.
+Parallelism changes scheduling, not evidence quality or completion criteria.
 
-Where the file lands is decided by the repo, not by the skill: it matches whatever convention already exists for notes, and if there is none it picks somewhere sensible and tells you where. It writes one file per run.
+## Source discipline
 
-## Common questions
+A source is useful here because it is authoritative for the claim being made, not because it ranks highly in search results. Prefer the narrowest source that owns the fact:
 
-**It spawned a second research agent — is that meant to happen?**
+- an API claim → official API documentation or implementation source;
+- a language/runtime rule → official specification or documentation;
+- a version-specific behaviour → release notes, tagged source or versioned documentation;
+- an upstream implementation fact → the upstream repository at the relevant revision.
 
-No. This is an open bug, [issue #530](https://github.com/mattpocock/skills/issues/530). The skill tells its caller to spin up a background agent but does not restrict the agent type, so the agent it spawns is a `general-purpose` one that holds the `Agent` tool and the same instructions — and fires them again. One reporter measured a single research task costing roughly 450k tokens across three overlapping runs, with the duplicate finishing half an hour later entirely out of view. It reproduces outside Claude Code too; the same nesting was confirmed in Codex with GPT-5.6-sol. There is no shipped fix. Users have patched their own installed copy with a line telling an agent that is already a subagent to do the work itself, which helps but is instruction-level, not structural. Watch your background task list after invoking, and stop the duplicate.
+Secondary material can help locate the primary source but should not silently replace it when the primary source is available.
 
-The opposite failure exists as well: if your own global instructions forbid an agent from re-delegating work, the background agent will politely decline the task and the skill quietly does nothing.
+## Output contract
 
-**Where should the file live — and should I commit it?**
+A successful run leaves enough evidence for another Agent or human to verify the answer without replaying the whole investigation:
 
-The skill puts the file where the repo already keeps notes and does not have an opinion beyond that. The community one is fairly settled: ADRs are kept, research files are not. The sharpest version of it, from a Discord thread on exactly this question: "ADRs yes. Everything else archive or delete after done. It otherwise becomes cruft of work and can poison future repo reads if you've drifted away from the spec/research." A research file records what was true on the day it was written, so a stale one is worse than none. On balance these artifacts don't really belong in git, and there is no canonical home for them — people use Obsidian, a separate knowledge repo, or the issue tracker instead.
+- the exact question;
+- concise findings;
+- source links or stable source locations attached to the claims they support;
+- relevant version/revision context;
+- unresolved uncertainty and what would settle it;
+- the artifact path.
 
-**What counts as a "high-trust" primary source, and who decides?**
-
-The model does. The skill names the *kinds* of source that qualify — official docs, source code, specs, first-party APIs — and there is no allowlist, no domain gate, and no verification pass. This was the loudest objection when the skill was first proposed and it has never been answered publicly: "Five research subagents pointed at junk just gives you five confident wrong answers faster. How are you gating what counts as high-trust sources?" The mitigation you actually have is the citation on each claim. Follow two or three of them. If they land on a summary of the thing rather than the thing, the run failed at its one job.
-
-**Does a later session reuse what an earlier run found?**
-
-No. Nothing auto-loads a past research file; it is a document sitting in the repo until a human or a skill points at it. This was raised early as the strongest challenge to the design — "the value's the markdown becoming context the agent re-reads later, not the fetch itself. A write-once dead file is just a fancy search" — and the shipped skill does not solve it. In practice the file earns its keep by being fed into the next step deliberately: attach it to a spec, quote it into a grilling session, point a ticket at it.
-
-**Why not just ask the agent to go read the docs?**
-
-You can, and a two-line prompt saying exactly that was the practice this skill replaced. Two things the skill buys over the prompt: it runs in the background so your session keeps its context clean, and the primary-source constraint and the cited-file output come out the same way every time rather than however you happened to phrase it. Against a harness's own deep-research mode, the difference is the artifact and the source discipline, not the search. If a two-line prompt gets you what you need on a small question, use the two-line prompt.
-
-**When does it stop reading?**
-
-There is no stopping criterion in the skill, and this shows up as two complaints that look opposite but are the same gap: agents that go far too deep, and agents that cover a topic broadly while missing the one specific detail that mattered. One practitioner put it as "deep-research skills are a bit too deep sometimes. And telling an agent to research usually results in missing crucial details." Scoping is on you. A narrow, answerable question — one API, one behaviour, one version claim — comes back far better than "research X".
-
-**`/wayfinder` created research tickets — do I resolve those myself?**
-
-No, it now fires them for you. In the unreleased changes since v1.1, a charting session spawns a `/research` subagent per research ticket and burns them down in parallel, capturing findings on a throwaway `research/<name>` branch with a context pointer from the ticket. Research tickets are the one exception to wayfinder's one-ticket-per-session rule, because they are AFK — nothing waits on you. Two known snags with those branches: the subagent has been seen opening a draft PR from a branch that is never meant to merge ([issue #576](https://github.com/mattpocock/skills/issues/576)), and deleting the branch later breaks the context pointers the tickets hold.
-
-## It's working if
-
-- Your own session keeps going. If you are sitting watching it read, the delegation didn't happen.
-- Exactly one new background task appears. A second one with a near-identical name is the nesting bug.
-- One new Markdown file shows up, in the folder the repo already uses for notes, and the agent tells you the path.
-- Every claim in it carries a link, and following two at random lands you on an official doc, a spec, or the actual source file — not on someone's write-up of it.
-- You can make the decision you were stuck on from the file alone, without going back to the sources yourself.
+The research artifact is evidence for later engineering reasoning, not an architectural decision by itself. Durable decisions still belong in the project's normal spec/ADR/domain-model workflow.
 
 ## Where it fits
 
-A reach-for-it-anytime standalone that feeds the thinking skills rather than sitting in the build chain. Its file is something to take *into* the flow: grilling and grill-with-docs ask sharper questions when the facts are already on the table, and to-spec can synthesise against it. wayfinder is the one skill that invokes it directly, resolving each research ticket on its map with a `/research` subagent. For the whole map, see ask-matt.
+`research` is a standalone fact-finding capability that feeds `grilling`, `grill-with-docs`, `wayfinder`, `to-spec`, debugging and design work. `wayfinder` may schedule multiple independent research tickets concurrently when the current harness supports safe isolated execution; otherwise those tickets are resolved serially with the same research contract.
