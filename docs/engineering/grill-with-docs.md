@@ -64,7 +64,7 @@ Into the conversation only. This is the most substantive open complaint about th
 Yes. This is the right skill for a codebase with no ADRs, no domain language and no design principles — invoke it and say "help me document my repo". The community pattern pairs it with improve-codebase-architecture for building or repairing a `CONTEXT.md`. Expect to steer it: it will read code and ask you about what it finds, and you are the one who says which of the words already in the codebase are the right ones.
 
 **What should I do when the session ends?**
-The skill's closing message tends to be open-ended, which is a known rough edge. In the main flow the answer is to-spec, in the same conversation. If the change is small enough to build immediately, go straight to implement instead.
+The Skill now closes the phase explicitly after you confirm shared understanding. It reports the durable artifacts that changed, then recommends and stops: `implement` when the agreed change fits one focused implementation context; `to-spec` in the same conversation when the build spans contexts or needs a canonical build artifact before slicing; or no build step when the session was only domain/documentation cleanup. It does not start the next user-invoked Skill on your behalf.
 
 **Why is it called that?**
 Nobody is happy with the name. There is an open suggestion to rename it `grill-domain-model`, which describes the behaviour more honestly. Nothing has moved on it. If a rename ever lands, the docs page moves with it and the URL changes.
