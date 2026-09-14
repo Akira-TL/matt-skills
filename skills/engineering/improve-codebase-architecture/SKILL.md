@@ -1,6 +1,6 @@
 ---
 name: improve-codebase-architecture
-description: Scan a codebase for deepening opportunities, present them as a visual HTML report, then grill through whichever one you pick.
+description: Scan a codebase for deepening opportunities and present them as a visual HTML report; optionally continue into a grilling/design session for a candidate the user chooses.
 disable-model-invocation: true
 ---
 
@@ -57,7 +57,7 @@ End the report with a **Top recommendation** section: which candidate you'd tack
 
 See [HTML-REPORT.md](HTML-REPORT.md) for the full HTML scaffold, diagram patterns, and styling guidance.
 
-Do NOT propose interfaces yet. After the file is written, ask the user: "Which of these would you like to explore?"
+Do NOT propose interfaces yet. After the file is written, ask the user: "Which of these would you like to explore?" If the user asked for a report-only / no-grill run, stop after presenting the report and do not load `grilling` or `domain-modeling`.
 
 ### 3. Grilling loop
 

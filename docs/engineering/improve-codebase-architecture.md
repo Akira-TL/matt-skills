@@ -53,7 +53,7 @@ Picking a candidate starts a grilling session over it: constraints, what sits be
 
 **It grilled me for an hour about one idea instead of showing me options. Can I turn that off?**
 
-Yes — say so when you invoke it ("don't grill me, just show the report"). This is the loudest complaint the skill has. One user put it bluntly: they liked it as "a convenient way to get a thorough analysis of improvements," and after the grilling loop was added found it "borderline unusable," reporting sessions where it proposed a single solution and then asked "10's or 100's of questions." The design intent is that the report comes first and the grill only starts on a candidate you chose, but weaker models skip straight to interviewing you about the first idea they had. Reports in that thread vary sharply by model, and it is an open issue — the skill does not yet have a documented no-grill mode.
+Yes. Invoke it as a report-only / no-grill run. The canonical Skill now treats that as an explicit mode: it completes and opens the architecture report, then stops without loading `grilling` or `domain-modeling`. In the normal mode the report still comes first, and grilling starts only after you select a candidate to explore.
 
 **Does the HTML report need network access?**
 
