@@ -6,7 +6,7 @@ disable-model-invocation: true
 
 This skill takes the current conversation context and codebase understanding and produces a spec. Do NOT interview the user — just synthesize what you already know.
 
-The issue tracker and triage label vocabulary should have been provided to you — run `/setup-matt-pocock-skills` if not.
+The issue-tracker configuration should already exist. If it is missing, stop and tell the user to explicitly run the user-invoked `setup-matt-pocock-skills` Skill; to-spec must not start setup on the user's behalf or invent a tracker contract.
 
 ## Process
 
@@ -16,7 +16,7 @@ The issue tracker and triage label vocabulary should have been provided to you �
 
 Check with the user that these seams match their expectations.
 
-3. Write the spec using the template below, then publish it to the project issue tracker. Apply the `ready-for-agent` triage label - no need for additional triage.
+3. Write the spec using the template below, then publish it to the project issue tracker as a canonical source artifact. Do **not** put the spec itself into the `ready-for-agent` execution queue; `to-tickets` creates the executable slices and applies that workflow role to those tickets.
 
 <spec-template>
 

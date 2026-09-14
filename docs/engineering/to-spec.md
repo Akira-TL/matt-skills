@@ -19,7 +19,7 @@ Reach for it when the build is too big for one agent session and has to survive 
 
 ## Prerequisites
 
-`to-spec` publishes the spec as an issue, so setup-matt-pocock-skills must have configured a tracker and the triage-label vocabulary for this repo first. Either kind works: a real tracker like GitHub, or local markdown files under `.scratch/`, which is supported out of the box.
+`to-spec` publishes the spec through the repository's configured tracker, so the user-invoked `setup-matt-pocock-skills` Skill must already have established the tracker for this repo. If that configuration is absent, to-spec stops and tells you to run setup explicitly; it does not invoke setup itself. A real tracker such as GitHub or local markdown under `.scratch/` are both supported.
 
 ## The spec is a decision record
 
@@ -38,8 +38,8 @@ Those agreed seams then travel. tdd works only at pre-agreed seams, and code-rev
 **Where did `/to-prd` go?**
 It is this skill, renamed in v1.1. "Spec" is now the single through-line term, and the old `to-prd` slug is dead — reinstall under the new name. The pair that replaced the old vocabulary is *spec* and *tickets*: the spec is the destination and the decisions that fix it, the tickets are the execution steps that get there. If you pivot, delete the unfinished tickets and keep the spec.
 
-**Why does the spec get the `ready-for-agent` label? I don't want an agent implementing off it.**
-The label means "no further triage needed" — the document is complete enough for an agent to work from. It is an input designation, not a work order. But if you run AFK agents that poll for `ready-for-agent`, that distinction isn't visible to them, and they will happily try to build the whole spec in one run instead of picking up the ticket slices. This is the most-reported rough edge on the skill. Until it changes, exclude the parent spec explicitly in your AFK agent's prompt, or strip the label once `/to-tickets` has run.
+**Why doesn't the spec get `ready-for-agent` anymore?**
+Because `ready-for-agent` is an execution-queue role. The spec is the canonical source artifact that implementation tickets point back to; marking the parent spec executable lets polling Agents bypass `/to-tickets` and attempt the entire build in one run. `to-tickets` is the boundary that creates Agent-sized executable slices, and only those tickets receive the mapped `ready-for-agent` label.
 
 **Why not go straight from grilling to `/to-tickets` and skip the spec?**
 Often you should — the spec earns its step only on multi-session work. Where it pays is that the tickets are disposable and the spec isn't: each ticket is sized for one fresh context window and gets deleted or closed, while the spec stays as the one place the reasoning behind them lives. On a single-session change that buys you nothing, and you have paid an extra synthesis step where the model can drift. Go grilling → `/implement`.
