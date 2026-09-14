@@ -61,7 +61,16 @@ When the user states how something works, check whether the code agrees. If you 
 
 When a term is resolved, update `CONTEXT.md` right there. Don't batch these up — capture them as they happen. Use the format in [CONTEXT-FORMAT.md](./CONTEXT-FORMAT.md).
 
-`CONTEXT.md` should be totally devoid of implementation details. Do not treat `CONTEXT.md` as a spec, a scratch pad, or a repository for implementation decisions. It is a glossary and nothing else.
+Treat `CONTEXT.md` as a deliberately lossy domain glossary, not a transcript. A candidate entry is written only when all of these are true:
+
+1. **Project-specific domain concept** — future readers need this repository's meaning, not a definition of a general programming or industry term.
+2. **Resolved language** — the user has actually chosen what the concept means and what to call it; an open question does not belong in the glossary.
+3. **Reusable naming value** — the term is likely to recur at naming boundaries such as modules, APIs, schemas, statuses, issue titles, or future discussions.
+4. **Fits a glossary entry** — the concept can be defined in one or two sentences, with aliases or rejected synonyms where useful. If it needs implementation steps, rationale, workflow, acceptance criteria, or a multi-paragraph explanation, it belongs somewhere else.
+
+Before appending a term, search the active `CONTEXT.md` for the same concept and nearby synonyms. Prefer editing, merging, renaming, or deleting the existing entry over adding another partially overlapping entry. When a new resolution supersedes old wording, remove or replace the stale glossary text in the same edit instead of preserving historical prose there.
+
+`CONTEXT.md` must remain devoid of implementation details, task history, specifications, decision rationale, meeting/session summaries, and general programming concepts. Decisions that clear the ADR bar go to ADRs; implementation contracts go to specs/tickets; unresolved material stays in the conversation. A healthy domain-modeling session may make `CONTEXT.md` shorter.
 
 ### Offer ADRs sparingly
 

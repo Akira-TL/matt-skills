@@ -41,7 +41,7 @@ The glossary and the ADR are held to different standards, and conflating them is
 
 Miss any one of the ADR's three tests and there is no ADR. An easily-reversed decision will just get reversed; an unsurprising one is nobody's question; one with no real alternative records that you did the obvious thing.
 
-The `CONTEXT.md` rule is the one to actually hold onto, because it is the one that breaks in the field. **It is a glossary and nothing else.** Left unchecked, models treat "write to `CONTEXT.md`" as permission to persist every answer you give, and the file turns into a running spec — this is the most-reported problem with the skill, across several models.
+The `CONTEXT.md` rule is the one to actually hold onto, because it is the one that breaks in the field. **It is a glossary and nothing else.** The canonical Skill now applies a four-part write gate: an entry must be a project-specific domain concept, resolved language, reusable at future naming boundaries, and concise enough to fit a one- or two-sentence glossary definition. Before appending, it searches for the same concept or synonyms and prefers merge/rename/delete over accumulation. Implementation detail, task history, decision rationale, session summaries and general programming concepts are rejected at write time.
 
 ## Cross-referencing, and where it stops
 
@@ -52,7 +52,7 @@ The limit is worth knowing. It cross-references **code** and the committed `CONT
 ## Common questions
 
 **My `CONTEXT.md` is 500 lines. 1,000. 3,000. What do I do?**
-The size is a symptom, not the disease — the file has absorbed implementation detail and decisions that were never glossary material. The fix is a direct instruction: `/grill-with-docs make my CONTEXT.md more concise and remove any implementation details from it`. Run it against a bloated file and most of it goes. Only reach for a `CONTEXT-MAP.md` split once the file is genuinely lean and still covers two domains that a reader would not want to hold at once; splitting a bloated file just gives you several bloated files. The skill's guidance here is not yet strong enough to prevent the growth in the first place, and the issue tracking that is still open.
+The size is a symptom, not the disease — the file has absorbed material that never met the glossary write gate. Run `/grill-with-docs make my CONTEXT.md concise and enforce the domain-modeling glossary gate`: remove implementation detail, task/session history, decision rationale and generic terminology; merge synonyms and overlapping definitions; keep only resolved project-specific concepts that still carry naming value. Only reach for a `CONTEXT-MAP.md` split once the glossary is genuinely lean and still covers distinct bounded contexts that a reader would not want to hold at once. Splitting an unpruned file only distributes the same drift.
 
 **Why is it `CONTEXT.md` and not `GLOSSARY.md`?**
 This is the most-argued naming question in the whole skill set and it has no settled answer. The case against the current name is good: if it is "a glossary and nothing else", `GLOSSARY.md` says so, and — as one reader put it — "with ai agents everything is context". The case for it is the map: `CONTEXT-MAP.md` pointing at several `CONTEXT.md` files reads naturally in a way `GLOSSARY-MAP.md` does not, and `context` is the standing DDD word for a bounded area of the model. At least one person maintains a local fork purely to rename the file. You can do the same, but every other skill in the set looks for `CONTEXT.md`, so a rename means patching all of them.
