@@ -72,9 +72,9 @@ Partly, and less than the launch reactions assumed. It reads the repo before it 
 
 Nowhere in particular. It's a standalone, not a chain step. The common guess is `/grill-with-docs → /to-spec → /wizard`, and that sequence is fine, but the trigger is a manual procedure showing up, which can happen at any point: before you start, mid-build, or long after ship. It also works as a discovery tool — scoping surfaces the hidden prerequisites of a task, like the three API keys you hadn't thought about, before you commit to the work.
 
-**Does it work outside Claude Code?**
+**Does it depend on a particular Agent executor?**
 
-The artifact does, unconditionally: it's a plain bash script and it doesn't care what harness generated it. The skill itself is model-invoked, so it's listed everywhere — type `/wizard` in Claude Code or `$wizard` in Codex, or just describe the setup you're stuck on. Being model-invoked also keeps it clear of [#693](https://github.com/mattpocock/skills/issues/693), where Claude's desktop and web surfaces drop *user-invoked* skills from the model's listing and report them as not installed.
+No. The artifact is a plain bash script and does not care which executor generated it. The Skill is model-invoked; each executor decides how an installed Skill is exposed or manually invoked. Use that executor's normal Skill invocation mechanism, or simply describe the manual setup/migration task and let the model reach for `wizard` when it is available.
 
 **Didn't this used to be user-invoked?**
 

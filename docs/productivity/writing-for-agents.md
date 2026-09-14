@@ -1,6 +1,6 @@
 ## What it does
 
-`writing-for-agents` is the reference you write agent-facing documents against — a skill, an `AGENTS.md` / `CLAUDE.md`, a spec, a runtime prompt, a README, any doc an agent reads. The packaging differs; the writing does not: the same levers make each one predictable, so the agent takes the same *process* every run rather than producing the same output.
+`writing-for-agents` is the reference you write agent-facing documents against — a skill, canonical project Agent instructions, an executor-specific compatibility file such as `CLAUDE.md`, a spec, a runtime prompt, a README, any doc an agent reads. The packaging differs; the writing does not: the same levers make each one predictable, so the agent takes the same *process* every run rather than producing the same output.
 
 Its default move is deletion, not explanation. Ask an agent to write instructions for another agent and it spends most of its words explaining what the model already knows — every one of those lines is a **no-op**, paying context and changing no behaviour. This reference is the lens that finds them, which is why it earns its keep at least as often on a document you already have as on a blank file.
 
@@ -8,7 +8,7 @@ It was called `writing-great-skills` until v1.1. The rename tracks what it alway
 
 ## When to reach for it
 
-Type `/writing-for-agents`, or the agent reaches for it on its own when you're creating or editing a skill, or modifying `AGENTS.md` or `CLAUDE.md`.
+Invoke `writing-for-agents` through the current executor's Skill mechanism, or let the model reach for it when you're creating/editing a Skill, canonical project Agent instructions, an executor compatibility file, or another Agent-facing document.
 
 Reach for it by hand for everything else an agent reads: your docs, specs and tickets, system and AFK prompts. The test is one question — does an agent read this? — and it does not matter how the document gets in front of it, whether a pointer names it, a human pastes it, or it simply sits in the repo. For working out what a codebase actually contains in the first place, use grill-with-docs — this reference governs how a document reads, not what it knows.
 
@@ -46,8 +46,8 @@ Agents told to "streamline" optimise for length, because length is the thing the
 **How do I know when it's done?**
 When it works, and you can no longer find duplication, sediment or no-ops. There is no automated eval here; the check is a manual run plus the failure-mode vocabulary as a diagnostic. When a document misbehaves, that vocabulary is also the repair kit — name the failure mode first, then fix that.
 
-**Should this live in `CLAUDE.md` or somewhere else?**
-Ask which load you want to pay. `CLAUDE.md` loads into every session unconditionally; material behind a pointer costs only the pointer's own line until it fires. Anything that applies in one context out of ten is paying context load the nine other times.
+**Should this live in the canonical Agent instructions or behind a pointer?**
+Ask which load you want to pay. Material in the repository's always-loaded Agent instructions costs context on every turn; material behind a pointer costs only the pointer's own line until it fires. Anything that applies in one context out of ten is paying context load the nine other times. Executor-specific files such as `CLAUDE.md` should not become a second maintained source of the same standing project rule when the repository already has a canonical instruction file.
 
 **Do I need to rewrite my documents for each new model?**
 Mostly no, and over-fitting to one model is its own trap. Updating for a new model is usually another no-op pass rather than a rewrite.

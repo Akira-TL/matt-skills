@@ -4,7 +4,7 @@ General workflow tools, not code-specific.
 
 ## User-invoked
 
-Reachable only when you type them (Claude Code: `disable-model-invocation: true`; Codex: `policy.allow_implicit_invocation: false` in `agents/openai.yaml`).
+User-invoked only. Their Skill metadata disables implicit model invocation; each Agent executor decides how that installed user-invoked Skill is surfaced or manually invoked.
 
 - **[grill-me](./grill-me/SKILL.md)** — Get relentlessly interviewed about a plan or design until every branch of the design tree is resolved.
 - **[handoff](./handoff/SKILL.md)** — Compact the current conversation into a handoff document so another agent can continue the work.
