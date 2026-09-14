@@ -58,7 +58,7 @@ A known class of false negative comes from invocation metadata: a user-invoked s
 
 **It described a skill's behaviour, and the skill doesn't do that.**
 
-Also real, also unfixed. The router answers from its own one-line summary of each skill rather than from the skill. One detailed report tracked three instances in a single session, including a recommendation to skip to-spec on the strength of the gloss "turn the thread into a spec" — `to-spec/SKILL.md` was never opened. In every case it verified only after the user pushed back, and never on its own initiative. Skipping `to-spec` there cost a real seam check, and the tickets that came out undercounted the work. When the router asserts something load-bearing about another skill, ask it to open that `SKILL.md` first. The same applies to questions the map does not cover at all, such as whether to use plan mode: that answer is the model's inference, not something written down here.
+The Router used to answer from its own one-line summary of each Skill, which could drift from the canonical instructions. It now treats its flow map as a secondary source: before making a load-bearing recommendation about another Skill's trigger, prerequisites, side effects, output contract, or whether it can be skipped, it must load that Skill's canonical `SKILL.md` and verify the claim. This is deliberately selective rather than preloading the whole repository, and verification does not invoke the recommended user-invoked Skill. For questions the maintained map does not cover at all, the answer remains the model's inference and should be labelled as such rather than attributed to a Skill.
 
 **Why is it prose instead of a numbered checklist?**
 

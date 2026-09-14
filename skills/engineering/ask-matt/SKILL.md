@@ -10,6 +10,12 @@ You don't remember every skill, so ask.
 
 A **flow** is a path through the skills. Most paths run along one **main flow**, and two **on-ramps** merge onto it. Everything else is standalone, or a vocabulary layer that runs underneath.
 
+## Routing verification contract
+
+This Router is a secondary source over the Skills it names. Use the flow map below to narrow the candidates, but before making a load-bearing recommendation about another Skill's trigger, prerequisites, side effects, output contract, or whether it can be skipped, load that Skill's canonical `SKILL.md` through the current executor's Skill mechanism and verify the claim there. Load only the candidate Skills needed to resolve the branch; do not preload the whole repository.
+
+If the candidate Skill is installed at machine level but not currently exposed, use the executor's normal Skill-loading mechanism. If it is genuinely unavailable, report the capability gap rather than reconstructing its behavior from this Router's summary or model memory. Verification is not invocation: `ask-matt` still recommends and stops, and must not start a user-invoked Skill on the user's behalf.
+
 ## The main flow: idea → ship
 
 The route most work travels. You have an idea and want it built.
