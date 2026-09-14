@@ -63,7 +63,7 @@ Query the issue tracker and present three buckets, oldest first:
 
 When PRs/MRs are in scope, include external PRs/MRs in these buckets and tag each line `[PR/MR]` or `[issue]`. Discovery surfaces only *external* PRs/MRs (the tracker config defines who counts as external) — a collaborator's in-flight change is not triage work. This filter is discovery-only; an explicitly named PR/MR is always triaged regardless of author.
 
-Show counts and a one-line summary per item. Let the maintainer pick.
+Show counts and a one-line summary per item. Let the maintainer pick. This listing is a **selection surface only**, never sufficient evidence for a state change. If the maintainer asks for a bulk pass, process each selected item through the full specific-item flow below — including body, comments/history, labels and relevant code/diff — before changing that item's state.
 
 ## Triage a specific issue or PR/MR
 
