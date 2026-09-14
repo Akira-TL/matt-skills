@@ -73,6 +73,8 @@ Show counts and a one-line summary per item. Let the maintainer pick.
 
 3. **Verify the claim.** Before any grilling, check that the claim holds up. For a bug, reproduce it from the reporter's steps. For a PR/MR, confirm the diff does what it claims — check it out, run the relevant tests or commands. Report what happened: confirmed (with code path), failed, or insufficient detail (a strong `needs-info` signal). A confirmed verification makes a much stronger agent brief.
 
+   This is deliberately a shallow triage verification, not root-cause analysis. If a bug does not reproduce quickly, prefer `needs-info` rather than turning triage into an open-ended debugging session. Only when the maintainer explicitly chooses to investigate the root cause now, conditionally load and follow the model-invoked `diagnosing-bugs` Skill; its diagnosis can inform the triage recommendation, but it does not take ownership of triage state or labels.
+
 4. **Grill (if needed).** This branch conditionally depends on the model-invoked `grilling` and `domain-modeling` Skills. Load and follow both canonical Skills before asking the first round. If either cannot be loaded, report the missing dependency and stop this branch rather than improvising an interview or domain update. Once loaded, grill the request into shape a round at a time while sharpening domain terms and updating `CONTEXT.md`/ADRs inline as decisions land.
 
 5. **Apply the outcome:**
