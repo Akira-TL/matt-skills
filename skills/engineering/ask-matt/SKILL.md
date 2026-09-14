@@ -1,12 +1,11 @@
 ---
 name: ask-matt
-description: Ask which Matt flow fits your situation, including the Akira coordinated multi-Agent execution branch.
-disable-model-invocation: true
+description: Matt 标准工程流 Router；由 ask-akira 的 standard 分支或用户直接调用，根据当前工程状态选择 Matt canonical flow、专业 Skill 与 phase boundary。
 ---
 
 # Ask Matt
 
-You don't remember every skill, so ask.
+`ask-matt` 是 Matt Standard Flow Router。它由 `ask-akira` 的 `standard` 分支调用，也允许用户直接询问 Matt 方法体系中的下一步；它拥有 Matt flow map，不拥有 Akira 的 Execution Policy、特殊模式或正式 Parallel coordination。
 
 A **flow** is a path through the skills. Most paths run along one **main flow**, and two **on-ramps** merge onto it. Everything else is standalone, or a vocabulary layer that runs underneath.
 
@@ -14,7 +13,7 @@ A **flow** is a path through the skills. Most paths run along one **main flow**,
 
 This Router is a secondary source over the Skills it names. Use the flow map below to narrow the candidates, but before making a load-bearing recommendation about another Skill's trigger, prerequisites, side effects, output contract, or whether it can be skipped, load that Skill's canonical `SKILL.md` through the current executor's Skill mechanism and verify the claim there. Load only the candidate Skills needed to resolve the branch; do not preload the whole repository.
 
-If the candidate Skill is installed at machine level but not currently exposed, use the executor's normal Skill-loading mechanism. If it is genuinely unavailable, report the capability gap rather than reconstructing its behavior from this Router's summary or model memory. Verification is not invocation: `ask-matt` still recommends and stops, and must not start a user-invoked Skill on the user's behalf.
+If the candidate Skill is installed at machine level but not currently exposed, use the executor's normal Skill-loading mechanism. If it is genuinely unavailable, report the capability gap rather than reconstructing its behavior from this Router's summary or model memory. Verification is not invocation: `ask-matt` returns the Matt flow decision to its caller and must not start a user-invoked Skill on the user's behalf.
 
 ## The main flow: idea → ship
 
@@ -26,12 +25,12 @@ The route most work travels. You have an idea and want it built.
    - **`/prototype`** to answer the question with throwaway code,
    - **`/handoff`** back what you learned, and reference it from the original idea thread.
 3. **Branch — is this a multi-session build?**
-   - **Yes** → **`/to-spec`** (turn the thread into a spec), then **`/to-tickets`** to split it into tracer-bullet tickets, each declaring its **blocking edges**. On a local tracker that's one file per ticket under `.scratch/<feature>/issues/`; on a real tracker the edges become native blocking links. Then choose the execution mode:
-     - **Ordinary execution** → work the frontier with **`/implement`** per Matt ticket, using a fresh context between independent tickets when the previous ticket's conversational reasoning is no longer needed. The current harness decides how a fresh context is created.
-     - **Coordinated multi-Agent execution in an Akira environment** → hand the Matt tickets to the Akira **Parallel Coordinator**. It owns the Execution Map, Gates, Parallel Tasks, claim/lifecycle state, and cross-task integration review; workers still use Matt **`/implement`**, **`/tdd`**, and **`/code-review`** for the actual implementation.
-   - **No** → **`/implement`** right here, in the same context window.
+   - **Yes** → **`/to-spec`** (turn the thread into a spec), then **`/to-tickets`** to split it into tracer-bullet tickets, each declaring its **blocking edges**. On a local tracker that's one file per ticket under `.scratch/<feature>/issues/`; on a real tracker the edges become native blocking links. The Matt standard flow then reaches the implementation boundary at **`/implement`** for each claimable ticket.
+   - **No** → the Matt standard flow reaches **`/implement`** right here, in the same context window.
 
-   Either execution mode keeps Matt's engineering method intact: **`/implement`** builds each issue, conditionally loads **`tdd`** only when the slice has an observable behaviour plus an independent expected result, runs validation proportionate to the slice, creates the implementation commit, then runs **`code-review`** against that committed state. Review findings are corrected in follow-up commits and re-reviewed as needed; an ordinary ticket closes only after its acceptance criteria are established. Reach for **`tdd`** on its own when you just want to build a concrete behaviour test-first without a full spec, and **`code-review`** on its own whenever you want to review a branch or PR against a fixed point.
+   **`/implement`** builds each issue, conditionally loads **`tdd`** only when the slice has an observable behaviour plus an independent expected result, runs validation proportionate to the slice, creates the implementation commit, then runs **`code-review`** against that committed state. Review findings are corrected in follow-up commits and re-reviewed as needed; an ordinary ticket closes only after its acceptance criteria are established. Reach for **`tdd`** on its own when you just want to build a concrete behaviour test-first without a full spec, and **`code-review`** on its own whenever you want to review a branch or PR against a fixed point.
+
+   When `ask-matt` was reached from `ask-akira`, return this implementation boundary to `ask-akira`; ordinary versus coordinated multi-Agent execution is Akira Execution Policy, not part of the Matt flow map.
 
 ### Context hygiene
 
@@ -39,15 +38,11 @@ Keep steps 1–3 in the same working context while that context remains reliable
 
 Independent `/implement` tickets normally start from a fresh context and durable artifacts — ticket, Source Spec and ADRs — rather than inheriting the previous ticket's conversational history. How the current harness creates, clears or compacts context is an executor detail, not part of Matt's engineering method.
 
-## Akira extensions
+## Scope boundary
 
-The Akira fork keeps its engineering deltas in this same repository so they stay next to the Matt flows they extend:
+`ask-matt` 只拥有 Matt standard engineering flow。Akira-wide routing 与 Execution Policy 由 `ask-akira` 持有；持久多 Agent 协作由 `parallel-coordinator` / `parallel-execution` 按各自调用契约持有。
 
-- **`/ask-akira`** — user-invoked execution-policy override for `rapid`, `emergency`, and `competition`. It trims ceremony around Matt; it does not replace Matt's specialist skills.
-- **`/parallel-coordinator`** — user-invoked coordination layer for multi-Agent execution when the work needs an Execution Map, Gates, claimable Parallel Tasks, a dynamic frontier, and cross-task acceptance.
-- **`parallel-execution`** — model-invoked worker protocol used only when the current work item is a Parallel Task. It owns claim/lifecycle/reporting. When loaded from an already user-invoked `implement`, it returns to that original implementation flow after coordination preflight; when entered independently, it must not start user-invoked `implement` on the user's behalf.
-
-These remain beta under `skills/in-progress/`: they are part of our Matt fork, not a separate Engineering product repository.
+Matt flow 到达实现或协调边界时，把边界返回给 `ask-akira`，不要在这里决定 Akira policy。这样 Matt 方法保持可复用，同时避免建立第二个 Primary Router。
 
 ## On-ramps
 

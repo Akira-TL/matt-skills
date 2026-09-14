@@ -1,91 +1,53 @@
-## What it does
+## 它做什么
 
-`ask-matt` is the router over the skills in this repo. You describe the situation you are in — an idea you cannot start, a pile of incoming bug reports, a session that has run long — and it names the skill or the sequence of skills that fits, plus where the human decisions in that sequence sit.
+`ask-matt` 是 Matt Standard Flow Router。它由 `ask-akira` 的 `standard` 分支按需加载，也允许用户直接询问 Matt 方法体系中的下一步。它负责 Matt flow map 与 phase boundary，不拥有 Akira 的 Execution Policy、特殊模式或正式 Parallel coordination。
 
-It recommends and stops. It does not grill, write a spec, open a file or fire the skill it just named; what you get back is the next thing to type, and you type it. This Akira-maintained Matt series keeps the flow as the engineering backbone and carries its Akira execution extensions in the same repository: `/ask-akira` provides explicit rapid/emergency/competition execution policy, while `/parallel-coordinator` plus `parallel-execution` add coordinated multi-Agent execution without replacing Matt planning, TDD, review, or implementation.
+它是其他 Matt Skill 的 secondary source：涉及某个 Skill 的触发条件、前置条件、副作用、输出契约或能否跳过时，必须实际加载该 Skill 的 canonical `SKILL.md` 再做关键判断。
 
-## When to reach for it
+## 标准主流程
 
-You invoke this by typing `/ask-matt` — the agent won't reach for it on its own.
+Matt 标准工程流的主路径是：
 
-| Your situation | What the router gives back |
-| --- | --- |
-| An idea, and no idea where to start | The head of the main flow, whether the build is small enough to skip the spec, and after `to-tickets` whether execution is ordinary or coordinated multi-Agent |
-| Bugs and requests arriving from other people | The triage on-ramp, and why tickets you generated yourself don't belong on it |
-| Two skills that look interchangeable | The line between them, and it is usually one concrete test rather than a matter of taste. grill-me or grill-with-docs turns on whether you are in a working directory; grill-with-docs or wayfinder turns on whether the effort fits one session |
-| A long session and a decision about the context | The ordered tree over the five options at a phase boundary |
-| A skill you have already picked | Nothing useful. Invoke that skill directly. |
+1. 工作目录中的新想法通常从 `grill-with-docs` 澄清；没有工作目录时使用 `grill-me`。
+2. 需要可运行代码或可见 UI 才能回答的设计问题，使用 `prototype` 形成可验证答案。
+3. 多会话构建先进入 `to-spec`，再由 `to-tickets` 形成带 blocking edges 的实现 Ticket；小范围工作可以直接到达 `implement` 边界。
+4. `implement` 根据真实 seam 条件按需加载 `tdd`，完成实现与验证后对 committed state 使用 `code-review`，普通 Ticket 只有在 Acceptance Criteria 闭环后才关闭。
 
-## Prerequisites
+`ask-matt` 到达实现边界后只返回 Matt flow 决策。普通执行、正式多 Agent 协作以及 rapid / emergency / competition 等 Execution Policy 由 `ask-akira` 决定。
 
-The router names skills; it does not install them. Everything it points at has to be installed for the recommendation to be actionable. Its maintained map is the stable Engineering / Productivity set plus the explicitly maintained `ask-akira`, `parallel-coordinator`, and `parallel-execution` extensions; it does not scan arbitrary installed skills.
 
-Repository setup is conditional rather than global. Triage, `to-spec`, `to-tickets` and wayfinder need the repository's tracker/workflow configuration when they use those surfaces; `implement` needs it only when the selected work item actually lives on that tracker. TDD, diagnosing-bugs, codebase-design and other standalone methods can run without setup. If a recommended branch needs missing repository configuration, the target Skill fails closed and asks the user to run setup explicitly.
+## On-ramp
 
-## Flows, not skills
+- 外部进入的 bug 或 feature request → `triage`。
+- 难定位、间歇性或回归型故障 → `diagnosing-bugs`。
+- 大到单次会话无法看清路径的工作 → `wayfinder`，先解析 decision tickets，再回到 `to-spec`。
+- 代码库健康与结构改善 → `improve-codebase-architecture`；具体模块边界与 seam 设计使用 `codebase-design`。
 
-The word the skill gives you to think with is **flow**: a path *through* the skills, not a single one. Naming your situation places you on a flow at a step, which is a different answer from "here is the skill that matches your keywords". Four kinds of route exist, and the skill itself carries them in full:
+## Phase boundary
 
-- **The main flow**, idea to ship. Grill, spec, tickets, implement, review, with three branches inside it: a prototype detour when a question needs runnable code to settle; the spec-and-tickets split, which only earns its cost when the build spans more than one session; and, after `to-tickets`, an execution-mode split between ordinary `/implement` runs and Akira coordinated multi-Agent execution. Inside implement, TDD is conditional on having observable behaviour and an independent expected result rather than being ceremony for every slice.
-- **Akira execution extensions**, still inside this fork: `/ask-akira` changes execution policy only when the user explicitly requests rapid/emergency/competition, while `/parallel-coordinator` and `parallel-execution` add durable multi-Agent coordination around the existing Matt implementation loop.
-- **On-ramps**, for a situation that generates work and then merges onto the main flow: incoming bug reports, something broken, or an effort too foggy and too large to hold in one session.
-- **Standalones**, off every flow, reached for on their own terms — the prototype, the questionnaire, the merge conflict you are already sitting in.
-- **A vocabulary layer underneath**, the two references the other skills pull in when the words rather than the process are the problem.
+阶段之间根据语义选择：继续当前上下文、Fresh context、Handoff artifact、Isolated worker 或 Summary transfer。具体命令与 Agent harness 机制只是执行适配，不属于 Matt 方法本身。
 
-## The phase boundary
+独立 `/implement` Ticket 通常依赖 Ticket、Source Spec 与 ADR 等 durable artifact，而不是继承上一张 Ticket 的全部会话推理。
 
-The other idea it hands you is the **phase boundary**. A phase is a coherent chunk of work — grilling, implementation, review, QA — and the boundary between two of them is where context strategy belongs. Matt chooses the semantic move; the current Agent harness chooses the concrete mechanism.
+## Standalone 与 vocabulary
 
-| Move | Take it when |
-| --- | --- |
-| **Continue** | The next phase materially needs the full current reasoning and the context remains reliable |
-| **Fresh context** | Durable artifacts contain everything the next phase needs, so prior conversational history is disposable |
-| **Handoff artifact** | Work must travel to another harness, directory/repository, collaborator, or independently resumable thread |
-| **Isolated worker** | A separable side task can run without steering and the current harness genuinely provides isolation |
-| **Summary transfer** | The next phase still needs selected reasoning but carrying the full context is undesirable |
+`resolving-merge-conflicts`、`research`、`to-questionnaire`、`wizard`、`wait-what`、`teach` 等能力按各自 canonical 触发条件独立使用；`domain-modeling` 与 `codebase-design` 提供其他工程流共享的领域语言与模块设计 vocabulary。
 
-Commands such as `/clear`, `/compact`, new-session/fork controls and sub-agent tools are possible executor-specific adapters for those moves; they are not universal Matt requirements. The decision order still prefers preserving primary-source reasoning when it is genuinely needed, and otherwise sheds context deliberately rather than by a fixed token threshold.
+Repository-stateful 流程需要 tracker / workflow / domain 配置且配置缺失时，按目标 Skill 的规则让用户显式运行 `setup-matt-pocock-skills`。TDD、debugging、codebase-design 等不依赖这些配置的独立方法不把 setup 当通用前置条件。
 
-## Common questions
+## 调用边界
 
-**Isn't there just a list of the skills in the right order?**
+`ask-matt` 允许模型或用户调用，但 Router 自身只返回下一跳：
 
-People keep asking for one in the README. This skill is that list — it is what it exists for. A static table would say `wayfinder → to-spec → to-tickets → implement → code-review` and be wrong for most situations, because the interesting parts are the branches — is there a codebase, does the build span sessions, can this question be settled by talking. The honest cost is that the router is hand-maintained and lags the repo. `/grilling` and `/resolving-merge-conflicts` both shipped long before the router named them.
+- 目标是 model-invoked Skill 时，调用方可按真实需要继续加载 canonical Skill。
+- 目标是 user-invoked Skill 时，只向用户给出明确下一步，不替用户启动。
+- Skill 真正不可用时报告 capability gap，不从 Router 摘要或模型记忆重建其方法。
 
-**It told me half the skills aren't installed.**
+普通软件工程入口由 `ask-akira` 持有。用户若只想询问 Matt 标准方法体系，也可以直接调用 `ask-matt`。
 
-A known class of false negative comes from invocation metadata: a user-invoked skill can be absent from the model-visible skill list even though it is installed. The router must not treat the current prompt-visible list as an exhaustive installation inventory. Check the machine registry at `~/.agents/skills/<name>` when availability matters; if the registry entry exists, the current executor decides how that installed skill is exposed or invoked.
+## 它正常工作的标志
 
-**It described a skill's behaviour, and the skill doesn't do that.**
-
-The Router used to answer from its own one-line summary of each Skill, which could drift from the canonical instructions. It now treats its flow map as a secondary source: before making a load-bearing recommendation about another Skill's trigger, prerequisites, side effects, output contract, or whether it can be skipped, it must load that Skill's canonical `SKILL.md` and verify the claim. This is deliberately selective rather than preloading the whole repository, and verification does not invoke the recommended user-invoked Skill. For questions the maintained map does not cover at all, the answer remains the model's inference and should be labelled as such rather than attributed to a Skill.
-
-**Why is it prose instead of a numbered checklist?**
-
-A fair complaint, filed as an open issue arguing that most of the routing is deterministic and the narrative makes it hard to scan. Nothing stops you asking for the compressed form — "just give me the sequence" gets you the sequence. What the prose is carrying is the conditional half: the branches, where a human decision is expected, and where context should continue, restart, hand off, isolate a side task or transfer a summary. A flat checklist drops exactly that.
-
-**Can it route over my own skills, or another author's?**
-
-Not generically. Three separate proposals have asked for a router that scans your local `skills/` directory and recommends from whatever is installed; `ask-matt` still does not do that. This fork has one deliberate integration point for Akira's Parallel Coordinator because that coordinator extends Matt's execution stage without replacing Matt's planning, TDD, review, or implementation methods.
-
-**It told me to edit a SKILL.md.**
-
-Editing an installed runtime Skill is not a durable project-local customization. Akira-managed Skills point into a shared remote checkout, so later source updates can replace those edits for every project using that Skill. Put project-specific standing behaviour in the project's Agent instructions or say it in the invocation. If the Matt Skill itself should change for everyone, change this canonical repository, review it as a product change, and publish that revision normally.
-
-**It named a skill I don't have, or missed one I do.**
-
-Check the changelog for a rename before assuming it is gone. `writing-great-skills` became writing-for-agents with no alias, `to-prd` became to-spec, and `pathfinder` became wayfinder. Four skills were retired outright into the skills that absorbed them: `ubiquitous-language`, `design-an-interface`, `qa` and `request-refactor-plan`. The reverse case is the router's own lag, above.
-
-## It's working if
-
-- It ends by naming what to type and stops there, instead of starting the work itself.
-- The route it gives back identifies the important phase boundaries and whether to continue, start fresh, hand off, isolate a side task or transfer a summary, rather than assuming one product's context commands.
-- Where two skills are close, it says which one and why the other is wrong for you.
-- Any claim it makes about another skill's behaviour shows up in the trace as it reading that skill's `SKILL.md`.
-- You recognise your own situation in what it hands back, rather than the nearest generic scenario.
-
-## Where it fits
-
-`ask-matt` is a **standalone router** that sits over the Matt set plus Akira's maintained execution extensions. It is never a step in a chain; it points into the chain, can identify `/ask-akira` when the user explicitly wants a special execution policy, and chooses the ordinary-versus-Parallel execution branch after `to-tickets`. From here you most often land on grill-with-docs, the head of the main flow, or triage, the on-ramp for work that arrived rather than work you started.
-
-It is a secondary source over the skills it describes. Where the router and a `SKILL.md` disagree, the `SKILL.md` is right.
+- 它只解释 Matt standard flow，不重新决定 Akira Execution Policy。
+- 关键推荐会实际核对目标 Skill 的 canonical `SKILL.md`。
+- flow 到达实现或协调边界后把边界返回给 `ask-akira`。
+- 它不会因为自己是 Router 就绕过 user-invoked Skill 的显式调用要求。

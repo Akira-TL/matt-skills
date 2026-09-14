@@ -10,7 +10,7 @@
 - `skills/deprecated/`：已弃用能力及迁移说明；当前为空时不为目录形式本身保留内容。
 - `docs/<bucket>/<skill>.md`：稳定 Skill 的人类说明；与 Skill 行为发生实质变化时同步更新。
 
-`ask-matt` 是 Matt 系列总 Router。新增、删除、重命名用户可达 Skill，或改变它们在工程流程中的关系时，必须同步检查并更新 `ask-matt`。
+`ask-akira` 是本产品的软件工程 Primary Router，拥有工程入口与 Execution Policy；`ask-matt` 只拥有 standard 模式下的 Matt flow map。新增、删除、重命名用户可达 Skill 或改变流程关系时，按实际 ownership 同步检查 `ask-akira`，涉及 Matt standard flow 时同时更新 `ask-matt`。
 
 ## 安装边界
 

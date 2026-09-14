@@ -1,84 +1,77 @@
 ---
 name: ask-akira
-description: 在需要快速交付、紧急修复或比赛冲刺时，用 Akira 的执行策略裁剪 Matt 的标准工程流程；默认开发仍使用 Matt。
-argument-hint: "rapid | emergency | competition [scope=task|session]"
-disable-model-invocation: true
+description: 软件工程任务的 Akira Primary Router；默认进入 standard Matt flow，需要快速交付、事故恢复、竞赛冲刺或正式多 Agent 协作时选择相应执行策略，并按需路由到 canonical engineering Skills。
+argument-hint: "[standard|rapid|emergency|competition] [scope=task|session]"
 ---
 
 # Ask Akira
 
-Matt skills 是标准工程能力层。`ask-akira` 只处理 Matt 标准流程在特殊时间约束下过重的情况：它改变路由、交互频率、并行方式和完成标准，不重写 Matt 已经做好的专业能力。
+`ask-akira` 是 Akira Engineering 的 Primary Router。它拥有软件工程任务的入口、Execution Policy 与跨流程协调；Matt Skills 继续拥有需求澄清、Spec/Ticket、实现、TDD、代码审查、缺陷诊断、领域建模等专业方法。
 
-## 1. 建立执行模式
+## 1. 选择 Execution Policy
 
-只有用户显式调用本 Skill 或明确要求切换到 `rapid`、`emergency`、`competition` 时才进入 Akira 模式。普通的“快一点”“赶紧”“今天要完成”“这个很急”只描述任务优先级，不自动切换执行模式。
+默认使用 `standard`。只有任务本身已经明确需要特殊执行权衡时才进入其他模式；单纯出现“快一点”“赶紧”“今天完成”等紧迫措辞，不足以改变模式。
 
-支持三个模式：
+- `standard`：使用 Matt 标准工程流，不额外裁剪 ceremony。
+- `rapid`：用户明确要求以更少 ceremony 换取更快交付，同时仍保持可维护性。
+- `emergency`：当前目标是恢复正在发生的故障、回归或事故，并优先限制 blast radius。
+- `competition`：存在比赛、hackathon、评审或演示截止时间，需要围绕可演示关键路径取舍。
 
-- `rapid`：以最少 ceremony 尽快交付仍可维护的软件。
-- `emergency`：尽快恢复正确行为，同时限制 blast radius。
-- `competition`：在明确截止时间前最大化完整、稳定、可演示的成果。
+用户显式指定模式时以用户选择为准。无法确定特殊模式是否真的成立时保持 `standard`，不要靠语气猜测。
 
-若用户调用 `/ask-akira` 但没有给出模式，询问一次要进入哪一个模式；不要根据紧迫措辞猜测。
+特殊模式的 `scope` 默认为 `task`；只有用户显式指定 `scope=session` 时才跨多个任务持续。`standard` 是普通工程默认，不需要额外模式状态。
 
-`scope` 默认为 `task`：当前任务完成后模式失效，后续开发重新回到 Matt。只有用户显式指定 `scope=session` 时，模式才跨多个任务持续到当前会话结束或用户明确退出。
+## 2. Standard 路由
 
-## 2. 锁定模式，隔离上下文
+`standard` 必须加载 canonical `ask-matt`，把 Matt 标准工程流的判断交给它；`ask-akira` 不复制它的 flow map。
 
-模式一旦建立，在其作用域结束前保持不变。新的紧迫性、风险、难度或截止时间信息可以改变当前模式内的优先级和验证强度，但不能隐式切换模式。
+- `ask-matt` 只负责 Matt standard flow：idea → clarification/spec/tickets → implementation/review，以及 bug、triage、wayfinder、prototype、phase boundary 等 Matt 方法关系。
+- `ask-matt` 返回当前 Matt flow 的下一跳或 execution boundary；Execution Policy、正式 Parallel 协作和 Akira 特殊模式仍由 `ask-akira` 拥有。
+- 若目标是 user-invoked Skill，遵守其调用边界，只向用户给出下一步；若目标允许 model invocation，则按真实需要加载 canonical Skill。
+- `ask-matt` 无法加载时，向 `akira` Router 报告能力缺口；不得从本文件或模型记忆重建 Matt flow。
 
-用户明确切换模式时：
+## 3. 特殊模式按需加载
 
-- 保留已经确认的需求、事实、设计决定、代码状态和产物；这些是 **Work State**。
-- 用新模式完全替换旧模式的规划、交互、验证和速度权衡；这些是 **Execution Policy**。
-- 从切换点开始只读取新模式目录，不再把旧模式文件作为当前规则。
+进入 `rapid`、`emergency` 或 `competition` 后，只读取对应 `<mode>/ROUTER.md`。Router 只决定下一跳；当前分支未要求的目录不预读。
 
-## 3. 按需加载
+模式目录中的内容是对 Matt 标准工程方法的 delta。没有 Akira 覆盖的专业能力继续使用其 canonical Matt Skill，不为了让模式目录完整而复制正文。
 
-模式确定后只读取 `<mode>/ROUTER.md`。Router 只决定下一跳；只读取当前分支明确要求的文件。
+模式一旦建立，在作用域结束前保持不变。新的风险、难度或截止时间信息可以改变该模式内的优先级和验证强度，但不隐式切换模式。用户明确切换时保留已经确认的需求、事实、设计决定、代码状态和产物，只替换 Execution Policy。
 
-- 不预读整个模式目录。
-- 不读取其他模式目录来比较差异。
-- 不因为目录结构存在某个文件就自动加载它。
-- 到达真实工作边界后再回到当前模式的 Router 重新分类下一步。
+## 4. 专业能力归属
 
-模式目录中的文件是 Akira 对标准流程的 **delta**。没有 Akira 路由或覆盖的能力继续使用 Matt；不要为了让目录“完整”而复制 Matt 的正文。
+Akira 负责路由，不接管专业方法。需要时按 canonical Skill 的真实触发条件加载，例如：
 
-## 4. 与 Matt 协作
+- `grilling` / `domain-modeling`：存在阻塞性的产品或领域决策。
+- `prototype`：必须通过可运行逻辑或可见 UI 才能决定设计。
+- `diagnosing-bugs`：需要建立 tight feedback loop、缩小复现并定位根因。
+- `tdd`：存在可观察行为与独立 expected result，当前流程选择完整 TDD。
+- `codebase-design`：测试 seam 或模块接口本身是设计问题。
+- `code-review`：当前流程需要完整双轴审查。
+- `research`、`resolving-merge-conflicts`、`wizard`：任务满足各自 canonical 触发条件。
 
-Matt 继续负责能力本身的方法论。Akira Router 可以直接交给当前 harness 中可由模型使用的 Matt Skill，例如：
+任何依赖只有在其 canonical Skill 实际加载后才能声称已经执行；缺失的 required dependency 必须 fail closed。
 
-- `grilling` / `domain-modeling`：确实存在阻塞性产品或领域决策时。
-- `prototype`：必须通过可运行的逻辑或可见 UI 才能做决定时。
-- `diagnosing-bugs`：需要系统化建立反馈环、定位根因时。
-- `tdd`：当前模式明确选择完整 TDD 时。
-- `codebase-design`：测试 seam 或模块接口本身是设计问题时。
-- `code-review`：当前模式明确要求 Matt 的完整双轴审查时。
-- `research`、`resolving-merge-conflicts`、`wizard`：任务形态与其原始触发条件一致时。
+## 5. Parallel 协作
 
-Matt 的 user-invoked Skill 不是 Akira 可以隐式调用的依赖。Akira 若要省略或替代其 ceremony，应在自己的分支文件中定义该特殊模式所需的更短流程。
+Execution Policy 与 Parallel coordination 是正交层。需要 Execution Map、Gate、可领取 Parallel Task、跨会话 Ownership、动态 frontier 或跨任务验收时，正式协调入口是 user-invoked `parallel-coordinator`；`ask-akira` 可以识别并推荐它，但不能替用户启动。
 
-## 5. 正式 Parallel 协作
+进入 Parallel 后：
 
-Rapid / Emergency / Competition 的模式策略可以继续使用多 Agent，但模式与 Parallel 是两个正交层：模式决定**做什么、优先级和验证强度**，Parallel 只决定**如何让多个 Worker 通过 Tracker 安全协作**。
+- 当前 Execution Policy 继续有效；
+- Coordinator 拥有 Execution Map、Gate、Task 与跨任务验收；
+- model-invoked `parallel-execution` 拥有 Worker claim、Ownership、生命周期与阶段汇报；
+- 实际实现继续复用 Matt 的 implement / tdd / code-review 契约，不建立第二套工程方法。
 
-当协作需要 Execution Map、Gate、可领取 Parallel Task、跨会话 Ownership、动态 frontier 或 Coordinator 双层验收时，路由到 user-invoked 的 `/parallel-coordinator`：
+仅有当前父 Agent 的短时只读并行或完全隔离的小任务时，使用当前 harness 已真实提供的并行能力即可；没有并行能力时保持串行，不伪造 Parallel 状态。
 
-- 把当前 mode 与已经确认的 Work State 作为上游来源交给 Coordinator，不因为进入 Parallel 补造 Matt Spec/Ticket。
-- 当前 Akira mode 不切换；Coordinator 与 Worker 都继续遵守该 mode 的 Execution Policy。
-- Worker 任务由 model-invoked 的 `parallel-execution` 负责 claim、生命周期和阶段汇报。
-- Parallel 不规定 Worker 必须由哪一种 Agent harness、CLI、进程模型或 worktree 管理器启动；实际执行只使用当前环境已经提供且可验证的能力。
+## 6. 风险与完成边界
 
-若只是当前父 Agent 临时并行两个只读查找或完全隔离的短任务，不需要持久 Tracker 状态，则按当前模式的 coordination Router 使用当前 harness 已有的并行能力；没有并行能力时保持串行，不为此建立 Execution Map。
+Execution Policy 只改变流程成本、优先级和验证强度，不构成安全豁免。数据迁移、权限、安全、不可逆写入或广泛 blast radius 等风险只会提高验证强度。
 
-## 6. 风险只提高验证强度
-
-Akira 模式控制的是执行策略，不是安全豁免。当前工作暴露出数据迁移、权限、安全、不可逆写入、广泛 blast radius 或其他高风险因素时，在当前模式内提高验证强度；不要仅因为追求速度而把已经识别出的风险降级。
-
-## 7. 进入模式
-
+- `standard` → 加载 `ask-matt`。
 - `rapid` → 读取 [`rapid/ROUTER.md`](rapid/ROUTER.md)。
 - `emergency` → 读取 [`emergency/ROUTER.md`](emergency/ROUTER.md)。
 - `competition` → 读取 [`competition/ROUTER.md`](competition/ROUTER.md)。
 
-模式作用域结束后停止使用本 Skill 的执行策略；标准开发重新由 Matt 路由。
+特殊模式作用域结束后回到 `standard`；整个软件工程入口仍由 `ask-akira` 持有。

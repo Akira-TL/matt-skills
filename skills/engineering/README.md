@@ -6,8 +6,6 @@ Skills I use daily for code work.
 
 User-invoked only. Their Skill metadata disables implicit model invocation; each Agent executor decides how that installed user-invoked Skill is surfaced or manually invoked.
 
-- **[ask-akira](./ask-akira/SKILL.md)** — Akira 执行策略入口；显式切换 rapid、emergency 或 competition 模式，并继续复用 Matt 的专业工程能力。
-- **[ask-matt](./ask-matt/SKILL.md)** — Ask which skill or flow fits your situation. A router over the user-invoked skills in this repo.
 - **[grill-with-docs](./grill-with-docs/SKILL.md)** — Grilling session that also builds your project's domain model, sharpening terminology and updating `CONTEXT.md` and ADRs inline.
 - **[triage](./triage/SKILL.md)** — Move issues through a state machine of triage roles.
 - **[improve-codebase-architecture](./improve-codebase-architecture/SKILL.md)** — Scan a codebase for deepening opportunities, present them as a visual HTML report, then grill through whichever one you pick.
@@ -21,6 +19,8 @@ User-invoked only. Their Skill metadata disables implicit model invocation; each
 
 Model- or user-reachable (rich trigger phrasing so the model can reach for them).
 
+- **[ask-akira](./ask-akira/SKILL.md)** — Akira Engineering Primary Router；默认选择 standard，并在需要时切换 rapid、emergency、competition 或识别正式 Parallel coordination 边界。
+- **[ask-matt](./ask-matt/SKILL.md)** — Matt Standard Flow Router；由 ask-akira 的 standard 分支或用户直接调用，返回 Matt flow 的下一跳与 phase boundary。
 - **[prototype](./prototype/SKILL.md)** — Build a throwaway prototype to answer a design question: a single shareable HTML file for state/logic, or several toggleable UI variations.
 
 - **[diagnosing-bugs](./diagnosing-bugs/SKILL.md)** — Disciplined diagnosis loop for hard, non-trivial bugs and performance regressions: build a feedback loop that goes red on this bug → minimise → hypothesise → instrument → fix → regression-test. Quick factual error explanations should stay direct rather than auto-escalating here.

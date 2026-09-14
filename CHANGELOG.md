@@ -4,6 +4,7 @@
 
 ### Changed
 
+- 将 `ask-akira` 提升为稳定 Engineering Primary Router：普通软件工程默认进入 `standard` 并加载 `ask-matt` 的 Matt standard flow；`rapid`、`emergency`、`competition` 与正式 Parallel coordination 的 Execution Policy 归 `ask-akira`，`ask-matt` 降为可由模型调用的 Standard Flow Router，不再拥有整个工程产品入口。
 - 将 `Akira-TL/matt-skills` 从上游产品分发模型切换为 Akira 自主维护的 Matt 系列 Skill 仓；上游 `mattpocock/skills` 仅作为选择性参考来源。
 - 移除 Claude plugin、marketplace、Changesets/npm 版本链、上游 release workflow、本地执行器 Skill 链接脚本与 aihero 专属发布约束。
 - 正式运行时安装统一由 `akira` Router 从远端 `Akira-TL/matt-skills` GitHub source 执行。

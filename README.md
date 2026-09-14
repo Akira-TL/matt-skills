@@ -16,7 +16,7 @@ docs/                # 稳定 Skill 的人类说明
 scripts/list-skills.sh
 ```
 
-`ask-matt` 是 Matt 系列总 Router。软件工程任务通常先从它进入，再按真实需要路由到 `grill-with-docs`、`to-spec`、`to-tickets`、`implement`、`tdd`、`code-review`、`diagnosing-bugs` 等能力。
+`ask-akira` 是软件工程 Primary Router：普通任务默认进入 `standard`，由 `ask-matt` 继续解析 Matt 标准工程流；`rapid`、`emergency`、`competition` 与正式 Parallel 协作的 Execution Policy 由 `ask-akira` 持有。具体需求澄清、Spec/Ticket、实现、TDD、代码审查、缺陷诊断等方法继续由各自 canonical Skill 持有。
 
 ## 安装
 
@@ -48,4 +48,4 @@ uv run python ~/.agents/skills/akira/scripts/skills.py install \
 ./scripts/list-skills.sh
 ```
 
-仓库级结构检查与 Git 提交使用 Akira Guard；Lattice 只保留自身静态配置与仓库拓扑检查。稳定 Skill 的行为变化应同步对应 `docs/` 页面；改变用户可达 Skill 或工程流程关系时同步更新 `ask-matt`。
+仓库级结构检查与 Git 提交使用 Akira Guard；Lattice 只保留自身静态配置与仓库拓扑检查。稳定 Skill 的行为变化应同步对应 `docs/` 页面；改变工程入口或 Execution Policy 时同步更新 `ask-akira`，改变 Matt standard flow 时同步更新 `ask-matt`。
