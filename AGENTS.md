@@ -46,6 +46,8 @@ uv run python ~/.agents/skills/akira/scripts/skills.py install \
 - 每个 Skill 只有一个 canonical `SKILL.md`；目录名与 frontmatter `name` 必须一致。
 - 调用模式遵循 [`.agents/invocation.md`](.agents/invocation.md)。
 - Skill 之间通过能力名和明确 pointer 协作，不复制彼此正文。
+- 工程方法先定义**语义不变量**，再映射当前 Agent executor 实际提供的执行原语。稳定 Skill 不把某一产品的 Agent tool、sub-agent 类型、context 命令、固定模型名或固定 token 阈值写成方法成立的前提；真实存在隔离/并行能力时可以使用，没有时必须有合法退化路径，并如实区分 isolated/parallel 与同上下文串行执行。
+- claim、Ownership、Gate、Acceptance、TDD seam、独立审查等若属于方法正确性条件，不因执行器中立而弱化；executor-agnostic 的含义是解耦实现原语，不是取消工程约束。
 - 保留已有专业工程术语，不为 Akira 定制自行创造无来源术语。
 - 当前仍保留的历史上游 Skill 名称可以继续工作；涉及名称、职责或主流程重构时按独立语义修改逐步迁移，不在基础设施清理中批量改名。
 
