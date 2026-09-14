@@ -12,8 +12,10 @@ Each question should be formatted like so:
 ```
 ❓ **Q1** - **<question title>**: <question body, might be multiple paragraphs, including multiple choices>
 
-➡️ <your recommended answer>
+➡️ **Recommended: <direct answer or exact option>.** <brief rationale>
 ```
+
+The recommendation must answer the question in the same semantic orientation as it is asked. For yes/no questions, begin with `Yes` or `No`; for multiple choice, name the exact option; for an open decision, state the proposed decision itself before the rationale. Do not phrase the recommendation as an argument for the inverse proposition, where agreeing with the recommendation would require the user to translate it into the opposite answer.
 
 Each round the user answers reshapes the tree — settled decisions push the frontier outward and unblock questions that depended on them. Recompute the frontier and ask the next round. A question whose answer depends on another question still open in this round belongs to a _later_ round, not this one.
 
