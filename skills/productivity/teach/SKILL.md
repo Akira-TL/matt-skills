@@ -9,15 +9,20 @@ The user has asked you to teach them something. This is a stateful request - the
 
 ## Teaching Workspace
 
-Treat the current directory as a teaching workspace. The state of their learning is captured in this directory in several files:
+Bind two roots at invocation and never conflate them:
 
-- `MISSION.md`: A document capturing the _reason_ the user is interested in the topic. This should be used to ground all teaching. Use the format in [MISSION-FORMAT.md](./MISSION-FORMAT.md).
-- `./reference/*.html`: A directory of reference materials. These are the compressed learnings from the lessons - cheat sheets, reference algorithms, syntax, yoga poses, glossaries. They are the raw units of learning. They should be beautiful documents which print out well, and are designed for quick reference.
-- `RESOURCES.md`: A list of resources which can be explored to ground your teaching in contextual knowledge, or to acquire knowledge and wisdom. Use the format in [RESOURCES-FORMAT.md](./RESOURCES-FORMAT.md).
-- `./learning-records/*.md`: A directory of learning records, which capture what the user has learned. These are loosely equivalent to architectural decision records in software development - they capture non-obvious lessons and key insights that may need to be revised later, or drive future sessions. These should be used to calculate the zone of proximal development. They are titled `0001-<dash-case-name>.md`, where the number increments each time. Use the format in [LEARNING-RECORD-FORMAT.md](./LEARNING-RECORD-FORMAT.md).
-- `./lessons/*.html`: A directory of lessons. A **lesson** is a single, self-contained HTML output that teaches one tightly-scoped thing tied to the mission. This is the primary unit of teaching in this workspace.
-- `./assets/*`: Reusable **components** shared across lessons. See [Assets](#assets).
-- `NOTES.md`: A scratchpad for you to jot down user preferences, or working notes.
+- **Skill source root** — the installed directory containing this canonical `SKILL.md` and its format files. Treat it as read-only Skill source. Links such as [MISSION-FORMAT.md](./MISSION-FORMAT.md), [RESOURCES-FORMAT.md](./RESOURCES-FORMAT.md), [LEARNING-RECORD-FORMAT.md](./LEARNING-RECORD-FORMAT.md), and [GLOSSARY-FORMAT.md](./GLOSSARY-FORMAT.md) resolve here through the current executor's Skill-loading mechanism.
+- **Teaching workspace root** — the current directory the user chose for this learning project. Every durable teaching artifact is read and written relative to this root. Never derive it from the Skill source path. If the current directory is the installed Skill source or the writable target is otherwise ambiguous, stop before writing and ask the user to choose a teaching workspace directory.
+
+The state of learning is captured under the teaching workspace root:
+
+- `<teaching-workspace>/MISSION.md`: the _reason_ the user is interested in the topic. Use [MISSION-FORMAT.md](./MISSION-FORMAT.md).
+- `<teaching-workspace>/reference/*.html`: compressed learnings from lessons — cheat sheets, reference algorithms, syntax, poses, glossaries, and similar quick-reference material.
+- `<teaching-workspace>/RESOURCES.md`: trusted resources and communities. Use [RESOURCES-FORMAT.md](./RESOURCES-FORMAT.md).
+- `<teaching-workspace>/learning-records/*.md`: non-obvious lessons and demonstrated prior knowledge, numbered `0001-<dash-case-name>.md` onward. Use [LEARNING-RECORD-FORMAT.md](./LEARNING-RECORD-FORMAT.md).
+- `<teaching-workspace>/lessons/*.html`: numbered self-contained lessons.
+- `<teaching-workspace>/assets/*`: reusable lesson components. See [Assets](#assets).
+- `<teaching-workspace>/NOTES.md`: user teaching preferences and working notes.
 
 ## Philosophy
 
@@ -46,7 +51,7 @@ Fluency can give the user an illusory sense of mastery, but storage strength is 
 
 ## Lessons
 
-A lesson is the main thing you produce — the unit in which knowledge and skills reach the user. Each lesson is one self-contained HTML file, saved to `./lessons/` and titled `0001-<dash-case-name>.html` where the number increments each time.
+A lesson is the main thing you produce — the unit in which knowledge and skills reach the user. Each lesson is one self-contained HTML file, saved to `<teaching-workspace>/lessons/` and titled `0001-<dash-case-name>.html` where the number increments each time.
 
 A lesson should be **beautiful** — clean, readable typography and layout — since the user will return to these later to review. Think Tufte.
 
@@ -62,9 +67,9 @@ Each lesson should contain a reminder to ask followup questions to the agent. Th
 
 ## Assets
 
-Lessons are built from reusable **components**, stored in `./assets/`: stylesheets, quiz widgets, simulators, diagram helpers — anything a second lesson could reuse.
+Lessons are built from reusable **components**, stored in `<teaching-workspace>/assets/`: stylesheets, quiz widgets, simulators, diagram helpers — anything a second lesson could reuse.
 
-Reuse is the default, not the exception. Before authoring a lesson, read `./assets/` and build from the components already there. When a lesson needs something new and reusable, write it as a component in `./assets/` and link to it — never inline code a future lesson would duplicate.
+Reuse is the default, not the exception. Before authoring a lesson, read `<teaching-workspace>/assets/` and build from the components already there. When a lesson needs something new and reusable, write it as a component in that workspace `assets/` directory and link to it — never inline code a future lesson would duplicate.
 
 A shared stylesheet is the first component every workspace earns: every lesson links it, so the lessons look like one consistent course rather than a pile of one-offs. As the workspace grows, so should the component library.
 
@@ -84,7 +89,7 @@ Each lesson, the user should always feel as if they are being challenged 'just e
 
 The user may specify an exact thing they want to learn. If they don't, figure out their zone of proximal development by:
 
-- Reading their `learning-records`
+- Reading `<teaching-workspace>/learning-records/`
 - Figuring out the right thing to teach them based on their mission
 - Teach the most relevant thing that fits in their zone of proximal development
 
@@ -133,7 +138,7 @@ Some learning topics lend themselves to reference:
 - Exercises and routines for fitness
 - Glossaries for any topic with its own nomenclature
 
-Glossaries, in particular, are an essential reference. Once one is created, it should be adhered to in every lesson.
+Glossaries, in particular, are an essential reference. When one becomes useful, load [GLOSSARY-FORMAT.md](./GLOSSARY-FORMAT.md), write `<teaching-workspace>/GLOSSARY.md`, and adhere to it in every later lesson.
 
 ## `NOTES.md`
 

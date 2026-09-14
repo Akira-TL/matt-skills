@@ -35,7 +35,7 @@ What accumulates in that directory:
 | `assets/*` | Reusable components — a shared stylesheet first — so the lessons look like one course |
 | `NOTES.md` | Your stated teaching preferences |
 
-Two honest notes on that list. A glossary suits most topics, but the skill ships a `GLOSSARY-FORMAT.md` that `SKILL.md` no longer links to, so you will only get one if you ask ([issue #559](https://github.com/mattpocock/skills/issues/559)). And the workspace is not always created where you expect — see the first question below before you build a long course on top of it.
+Skill-local format files and teaching-workspace output now have explicit separate roots. The installed Skill directory is read-only source for `MISSION-FORMAT.md`, `RESOURCES-FORMAT.md`, `LEARNING-RECORD-FORMAT.md`, and `GLOSSARY-FORMAT.md`; all mission, lesson, reference, asset and learning-record files are written only under the user-selected teaching workspace. `GLOSSARY-FORMAT.md` is linked from the canonical Skill and is used when a glossary becomes useful.
 
 ## Storage strength, not fluency
 
@@ -55,8 +55,8 @@ Lessons are built from **components** in `assets/`: stylesheets, quiz widgets, s
 
 ## Common questions
 
-**Where does it put the files? Mine ended up in `~/.claude/skills`.**
-A real, open bug ([#377](https://github.com/mattpocock/skills/issues/377)). `SKILL.md` uses `./` for two different roots at once: `./MISSION-FORMAT.md` and its siblings really do sit next to `SKILL.md` in the installed skill, while `./lessons/`, `./reference/`, `./learning-records/` and `./assets/` are meant to be in your directory. An agent that resolves the first kind against the skill's install directory goes on to resolve the second kind there too, and writes your course into the skill folder. Check where the first lesson landed before you build on it, and name the directory explicitly when you start rather than relying on "the current directory" being understood.
+**Where does it put the files?**
+All durable course state goes under the user-selected teaching workspace root: `MISSION.md`, `RESOURCES.md`, `lessons/`, `reference/`, `learning-records/`, `assets/`, `GLOSSARY.md` when present, and `NOTES.md`. The installed Skill directory is only a read-only source for format templates. If the current directory is the Skill installation itself or the writable target is ambiguous, `teach` stops before writing and asks you to choose a teaching workspace directory instead of guessing.
 
 **Do I stay in one session, or start a new one per lesson?**
 All three approaches work — staying in the same session, re-invoking `/teach` in a new session, or opening a new session in the same folder. Each lesson is its own invocation. The folder is the continuity, not the conversation. Common practice is to open a fresh session in the workspace and say `/teach next lesson for <topic>`.
