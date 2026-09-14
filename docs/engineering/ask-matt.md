@@ -20,13 +20,13 @@ You invoke this by typing `/ask-matt` — the agent won't reach for it on its ow
 
 The router names skills; it does not install them. Everything it points at has to be installed for the recommendation to be actionable. Its maintained map is the stable Engineering / Productivity set plus the explicitly maintained `ask-akira`, `parallel-coordinator`, and `parallel-execution` extensions; it does not scan arbitrary installed skills.
 
-The tracker-dependent routes — triage, `to-spec`, `to-tickets`, `implement` — assume setup-matt-pocock-skills has already configured an issue tracker in the repo. The router will happily recommend them before that has happened.
+Repository setup is conditional rather than global. Triage, `to-spec`, `to-tickets` and wayfinder need the repository's tracker/workflow configuration when they use those surfaces; `implement` needs it only when the selected work item actually lives on that tracker. TDD, diagnosing-bugs, codebase-design and other standalone methods can run without setup. If a recommended branch needs missing repository configuration, the target Skill fails closed and asks the user to run setup explicitly.
 
 ## Flows, not skills
 
 The word the skill gives you to think with is **flow**: a path *through* the skills, not a single one. Naming your situation places you on a flow at a step, which is a different answer from "here is the skill that matches your keywords". Four kinds of route exist, and the skill itself carries them in full:
 
-- **The main flow**, idea to ship. Grill, spec, tickets, implement, review, with three branches inside it: a prototype detour when a question needs runnable code to settle; the spec-and-tickets split, which only earns its cost when the build spans more than one session; and, after `to-tickets`, an execution-mode split between ordinary `/implement` runs and Akira coordinated multi-Agent execution.
+- **The main flow**, idea to ship. Grill, spec, tickets, implement, review, with three branches inside it: a prototype detour when a question needs runnable code to settle; the spec-and-tickets split, which only earns its cost when the build spans more than one session; and, after `to-tickets`, an execution-mode split between ordinary `/implement` runs and Akira coordinated multi-Agent execution. Inside implement, TDD is conditional on having observable behaviour and an independent expected result rather than being ceremony for every slice.
 - **Akira execution extensions**, still inside this fork: `/ask-akira` changes execution policy only when the user explicitly requests rapid/emergency/competition, while `/parallel-coordinator` and `parallel-execution` add durable multi-Agent coordination around the existing Matt implementation loop.
 - **On-ramps**, for a situation that generates work and then merges onto the main flow: incoming bug reports, something broken, or an effort too foggy and too large to hold in one session.
 - **Standalones**, off every flow, reached for on their own terms — the prototype, the questionnaire, the merge conflict you are already sitting in.

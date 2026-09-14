@@ -31,7 +31,7 @@ The route most work travels. You have an idea and want it built.
      - **Coordinated multi-Agent execution in an Akira environment** → hand the Matt tickets to the Akira **Parallel Coordinator**. It owns the Execution Map, Gates, Parallel Tasks, claim/lifecycle state, and cross-task integration review; workers still use Matt **`/implement`**, **`/tdd`**, and **`/code-review`** for the actual implementation.
    - **No** → **`/implement`** right here, in the same context window.
 
-   Either execution mode keeps Matt's engineering method intact: **`/implement`** builds each issue by driving **`/tdd`** internally — one red-green slice at a time — runs the relevant focused validation, creates the implementation commit, then runs **`/code-review`** against that committed state. Review findings are corrected in follow-up commits and re-reviewed as needed. Reach for **`/tdd`** on its own when you just want to build a concrete behaviour test-first without a full spec, and **`/code-review`** on its own whenever you want to review a branch or PR against a fixed point.
+   Either execution mode keeps Matt's engineering method intact: **`/implement`** builds each issue, conditionally loads **`tdd`** only when the slice has an observable behaviour plus an independent expected result, runs validation proportionate to the slice, creates the implementation commit, then runs **`code-review`** against that committed state. Review findings are corrected in follow-up commits and re-reviewed as needed; an ordinary ticket closes only after its acceptance criteria are established. Reach for **`tdd`** on its own when you just want to build a concrete behaviour test-first without a full spec, and **`code-review`** on its own whenever you want to review a branch or PR against a fixed point.
 
 ### Context hygiene
 
@@ -45,7 +45,7 @@ The Akira fork keeps its engineering deltas in this same repository so they stay
 
 - **`/ask-akira`** — user-invoked execution-policy override for `rapid`, `emergency`, and `competition`. It trims ceremony around Matt; it does not replace Matt's specialist skills.
 - **`/parallel-coordinator`** — user-invoked coordination layer for multi-Agent execution when the work needs an Execution Map, Gates, claimable Parallel Tasks, a dynamic frontier, and cross-task acceptance.
-- **`parallel-execution`** — model-invoked worker protocol used only when the current work item is a Parallel Task. It owns claim/lifecycle/reporting, then returns actual implementation to Matt `implement`, `tdd`, and `code-review` when the task comes from the standard Matt flow.
+- **`parallel-execution`** — model-invoked worker protocol used only when the current work item is a Parallel Task. It owns claim/lifecycle/reporting. When loaded from an already user-invoked `implement`, it returns to that original implementation flow after coordination preflight; when entered independently, it must not start user-invoked `implement` on the user's behalf.
 
 These remain beta under `skills/in-progress/`: they are part of our Matt fork, not a separate Engineering product repository.
 
@@ -57,7 +57,7 @@ A starting situation that generates work, then merges onto the main flow.
 
   Triage is only for issues **you didn't create** — bug reports, incoming feature requests, anything that arrives raw. Tickets that `/to-tickets` produced are already agent-ready, so **don't triage them**.
 
-- **Something's broken** → **`/diagnosing-bugs`**. For the hard ones: the bug that resists a first glance, the intermittent flake, the regression that crept in between two known-good states. It refuses to theorise until it has a **tight feedback loop** — one command that already goes red on *this* bug — then fixes with a regression test. Its post-mortem hands off to **`/improve-codebase-architecture`** when the real finding is that there's no good seam to lock the bug down.
+- **Something's broken** → **`/diagnosing-bugs`**. For the hard ones: the bug that resists a first glance, the intermittent flake, the regression that crept in between two known-good states. It refuses to theorise until it has a **tight feedback loop** — one command that already goes red on *this* bug — then fixes with a regression test. If the post-mortem finds that the code has no good seam to lock the bug down, it recommends explicit user invocation of **`/improve-codebase-architecture`**; it does not start that user-invoked Skill itself.
 
 - **A huge, foggy effort — a greenfield project or a huge feature build, too big for one session** → **`/wayfinder`**, the most cognitively demanding flow here. When the way from here to the destination isn't visible yet, it charts a **shared map** of **decision tickets** on the issue tracker and resolves them one at a time — producing **decisions, not deliverables** — until the fog is pushed back and the way is clear. Where **`/grill-with-docs`** sharpens an idea you can hold in one session, wayfinder is for the idea you can't — and it's slower and denser, so save it for exactly that, never a well-scoped feature.
 
@@ -67,7 +67,7 @@ A starting situation that generates work, then merges onto the main flow.
 
 Not feature work — upkeep.
 
-- **`/improve-codebase-architecture`** — run whenever you have a spare moment to keep the codebase good for agents to operate in. It surfaces **deepening opportunities**; picking one _generates an idea_ you can take into the main flow at `/grill-with-docs`. It's the survey that finds the candidates; **`/codebase-design`** (below) is the bench you design the chosen one on.
+- **`/improve-codebase-architecture`** — run whenever you have a spare moment to keep the codebase good for agents to operate in. It surfaces **deepening opportunities** as a self-contained report; you may stop there in report-only mode, or pick one candidate and continue into its grilling/design branch. A chosen candidate _generates an idea_ you can take into the main flow at `/grill-with-docs`. It's the survey that finds the candidates; **`/codebase-design`** (below) is the bench you design the chosen one on.
 
 ## Vocabulary underneath
 
@@ -103,6 +103,6 @@ Off the main flow entirely.
 - **`/teach`** — learn a concept over multiple sessions, using the current directory as a stateful workspace.
 - **`/writing-for-agents`** — reference for writing documents agents consume: skills, AGENTS.md, pointed-at docs.
 
-## Precondition
+## Repository configuration
 
-**`/setup-matt-pocock-skills`** — run before your first engineering flow to configure the issue tracker, workflow-role mapping, and doc layout the other skills assume. Custom issue trackers also work.
+**`/setup-matt-pocock-skills`** — run when a repository-stateful flow needs tracker/workflow/domain configuration and those files are absent or stale, especially before triage, `to-spec`, `to-tickets` or wayfinder. It is not a universal prerequisite for standalone engineering methods such as TDD, debugging or codebase-design. `implement` needs tracker configuration only when its work item actually lives on that tracker; a concrete current-conversation plan or direct spec can be implemented without setup.
