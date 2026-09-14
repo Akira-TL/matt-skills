@@ -16,9 +16,15 @@ The issue-tracker configuration should already exist. If it is missing, stop and
 
 Check with the user that these seams match their expectations.
 
-3. Write the spec using the template below, then publish it to the project issue tracker as a canonical source artifact. Do **not** put the spec itself into the `ready-for-agent` execution queue; `to-tickets` creates the executable slices and applies that workflow role to those tickets.
+3. Choose the spec shape from the decisions already made, without opening a new interview:
 
-<spec-template>
+- **User-visible feature or behavior change** → use `Problem Statement`, `Solution`, and `User Stories`. User stories cover distinct externally observable behaviors; keep them complete but non-duplicative rather than manufacturing volume.
+- **Architecture, refactor, migration, module-boundary or other primarily technical change** → use `Problem Statement`, `Target State`, and `Invariants and Constraints`. Add `Compatibility and Migration Requirements` only when the agreed change actually has compatibility, rollout, data-migration, or transition requirements. Do not force product-style user stories around internal interfaces merely to fill a template.
+- **Mixed change** → include both the externally observable behavior and the technical invariants needed to preserve or enable it, without duplicating the same requirement in both forms.
+
+Then append the common sections below and publish the spec to the project issue tracker as a canonical source artifact. Do **not** put the spec itself into the `ready-for-agent` execution queue; `to-tickets` creates the executable slices and applies that workflow role to those tickets.
+
+<behavior-spec-sections>
 
 ## Problem Statement
 
@@ -26,19 +32,35 @@ The problem that the user is facing, from the user's perspective.
 
 ## Solution
 
-The solution to the problem, from the user's perspective.
+The agreed solution from the user's perspective.
 
 ## User Stories
 
-A LONG, numbered list of user stories. Each user story should be in the format of:
+A numbered list of distinct user-visible behaviors that were actually agreed. Use the form `As an <actor>, I want <behavior>, so that <benefit>` when it clarifies actor and outcome; do not create synthetic stories for purely technical work.
 
-1. As an <actor>, I want a <feature>, so that <benefit>
+</behavior-spec-sections>
 
-<user-story-example>
-1. As a mobile bank customer, I want to see balance on my accounts, so that I can make better informed decisions about my spending
-</user-story-example>
+<technical-spec-sections>
 
-This list of user stories should be extremely extensive and cover all aspects of the feature.
+## Problem Statement
+
+The engineering problem or limitation the agreed change addresses.
+
+## Target State
+
+The agreed architecture, module boundary, migration result, or other technical end state.
+
+## Invariants and Constraints
+
+The behavior, compatibility, ownership, performance, data-integrity, API, or operational properties that must remain true while the change is made.
+
+## Compatibility and Migration Requirements
+
+Include only when applicable: compatibility windows, expand-contract sequencing, rollout order, data migration, deprecation, fallback, or transition constraints already agreed.
+
+</technical-spec-sections>
+
+<common-spec-sections>
 
 ## Implementation Decisions
 
@@ -70,6 +92,6 @@ A description of the things that are out of scope for this spec.
 
 ## Further Notes
 
-Any further notes about the feature.
+Any further notes that materially affect implementation or review.
 
-</spec-template>
+</common-spec-sections>

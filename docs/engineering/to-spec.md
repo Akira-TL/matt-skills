@@ -29,9 +29,13 @@ So it does not validate anything, and it does not decide anything. It captures w
 
 ## Seams before prose
 
-Before it writes a word, `to-spec` sketches the **seams** the feature will be tested at, and checks them with you. It prefers seams that already exist to new ones, and takes the highest seam it can — the ideal number across a change is one.
+Before it writes a word, `to-spec` sketches the **seams** the change will be tested at, and checks them with you. It prefers seams that already exist to new ones, and takes the highest seam it can — the ideal number across a change is one.
 
 Those agreed seams then travel. tdd works only at pre-agreed seams, and code-review reviews the diff against the spec, so a seam nobody agreed to shows up as a review finding. The binding is indirect — it runs through this document — which is exactly why the seam conversation is worth taking seriously here rather than deferring it to implementation.
+
+## The document shape follows the change
+
+`to-spec` no longer forces every change through a product-feature template. User-visible behavior uses Problem Statement, Solution and non-duplicative User Stories. Architecture, refactors, migrations and module-boundary work use Problem Statement, Target State, Invariants and Constraints, plus Compatibility and Migration Requirements only when they actually apply. Mixed changes carry both observable behavior and the technical invariants needed to preserve or enable it. The common Implementation Decisions, Testing Decisions, Out of Scope and Further Notes sections remain the same.
 
 ## Common questions
 
@@ -54,7 +58,7 @@ Mostly for the agent, and it reads that way — complete, dense, reference-heavy
 Nothing keeps it in sync, so in practice it is a snapshot of what you knew at that moment, and it goes stale the first time implementation teaches you something. Treat it as throwaway once the work ships. The artifacts meant to outlive it are your `CONTEXT.md` and your ADRs — if something learned during implementation deserves to last, it belongs there, not in an edited spec.
 
 **My work is a refactor or a module boundary, not a feature. Does the template fit?**
-Less well, and this is a known limitation. The template leans hard on user stories, which is the wrong shape for architectural work — you end up writing stories nobody asked for around decisions that are really about interfaces and invariants. Lean on the implementation-decisions and testing-decisions sections instead, and let the durable architectural calls land as ADRs via grill-with-docs rather than trying to make the spec carry them.
+Yes. `to-spec` now selects a technical document shape for architecture, refactors, migrations and module-boundary work instead of manufacturing user stories. The spec records the target state and the invariants/constraints that implementation must preserve; compatibility or migration requirements appear only when the conversation actually established them. Hard-to-reverse architectural decisions still belong in ADRs via grill-with-docs, while the spec records the implementation contract for this particular change.
 
 **Will it check the tracker for related work, or cite the ADRs it's respecting?**
 No to both. It reads and respects the ADRs covering the area it touches, but it doesn't link them, and it doesn't search the tracker for overlapping issues before drafting — so a spec can quietly duplicate work someone already filed. Search the tracker yourself first if the area is busy.
