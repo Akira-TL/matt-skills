@@ -54,5 +54,5 @@ uv run python ~/.agents/skills/akira/scripts/skills.py install \
 ## 检查与提交
 
 - `scripts/list-skills.sh` 只用于列出本仓 Skill，不承担安装或发布职责。
-- 机械结构检查与正式提交使用 Akira Lattice 的 Guard。
+- 机械结构检查与正式提交使用 Akira Guard；Lattice 只拥有自身静态配置与仓库拓扑检查。
 - 修改应保持原子提交；上游吸收与 Akira 自有功能修改不要混在同一个提交里。

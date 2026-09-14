@@ -49,4 +49,4 @@ uv run python ~/.agents/skills/akira/scripts/skills.py install \
 ./scripts/list-skills.sh
 ```
 
-仓库级结构检查与 Git 提交使用 Akira Lattice Guard。稳定 Skill 的行为变化应同步对应 `docs/` 页面；改变用户可达 Skill 或工程流程关系时同步更新 `ask-matt`。
+仓库级结构检查与 Git 提交使用 Akira Guard；Lattice 只保留自身静态配置与仓库拓扑检查。稳定 Skill 的行为变化应同步对应 `docs/` 页面；改变用户可达 Skill 或工程流程关系时同步更新 `ask-matt`。
