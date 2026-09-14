@@ -21,7 +21,7 @@ This is a prompt-driven skill, not a deterministic script. Explore, present what
 Look at the current repo to understand its starting state. Read whatever exists; don't assume:
 
 - `git remote -v` and `.git/config` — is this a GitHub repo? Which one?
-- `AGENTS.md` and `CLAUDE.md` at the repo root — does either exist? Is there already an `## Agent skills` section in either?
+- Project Agent instruction files at the repo root, especially `AGENTS.md` and executor-specific compatibility files such as `CLAUDE.md` — which file is canonical, is one a symlink/pointer to another, and is there already an `## Agent skills` section?
 - `CONTEXT.md` and `CONTEXT-MAP.md` at the repo root
 - `docs/adr/` and any `src/*/docs/adr/` directories
 - `docs/agents/` — does this skill's prior output already exist?
@@ -62,24 +62,29 @@ Offer **multi-context** — a root `CONTEXT-MAP.md` pointing to per-context `CON
 
 ### 3. Confirm and edit
 
-Show the user a draft of:
+First identify the repository's **canonical Agent instruction file**. The goal is one maintained source of truth, not matching whichever executor happens to be running today.
 
-- The `## Agent skills` block to add to whichever of `CLAUDE.md` / `AGENTS.md` is being edited (see step 4 for selection rules)
-- The contents of `docs/agents/issue-tracker.md`, `docs/agents/domain.md`, and `docs/agents/triage-labels.md` (the last only when `triage` is installed)
+Selection rules:
+
+- If root `AGENTS.md` exists, prefer it as the executor-neutral canonical file.
+- If an executor-specific file such as `CLAUDE.md` is a symlink or a clear pointer to `AGENTS.md`, edit only `AGENTS.md`.
+- If project instructions explicitly declare another file canonical, respect that declaration instead of inventing a migration.
+- If only an executor-specific instruction file exists and it contains substantive project rules, recommend migrating to an executor-neutral `AGENTS.md`, but show that as an explicit user choice before changing instruction ownership. Do not silently copy the same standing rules into two maintained files.
+- If no project Agent instruction file exists, recommend creating root `AGENTS.md`.
+
+Then show the user a draft of:
+
+- the target canonical instruction file and any proposed compatibility-pointer change;
+- the `## Agent skills` block to add or update there;
+- the contents of `docs/agents/issue-tracker.md`, `docs/agents/domain.md`, and `docs/agents/triage-labels.md` (the last only when `triage` is installed).
 
 Let them edit before writing.
 
 ### 4. Write
 
-**Pick the file to edit:**
+Write the `## Agent skills` block only to the confirmed canonical Agent instruction file. If an executor-specific compatibility file points to that canonical file, leave the pointer relationship intact. Do not maintain duplicate `Agent skills` blocks in multiple instruction files.
 
-- If `CLAUDE.md` exists, edit it.
-- Else if `AGENTS.md` exists, edit it.
-- If neither exists, ask the user which one to create — don't pick for them.
-
-Never create `AGENTS.md` when `CLAUDE.md` already exists (or vice versa) — always edit the one that's already there.
-
-If an `## Agent skills` block already exists in the chosen file, update its contents in-place rather than appending a duplicate. Don't overwrite user edits to the surrounding sections.
+If an `## Agent skills` block already exists in the canonical file, update its contents in-place rather than appending a duplicate. Don't overwrite user edits to surrounding sections. A migration from an executor-specific file to `AGENTS.md` must preserve unrelated project instructions and follow the migration plan the user approved in step 3; setup is not permission to discard existing instructions.
 
 The block:
 
