@@ -32,7 +32,7 @@ Five **state** roles:
 
 - `needs-triage` — maintainer needs to evaluate
 - `needs-info` — waiting on reporter for more information
-- `ready-for-agent` — fully specified, ready for an AFK agent
+- `ready-for-agent` — fully specified for Agent execution; actual pickup still requires the work item to be on the tracker frontier (all explicit blockers resolved and no active claim)
 - `ready-for-human` — needs human implementation
 - `wontfix` — will not be actioned
 
@@ -42,7 +42,7 @@ Every triaged issue should carry exactly one category role and one state role. I
 
 These are canonical role names — the concrete tracker values may differ (labels on a real tracker; `Status:` / `Category:` values in local markdown). The mapping should already exist in the repository configuration. If it does not, stop and tell the user to explicitly run the user-invoked `setup-matt-pocock-skills` Skill; triage must not silently start setup on the user's behalf or invent a mapping.
 
-State transitions: an unlabeled issue normally goes to `needs-triage` first; from there it moves to `needs-info`, `ready-for-agent`, `ready-for-human`, or `wontfix`. `needs-info` returns to `needs-triage` once the reporter replies. The maintainer can override at any time — flag transitions that look unusual and ask before proceeding.
+State transitions: an unlabeled issue normally goes to `needs-triage` first; from there it moves to `needs-info`, `ready-for-agent`, `ready-for-human`, or `wontfix`. `needs-info` returns to `needs-triage` once the reporter replies. Dependency blocking is represented by tracker blocker edges, not by another triage state. If future work is gated by an external condition that cannot yet be represented as a resolved/unresolved work-item dependency, keep it in `needs-triage` with a specific trigger note rather than marking it executable early. The maintainer can override at any time — flag transitions that look unusual and ask before proceeding.
 
 ## Invocation
 
@@ -51,7 +51,7 @@ The maintainer invokes `/triage` and describes what they want in natural languag
 - "Show me anything that needs my attention"
 - "Let's look at #42" (issue or PR/MR, resolved by the tracker contract)
 - "Move #42 to ready-for-agent"
-- "What's ready for agents to pick up?"
+- "What's ready for agents to pick up?" — query the `ready-for-agent` state **and** the configured tracker's frontier; the state label alone is not an executable queue
 
 ## Show what needs attention
 
@@ -78,7 +78,7 @@ Show counts and a one-line summary per item. Let the maintainer pick.
 4. **Grill (if needed).** This branch conditionally depends on the model-invoked `grilling` and `domain-modeling` Skills. Load and follow both canonical Skills before asking the first round. If either cannot be loaded, report the missing dependency and stop this branch rather than improvising an interview or domain update. Once loaded, grill the request into shape a round at a time while sharpening domain terms and updating `CONTEXT.md`/ADRs inline as decisions land.
 
 5. **Apply the outcome:**
-   - `ready-for-agent` — post an agent brief comment ([AGENT-BRIEF.md](AGENT-BRIEF.md)).
+   - `ready-for-agent` — post an agent brief comment ([AGENT-BRIEF.md](AGENT-BRIEF.md)). If the work has known prerequisite issues, record those blocker edges through the configured tracker's Work item operations before applying the state. A blocked item may be fully specified, but it is not on the executable frontier until those blockers resolve.
    - `ready-for-human` — same structure as an agent brief, but note why it can't be delegated (judgment calls, external access, design decisions, manual testing).
    - `needs-info` — post triage notes (template below).
    - `wontfix` — close, with the comment depending on *why*:
@@ -89,7 +89,7 @@ Show counts and a one-line summary per item. Let the maintainer pick.
 
 ## Quick state override
 
-If the maintainer says "move #42 to ready-for-agent", trust them and apply the role directly. Confirm what you're about to do (role changes, comment, close), then act. Skip grilling. If moving to `ready-for-agent` without a grilling session, ask whether they want to write an agent brief.
+If the maintainer says "move #42 to ready-for-agent", trust the specification-readiness decision and apply the role directly. Confirm what you're about to do (role changes, blocker edges, comment, close), then act. Skip grilling. If known blockers exist, preserve them; do not imply the item is immediately pickable. If moving to `ready-for-agent` without a grilling session, ask whether they want to write an agent brief.
 
 ## Needs-info template
 
