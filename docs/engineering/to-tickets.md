@@ -98,4 +98,4 @@ The skill stops at the artifact. In ordinary execution, work the frontier with o
 grill-with-docs → to-spec → to-tickets → implement → code-review
 ```
 
-Upstream is to-spec, which hands it a settled spec to slice against — keep both in one unbroken context window. Downstream, ordinary execution uses implement per Matt ticket; the Akira-maintained coordinated path inserts its Parallel Coordinator after `to-tickets`, while workers still drive tdd and close with code-review. When you're unsure which flow fits, ask-matt routes you.
+Upstream is to-spec, which hands it a settled spec to slice against — keep both in one reliable working context while that context remains healthy. Downstream, ordinary execution uses implement per Matt ticket; the Akira-maintained coordinated path inserts its Parallel Coordinator after `to-tickets`. In either mode, implementation applies TDD only where the slice passes its applicability gate and closes with code-review. When you're unsure which flow fits, ask-matt routes you.

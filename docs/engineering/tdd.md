@@ -15,7 +15,7 @@ Reach for it when there is a concrete behaviour to build, with an input and an o
 | A behaviour with defined inputs and outputs — business logic, a request/response contract, a transformation, validation | `tdd` |
 | The behaviour isn't pinned down yet | to-spec, which also agrees the test seams before any code is written |
 | The question is really the shape of the interface, not the tests | codebase-design |
-| You have a spec or tickets and want the whole build run for you | implement, which drives `tdd` per ticket |
+| You have a spec or tickets and want the whole build run for you | implement, which applies this TDD loop only to slices that pass the applicability gate |
 | Config, wiring, glue, type annotations, straight CRUD delegation | Nothing here fits well — see the open gap below |
 
 That last row is now handled by an applicability gate in the canonical Skill. TDD starts only when there is an observable outcome plus an independent expected result — for example a spec example, external contract, known-good literal or invariant. Pure wiring, configuration, type annotations, mechanical renames and similar changes use proportionate validation instead of manufacturing a tautological test merely to satisfy the method.
@@ -91,4 +91,4 @@ No. Run against one ticket, it will happily propose work that belongs to a sibli
 grill-with-docs → to-spec → to-tickets → implement → code-review
 ```
 
-to-spec agrees the test seams up front, implement drives `tdd` per ticket, and code-review checks afterwards that only the agreed seams were used — and owns the refactoring `tdd` no longer does. Its other neighbour is codebase-design, the shared source of the seam and deep-module vocabulary `tdd` speaks. You can also reach for it on its own, whenever there is a concrete behaviour to build and no full spec in play. When you are unsure which skill fits your situation, ask-matt routes you.
+to-spec agrees test seams up front where TDD is appropriate, implement applies `tdd` only to slices with observable behaviour and an independent expected result, and code-review owns the later refactoring pass. Its other neighbour is codebase-design, the shared source of the seam and deep-module vocabulary `tdd` speaks. You can also reach for it on its own whenever there is concrete behaviour to build and no full spec in play. When you are unsure which skill fits your situation, ask-matt routes you.
