@@ -1,6 +1,6 @@
 ---
 name: tdd
-description: Test-driven development. Use when the user wants to build features or fix bugs test-first, mentions "red-green-refactor", or wants integration tests.
+description: Test-driven development for behaviour with an independent expected result. Use when the user wants to build or fix behaviour test-first, mentions red-green or red-green-refactor, or wants integration tests. This Skill runs red → green; refactoring belongs to code-review.
 ---
 
 # Test-Driven Development
@@ -15,15 +15,27 @@ Tests verify behavior through public interfaces, not implementation details. Cod
 
 See [tests.md](tests.md) for examples and [mocking.md](mocking.md) for mocking guidelines.
 
+## Applicability gate
+
+Enter the red → green loop only when the behaviour has both an observable outcome and an **independent expected result**: a spec example, external contract, known-good literal, invariant, or other oracle that can disagree with the implementation. Pure wiring, configuration, type annotations, mechanical renames, and similar changes do not earn a TDD loop merely because tests can be written; when no independent oracle exists, use the repository's proportionate validation instead of manufacturing a tautological test.
+
 ## Seams — where tests go
 
 A **seam** is the public boundary you test at: the interface where you observe behavior without reaching inside. Tests live at seams, never against internals.
 
-**Test only at pre-agreed seams.** Before writing any test, write down the seams under test and confirm them with the user. No test is written at an unconfirmed seam. You can't test everything — agreeing the seams up front is how testing effort lands on the critical paths and complex logic instead of every edge case.
+**Test only at pre-agreed seams.** If the Source Spec already records agreed seams, restate those seams and use them; do not ask the user to approve the same decision again unless the current codebase invalidates or makes the recorded seam ambiguous. When no seam was agreed upstream, present the candidate seams before writing tests and ask for confirmation.
 
-Ask: "What's the public interface, and which seams should we test?"
+For every candidate seam, give enough information to make the choice meaningful:
 
-When the shape of that interface is itself in question — how deep the module is, where the seam belongs, what the interface should expose — use the `/codebase-design` skill for the vocabulary. It is the shared source of the module, interface, depth, seam, adapter, leverage and locality terms, and it is a reference to consult, not a session to run.
+- the public boundary and observable behaviour;
+- what failures this seam can detect;
+- what important failures it cannot detect;
+- relative execution and maintenance cost;
+- your recommended seam and why.
+
+No test is written at an unconfirmed seam. You cannot test everything — agreeing the seam up front is how testing effort lands on the critical paths and complex logic instead of every edge case.
+
+When the shape of that interface is itself in question — how deep the module is, where the seam belongs, what the interface should expose — `codebase-design` becomes a conditional internal dependency. Load its canonical Skill for the interface vocabulary; if it cannot be loaded, stop that interface-design branch rather than approximating the method from memory.
 
 ## Anti-patterns
 

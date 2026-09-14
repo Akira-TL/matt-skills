@@ -6,7 +6,7 @@ It writes no test at a seam you have not agreed to first. Before any test exists
 
 ## When to reach for it
 
-Type `/tdd`, or the agent reaches for it automatically when a task fits — building a feature or fixing a bug test-first, or when you say "red-green-refactor".
+Type `/tdd`, or the agent reaches for it automatically when a task fits — building or fixing observable behaviour test-first, or when you say "red-green" / "red-green-refactor". The latter remains a recognised trigger phrase, but this Skill intentionally runs red → green; refactoring is owned by code-review.
 
 Reach for it when there is a concrete behaviour to build, with an input and an observable output, and you want tests that survive a refactor.
 
@@ -18,11 +18,11 @@ Reach for it when there is a concrete behaviour to build, with an input and an o
 | You have a spec or tickets and want the whole build run for you | implement, which drives `tdd` per ticket |
 | Config, wiring, glue, type annotations, straight CRUD delegation | Nothing here fits well — see the open gap below |
 
-That last row is a real hole, not a stylistic preference. The skill decides *where* the seams go; nothing in it decides *whether* a change is worth the loop at all. Run it on a change with no independent source of truth to assert against and you get a test that restates the implementation — the tautological anti-pattern the skill itself warns about, arrived at from the other direction. It is [issue #746](https://github.com/mattpocock/skills/issues/746) and it is open. Until it closes, that judgement is yours or belongs in the project's Agent instructions.
+That last row is now handled by an applicability gate in the canonical Skill. TDD starts only when there is an observable outcome plus an independent expected result — for example a spec example, external contract, known-good literal or invariant. Pure wiring, configuration, type annotations, mechanical renames and similar changes use proportionate validation instead of manufacturing a tautological test merely to satisfy the method.
 
 ## Prerequisites
 
-codebase-design needs to be installed. `tdd` used to carry its own deep-module and interface-design notes; in v1.0 those were deleted in favour of the shared skill, and `tdd` now leans on it for interface-design vocabulary. Nothing else — the skill is stateless and writes no files of its own.
+There is no unconditional internal dependency. `codebase-design` is loaded only when the shape of the test interface itself is in question; ordinary TDD at an already-agreed public seam does not need it. The skill is otherwise stateless and writes no files of its own.
 
 ## The loop, and the seam it runs at
 
@@ -32,7 +32,7 @@ Three words carry this skill.
 
 **Vertical slice.** One seam, one test, one minimal implementation, then repeat — the first cycle being a **tracer bullet** that proves a single path end to end. The opposite is horizontal slicing: all the tests first, then all the code. Bulk tests verify *imagined* behaviour, they check the shape of things rather than what a user does, and they commit you to a test structure before you understand the implementation.
 
-**Pre-agreed seam.** A seam is the public boundary you observe behaviour at without reaching inside. The rule is absolute: no test at an unconfirmed seam. In the full chain the seams are agreed earlier, during to-spec — "`/tdd` is told to only work at pre-agreed test seams, `/code-review` checks that only agreed-upon test seams were used." Invoked on its own, `tdd` asks you directly.
+**Pre-agreed seam.** A seam is the public boundary you observe behaviour at without reaching inside. The rule is absolute: no test at an unconfirmed seam. In the full chain the seams are agreed earlier during to-spec; `tdd` restates and uses those seams instead of asking you to approve the same decision twice, unless the current codebase makes the recorded seam invalid or ambiguous. Invoked on its own, `tdd` presents each candidate with the public boundary, failures it catches, important failures it misses, relative execution/maintenance cost and a recommendation before asking you to choose.
 
 The three anti-patterns it is written to prevent:
 
@@ -46,13 +46,13 @@ Mocks are for system boundaries only — external APIs, time, randomness, someti
 
 ## Common questions
 
-**Why doesn't it refactor? The description says "red-green-refactor".**
+**Why does the phrase "red-green-refactor" still trigger it if the loop is red → green?**
 
-Because the refactor step was removed and the description was not. The removal was deliberate: agents essentially never did it, and keeping implementation and review in separate sessions works better. Whether the result still counts as TDD by the book matters less than whether the loop produces better code. The mismatch between the trigger phrase and the body is filed as [issue #589](https://github.com/mattpocock/skills/issues/589) and is still open, so "red-green-refactor" continues to work as a phrase that fires the skill. What you get is red → green, and refactoring in code-review.
+Because it is a common user phrase for test-first development, so the trigger remains useful. The canonical description now states the distinction explicitly: this Skill owns red → green, while code-review owns the refactoring pass. The phrase is accepted as intent, not as a claim that all three phases happen inside one TDD cycle.
 
 **It asked me to choose a test seam and I had no idea which to pick.**
 
-This is the most-reported friction with the skill ([issue #607](https://github.com/mattpocock/skills/issues/607)). The prompt lists candidate seams by name only, with nothing about what each one catches or misses, so you are choosing between labels. There is no fix shipped yet. The practical workaround is to ask the agent for the trade-offs before answering — what does the component-level seam miss that the integration seam catches, and how much slower is it. It is also why the chain agrees seams up front in `to-spec`, where you have the whole feature in view rather than one prompt.
+That should now be treated as a broken run. When a seam was not already agreed in the Source Spec, the Skill must explain each candidate's observable boundary, what it catches, what it misses, relative execution/maintenance cost and its recommendation before asking you to choose. A list of seam names without trade-offs no longer satisfies the contract.
 
 **It wrote the implementation before the test, even though the skill says red first.**
 
