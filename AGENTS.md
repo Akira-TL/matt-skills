@@ -4,9 +4,9 @@
 
 ## 目录与所有权
 
-- `skills/engineering/`：稳定工程工作流与工程方法。
+- `skills/engineering/`：稳定工程工作流与工程方法；`ask-akira` 作为稳定的 Akira 工程执行策略入口位于此处。
 - `skills/productivity/`：与 Matt 工程流直接协作的通用工作方法。
-- `skills/in-progress/`：尚未稳定的 Akira/Matt 扩展，目前只保留 `ask-akira` 与 Parallel 系列。
+- `skills/in-progress/`：尚未稳定的 Akira/Matt 扩展，目前只保留 Parallel 系列。
 - `skills/deprecated/`：已弃用能力及迁移说明；当前为空时不为目录形式本身保留内容。
 - `docs/<bucket>/<skill>.md`：稳定 Skill 的人类说明；与 Skill 行为发生实质变化时同步更新。
 
@@ -22,7 +22,6 @@ uv run python ~/.agents/skills/akira/scripts/skills.py install \
   --all \
   --root skills/engineering \
   --root skills/productivity \
-  --skill ask-akira \
   --skill parallel-coordinator \
   --skill parallel-execution
 ```

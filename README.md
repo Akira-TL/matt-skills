@@ -10,7 +10,7 @@
 skills/
 ├── engineering/     # 稳定工程 Skills
 ├── productivity/    # 与工程流协作的通用 Skills
-├── in-progress/     # 尚未稳定的 Akira/Matt 扩展
+├── in-progress/     # 尚未稳定的 Parallel 扩展
 └── deprecated/      # 弃用与迁移说明
 docs/                # 稳定 Skill 的人类说明
 scripts/list-skills.sh
@@ -28,12 +28,11 @@ uv run python ~/.agents/skills/akira/scripts/skills.py install \
   --all \
   --root skills/engineering \
   --root skills/productivity \
-  --skill ask-akira \
   --skill parallel-coordinator \
   --skill parallel-execution
 ```
 
-该命令安装稳定 Engineering / Productivity Skills，并显式加入当前 Akira 工程扩展；其他实验性 Skill 不会因为整仓存在而自动进入机器级注册表。
+该命令安装稳定 Engineering / Productivity Skills（其中已包含 `ask-akira`），并显式加入仍处于实验阶段的 Parallel 扩展；其他实验性 Skill 不会因为整仓存在而自动进入机器级注册表。
 
 本仓不再提供 Claude plugin、marketplace、`skills.sh`、npm/Changesets 或本地执行器链接作为正式安装路径。
 

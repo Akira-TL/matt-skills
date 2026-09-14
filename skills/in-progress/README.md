@@ -4,7 +4,6 @@
 
 当前能力：
 
-- **[ask-akira](./ask-akira/SKILL.md)** — Matt 执行策略扩展；显式切换 rapid、emergency 或 competition 模式，不重写 Matt 的专业能力。User-invoked.
 - **[parallel-coordinator](./parallel-coordinator/SKILL.md)** — 在 Matt Ticket / Spec 或 Akira mode Work State 之上建立 Execution Map、Gate 与 Parallel Tasks，并负责跨任务验收。User-invoked.
 - **[parallel-execution](./parallel-execution/SKILL.md)** — Worker 侧的 Parallel Task claim、Ownership、生命周期与阶段汇报协议；实际实现继续复用 Matt implement / tdd / code-review。Model-invoked.
 
