@@ -6,9 +6,8 @@
 
 - `skills/engineering/`：稳定工程工作流与工程方法。
 - `skills/productivity/`：与 Matt 工程流直接协作的通用工作方法。
-- `skills/in-progress/`：尚未稳定的 Akira/Matt 扩展，包括 `ask-akira`、Parallel 系列等。
-- `skills/misc/`：保留但默认不安装的低频能力。
-- `skills/deprecated/`：已弃用能力及迁移说明。
+- `skills/in-progress/`：尚未稳定的 Akira/Matt 扩展，目前只保留 `ask-akira` 与 Parallel 系列。
+- `skills/deprecated/`：已弃用能力及迁移说明；当前为空时不为目录形式本身保留内容。
 - `docs/<bucket>/<skill>.md`：稳定 Skill 的人类说明；与 Skill 行为发生实质变化时同步更新。
 
 `ask-matt` 是 Matt 系列总 Router。新增、删除、重命名用户可达 Skill，或改变它们在工程流程中的关系时，必须同步检查并更新 `ask-matt`。

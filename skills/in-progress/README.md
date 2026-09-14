@@ -1,19 +1,11 @@
 # In Progress
 
-Beta. These skills are public on purpose — try them and tell me what breaks. They're excluded from the plugin and the top-level README until they graduate to a stable bucket, they get no docs pages, and they can change or disappear without warning.
+本目录只保留 Akira 正在维护、但尚未提升为稳定能力的 Matt 工程扩展。它们不因位于本仓就自动进入普通稳定安装集；需要时由 `akira` Router 显式选择。
 
-The plugin won't give you these. Install one directly:
+当前能力：
 
-```bash
-npx skills@latest add mattpocock/skills --skill=<name>
-```
-
-- **[loop-me](./loop-me/SKILL.md)** — Grill yourself into implementable workflow specs over multiple sessions, using the current directory as a stateful workspace. User-invoked.
-- **[writing-beats](./writing-beats/SKILL.md)** — Shape an article as a journey of beats, choose-your-own-adventure style. Pick a starting beat, write only that beat, then pivot to the next, until the article reaches a natural end.
-- **[writing-fragments](./writing-fragments/SKILL.md)** — Grilling session that mines you for fragments — heterogeneous nuggets of writing — and appends them to a single document as raw material for a future article.
-- **[writing-shape](./writing-shape/SKILL.md)** — Take a markdown file of raw material and shape it into an article paragraph by paragraph, arguing format choices at each step.
-- **[claude-handoff](./claude-handoff/SKILL.md)** — Hand the current conversation off to a fresh background agent that picks up the work immediately, seeded with a handoff summary via `claude --bg`. User-invoked.
-- **[setup-ts-deep-modules](./setup-ts-deep-modules/SKILL.md)** — Wire dependency-cruiser into a TypeScript repo so each package is a deep module — implementation hidden in subfolders, reachable only through its entry-point files, tests exercising it through those. User-invoked.
-- **[ask-akira](./ask-akira/SKILL.md)** — Akira 的 Matt 执行策略扩展；显式切换 rapid、emergency 或 competition 模式，不重写 Matt 的专业能力。User-invoked.
+- **[ask-akira](./ask-akira/SKILL.md)** — Matt 执行策略扩展；显式切换 rapid、emergency 或 competition 模式，不重写 Matt 的专业能力。User-invoked.
 - **[parallel-coordinator](./parallel-coordinator/SKILL.md)** — 在 Matt Ticket / Spec 或 Akira mode Work State 之上建立 Execution Map、Gate 与 Parallel Tasks，并负责跨任务验收。User-invoked.
 - **[parallel-execution](./parallel-execution/SKILL.md)** — Worker 侧的 Parallel Task claim、Ownership、生命周期与阶段汇报协议；实际实现继续复用 Matt implement / tdd / code-review。Model-invoked.
+
+需要单独安装其中一个实验能力时，仍使用 `akira` Router 自带安装器从远端 `Akira-TL/matt-skills` source 注册，不使用第三方 Skill package manager 或本地 checkout 链接。
