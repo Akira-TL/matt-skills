@@ -1,94 +1,72 @@
+# code-review
+
 ## What it does
 
-`code-review` reviews the diff between `HEAD` and a fixed point you name — a commit, a branch, a tag, `main`, `HEAD~5` — along two axes. **Standards** asks whether the code follows how this repo writes code. **Spec** asks whether the code does what the originating issue or spec asked for. Each axis runs in its own sub-agent so neither sees the other's reasoning.
+`code-review` reviews committed changes between `HEAD` and a fixed point along two deliberately separate axes:
 
-The two axes are never merged and never re-ranked. The report ends with a worst issue *per axis* and refuses to name a single winner across them, because a change can pass one axis and fail the other: code that follows every convention while implementing the wrong thing passes Standards and fails Spec; code that does exactly what the ticket asked while breaking the repo's conventions does the reverse. A blended verdict lets the passing axis hide the failing one.
+- **Standards** — does the change follow this repository's documented engineering rules and the Skill's baseline code-smell heuristics?
+- **Spec** — does the change implement what the originating issue/spec actually asked for, without omissions or scope creep?
 
-## When to reach for it
+The axes stay separate so one kind of success cannot hide failure in the other.
 
-Type `/code-review`, or the agent reaches for it automatically when you ask to review a branch, a PR, work in progress, or anything "since X".
+## Review target
 
-| Your situation | Reach for |
-| --- | --- |
-| A diff exists and you want to know if it is built right *and* is the right thing | `code-review` |
-| You want bugs hunted in the diff — null paths, races, off-by-one | Use the current executor's dedicated bug-review capability if one exists; this Skill is for Standards + Spec review |
-| Nothing is written yet and you want it written test-first | tdd |
-| A whole spec needs building, review included | implement, which calls this skill itself |
-| The whole codebase has drifted, not one diff | improve-codebase-architecture |
-| Something is broken and you do not know why | diagnosing-bugs |
+The caller supplies a fixed point: a commit, branch, tag, `main`, `HEAD~5`, or another Git revision. The Skill verifies that the ref resolves and that `git diff <fixed-point>...HEAD` is non-empty before review begins.
 
-You must supply the fixed point. If you do not, the skill asks for one rather than guessing; it then checks the ref resolves and the diff is non-empty before spawning anything, so a typo'd branch name fails in front of you instead of inside two sub-agents.
+This means the intended target is a **committed Git state**. `implement` therefore commits a completed atomic implementation slice before invoking `code-review`. Staged, unstaged and untracked files are not silently folded into the review target.
 
-## Prerequisites
+## Sources
 
-The Standards axis needs nothing. It reads whatever the repo documents (`CODING_STANDARDS.md`, `CONTRIBUTING.md`, and the like) and falls back on a built-in baseline when the repo documents nothing.
+### Standards axis
 
-The Spec axis needs a spec to exist and be findable. It looks in this order:
+Read repository-owned standards such as `AGENTS.md`, `CONTRIBUTING.md`, coding standards and relevant ADRs. Repository rules override generic heuristics.
 
-1. Issue references in the commit messages (`#123`, `Closes #45`, a GitLab `!67`), fetched through `docs/agents/issue-tracker.md`.
-2. A path you pass in as an argument.
-3. A spec file under `docs/`, `specs/`, or `.scratch/` matching the branch or feature name.
-4. Asking you.
+The built-in baseline is a set of Fowler-style code-smell heuristics such as Mysterious Name, Duplicated Code, Feature Envy, Data Clumps, Primitive Obsession, Repeated Switches, Shotgun Surgery, Divergent Change, Speculative Generality, Message Chains, Middle Man and Refused Bequest. These are judgement calls, not automatic violations.
 
-Step 1 depends on `docs/agents/issue-tracker.md`, which setup-matt-pocock-skills writes. Without it the axis still works if you hand it a path. With no spec at all, the Spec sub-agent is skipped and the report says "no spec available" rather than inventing requirements.
+### Spec axis
 
-## The two axes
+Find the originating work source in this order:
 
-| | Standards | Spec |
-| --- | --- | --- |
-| Question | Is it built right? | Is it the right thing? |
-| Reads | The repo's documented standards, plus the smell baseline | The originating issue or spec |
-| Reports | Documented breaches (can be hard), and smells (always judgement calls) | Missing or partial requirements, scope creep, requirements implemented wrongly |
-| Every finding cites | The standards file and the rule, or the named smell plus the hunk | The line of the spec |
+1. issue/ticket references in the commits;
+2. a path supplied by the caller;
+3. a matching spec under the repository's normal spec locations;
+4. ask the user if the source cannot be established.
 
-A generic review skill that does not know your standards is the thing this design is trying to avoid — it flags what is deliberate in your codebase and misses the invariants your codebase actually depends on. So the repo's own documentation is the primary source on the Standards axis, and **the repo always overrides**.
+If there is genuinely no spec, skip the Spec axis and say so rather than inventing requirements.
 
-The **smell baseline** is the floor underneath it: twelve Fowler code smells from _Refactoring_ ch.3 — Mysterious Name, Duplicated Code, Feature Envy, Data Clumps, Primitive Obsession, Repeated Switches, Shotgun Surgery, Divergent Change, Speculative Generality, Message Chains, Middle Man, Refused Bequest. Each is a labelled heuristic ("possible Feature Envy"), never a hard violation, and each is stated as *what it is* → *how to fix*, so a finding arrives with a move attached rather than a complaint. Anything your linter already enforces is skipped by both axes.
+## Isolation and harness portability
 
-## Common questions
+The method requires **two separate review perspectives**, not a particular Agent product.
 
-**It collides with an executor's own `code-review`. What do I do?**
+First freeze one Review Packet containing the fixed point, diff command, commit list, standards sources, smell baseline and spec source.
 
-Treat that as an executor exposure problem, not an installation fork problem. Akira registers this canonical Skill once at `~/.agents/skills/code-review`; each executor owns how it exposes that registry entry alongside any built-in command with the same name. Prefer an executor namespace, alias, or explicit Skill-view configuration when available. Do not rename the installed directory or edit its frontmatter as a local workaround, because the machine registry is shared and source updates are managed centrally by `akira`.
+- If the current harness genuinely provides isolated reviewer contexts, run Standards and Spec in separate contexts. They may run in parallel when useful. Each reviewer receives only its assigned brief and must not invoke `code-review` recursively or delegate another reviewer.
+- If isolated reviewer contexts are unavailable, run the same Standards and Spec briefs sequentially in the current context from the frozen Review Packet. Label the output **non-isolated two-axis review**. Do not describe two passes in one context as independent reviewers.
 
-**Its sub-agents keep invoking `/code-review` again and spawn more agents.**
+Isolation increases independence; it is not a precondition for the Skill to function.
 
-Known open bug, reproduced by several people and in more than one harness. The Standards and Spec prompts do not forbid delegation, so a sub-agent can rediscover the skill and fan out again — one report reached 50-plus agents. The fix people have applied on forks is one line appended to both sub-agent briefs: "Do not invoke `/code-review` or spawn additional agents — perform this review directly." Some prefer to handle it at the harness level so every skill inherits the guard. Neither is in the shipped skill yet. If you run this unattended, watch the agent count.
+## Output contract
 
-**Should I run it in the same session that wrote the code?**
+Return two sections:
 
-Prefer a fresh one. As one reader put it: "Same context reviewing itself isn't review, it's confirmation bias with a slash command." The reviewing agent in the authoring session holds every assumption that shaped the code, which is exactly the context an independent reviewer would not have. This is also why people ask for implement without its built-in review step — it runs the review inside the session that just wrote the diff. Invoking `/code-review` yourself from a clean session is the honest version.
+```text
+## Standards
+...
 
-**After every ticket, or once at the end?**
+## Spec
+...
+```
 
-Both work, and the skill does not decide for you. Per-ticket keeps each diff small enough that the Spec axis has one clear spec to check against, which is the mode `implement` uses. Batching to the end of a branch catches interactions between tickets that the per-ticket passes each miss. If you are unsure, review per ticket and run one final pass against the branch point.
+Every Standards finding cites either a repository rule or a named smell plus the relevant hunk. Every Spec finding cites the corresponding requirement. Keep the axes separate and do not rank one against the other.
 
-**Can I trust the findings?**
+End with:
 
-Not without checking. Sub-agent output is a hypothesis, not evidence — one team reported a dozen breaking changes that prose-based reviews had waved through. The skill aggregates the two reports verbatim or lightly cleaned rather than re-verifying each claim against the files, so a finding can cite the wrong location or overstate an impact. Read the citation on each finding before acting on it. That every finding is required to carry one — a standards rule, a smell plus its hunk, or a spec line — is what makes this checkable at all.
+- finding count for each axis;
+- worst issue within each axis, if any;
+- execution mode: isolated reviewers or non-isolated sequential fallback.
 
-**Why does it find new problems every single time I run it?**
-
-Because fixes create new surface, and because the judgement-call half of the Standards axis is not deterministic between runs. One reader described the loop plainly: "/code-review and /improve-code-architecture always find new stuff every time. I implement fixes, rerun these skills, and again and again." There is no convergence guarantee. Treat a pass as a list of leads, act on the ones with a cited rule behind them, and stop — do not run it in a loop until it comes back clean, because it will not.
-
-**Does it review my uncommitted work?**
-
-No. It diffs `<fixed-point>...HEAD`, three-dot, which is measured from the merge-base and excludes staged and working-tree changes. If `implement` has not made an interim commit, the work about to be committed is invisible to the review. Commit first, then review, then amend or add a fixup.
-
-## It's working if
-
-- It refuses to start on a bad ref or an empty diff, before any sub-agent is spawned.
-- The report arrives as two separate blocks under `## Standards` and `## Spec`, not one merged list.
-- Every Standards finding names either a rule in one of your repo's files or one of the twelve smells, with the hunk quoted; every Spec finding quotes a line of the spec.
-- The closing summary gives a worst issue per axis and declines to pick an overall winner.
-- With no spec available, the Spec block says so instead of listing requirements it inferred from the code.
+Findings are review claims, not unquestionable facts. Before changing code, verify the cited file/hunk/spec line is real and still applies to the reviewed commit.
 
 ## Where it fits
 
-`code-review` is the review step at the tail of the build chain — `grill-with-docs → to-spec → to-tickets → implement → code-review` — and also stands alone on any branch or PR you point it at.
-
-- implement is the closest neighbour: it drives the build and calls this skill as its own closing review before committing.
-- to-spec and to-tickets produce the document the Spec axis checks against; a vague spec makes that axis vague.
-- improve-codebase-architecture is the whole-codebase counterpart — this skill only ever looks at one diff.
-
-ask-matt routes across the whole set when you are unsure which skill the situation wants.
+`code-review` is the review step after an atomic implementation commit and can also be invoked independently on an existing branch or PR. A review finding that requires code changes becomes a separate atomic fix, followed by the focused validation/review needed to close that finding.
