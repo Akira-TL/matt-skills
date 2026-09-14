@@ -1,55 +1,73 @@
 # Phase boundaries
 
-A **phase** is a chunk of work inside a session — the grilling, the implementation, the QA. The definition is fuzzy on purpose: a phase ends when you think *"ok, we're done with that"*.
+A **phase** is a coherent chunk of work inside one working context — grilling, implementation, review, QA. A **phase boundary** is the point between two such chunks where context strategy can be reconsidered without interrupting an unfinished line of reasoning.
 
-The **phase boundary** is the gap between two phases, and it is the only place this decision belongs. Mid-phase there is no decision to make — continue, or split the work that's left into subagents. Compacting mid-phase makes the agent lose the thread.
+The method is independent of any one Agent product. A harness may expose commands such as clear, compact, fork, sub-agent, or new-session controls; another may expose different primitives. Choose the semantic move first, then use whatever mechanism the current harness actually provides.
 
-## The five options
+## The five semantic moves
 
-| Option       | What it does                                                    |
-| ------------ | --------------------------------------------------------------- |
-| **Continue** | Stay in the session. No context switch at all.                    |
-| **`/clear`** | Empty the context window and start from nothing.                  |
-| **`/handoff`** | Write a portable markdown file and seed a session anywhere with it. |
-| **Subagent** | Send the task to its own context window and get a report back.     |
-| **`/compact`** | Compress this context and seed a fresh session with the summary.  |
+| Move | Use it when |
+| --- | --- |
+| **Continue** | The next phase benefits materially from the full current reasoning and the context remains healthy enough to continue. |
+| **Fresh context** | The previous phase is no longer needed as evidence for the next one. Start clean rather than carrying irrelevant history. |
+| **Handoff artifact** | Work must move to another harness, directory, repository, colleague, or independently resumable thread. Write a portable artifact that carries only what the receiver needs. |
+| **Isolated worker** | A tightly scoped side task can be executed without steering and the current harness genuinely provides an isolated worker context. |
+| **Summary transfer** | The next phase still needs some of the current reasoning, but retaining the whole context is no longer desirable or possible. Carry a deliberate summary into a fresh/compacted context. |
 
-## The tree
+`/handoff` is the Matt Skill for the portable-artifact case. Fresh-context and summary-transfer mechanisms are harness-specific: use `/clear`, `/compact`, a new session, a fork, or another equivalent only when that capability actually exists. Do not write product-specific commands into the engineering method as universal requirements.
 
-Work top to bottom at the boundary. The first **yes** wins.
+## Decision order
 
-**1. Can you continue in this session?** Two things make the answer yes: the next phase needs this phase as a **primary source**, or you have enough smart zone left (~150k tokens) for the next phase to fit. Grilling → implementation is the standard yes: the implementation wants the reasoning verbatim, not a summary of it. Continue costs nothing and loses nothing, so rule it out before anything else.
+Work top to bottom at a phase boundary. The first applicable answer wins.
 
-**2. Is the context irrelevant to what comes next?** Is everything in this session — the exploration, the decisions, the dead ends — disposable? If so, **`/clear`**. It is the cheapest move on the board: it takes no time and hands back the whole window. `/clear` also isn't terminal — the old session stays resumable.
+### 1. Can you safely continue?
 
-The cost of getting this wrong is one-way. Clear a *relevant* context and you lose the **why** behind what you built, and no amount of reading the diff back gets it returned.
+Continue when the next phase genuinely needs the current phase as a **primary source**, or when keeping the existing reasoning clearly costs less than reconstructing it. Grilling → a small implementation is a common example: the implementation may rely on distinctions and rejected alternatives that a summary would flatten.
 
-**3. Do you need to hand off?** `/handoff` is narrow. You need it only when you are:
+Do not use a fixed token number as the decision rule. Context limits and degradation behaviour vary by model and harness. Use observable pressure instead: repeated forgetting, inability to keep relevant files/decisions in view, excessive compression of earlier reasoning, or an executor-reported context constraint.
 
-- swapping to a **new harness** (Claude → Codex),
-- moving to a **new directory** or repo,
-- sending the work to a **colleague**,
-- or forking a side task you found **mid-phase** without derailing what you're doing.
+### 2. Is the previous context disposable?
 
-That list is the whole clause. What `/handoff` buys is **portability** — a file that travels. If nothing is travelling, you don't need it.
+If the next phase needs only durable artifacts — ticket, spec, ADR, committed code — and not the conversational reasoning behind them, start a **fresh context**.
 
-**4. Can the task be done AFK?** Is it scoped tightly enough to run with you away from the keyboard, no steering? Then send it to a **subagent** and leave this session untouched. Automated review is the standard case: the agent reads the diff and reports, and you aren't needed while it does.
+This is the normal boundary between independent implementation tickets. The exact action may be a new session, a clear/reset command, or another executor-specific fresh-context mechanism.
 
-**5. Otherwise, `/compact`.** Relevant context, same harness, same directory, and you need to stay in the loop — this is where the tree lands, and it lands here often. Pass it an instruction (`/compact we're going to QA this area`) so the summary keeps what the next phase needs.
+### 3. Does the work need to travel?
 
-`/compact` is the **default, not the first reach**. It sits at the bottom because the four questions above it are all cheaper or more precise. The failure mode when people start here is a fresh session that is confidently wrong about a decision the summary flattened.
+Use a **handoff artifact** when the receiver changes in a way that needs portability:
+
+- another Agent harness;
+- another repository or directory;
+- another human collaborator;
+- a side thread that must be independently resumable.
+
+A handoff is not merely a way to shrink context. Its value is that the artifact can travel and be inspected independently.
+
+### 4. Is there a separable side task and real isolation available?
+
+If a task is narrowly scoped, does not need interactive steering, and the current harness provides a genuinely isolated worker, run it there and return only the result/evidence needed by the parent context.
+
+If no isolated worker exists, perform the task synchronously or defer it. Do not simulate independence inside the same context and do not claim parallelism that did not happen.
+
+### 5. Otherwise, transfer a summary
+
+When the next phase still depends on the current reasoning but carrying the full context is undesirable, create a **summary transfer** focused on the next phase: decisions, rejected alternatives that still matter, open constraints, evidence pointers, and current state.
+
+Use the harness's compaction/fork/new-session mechanism if one exists; otherwise create an explicit summary/handoff artifact. The important property is that this is a **secondary source**: useful, smaller, and intentionally lossy.
 
 ## Primary and secondary sources
 
-Every move except **Continue** turns a **primary source** into a **secondary source** — the session as it happened, replaced by a summary of it. The trade is always the same shape:
+Every move except Continue changes how much of the original reasoning remains directly available.
 
-| Source                            | Information | Noise | Room to move |
-| --------------------------------- | ----------- | ----- | ------------ |
-| Primary (Continue)                | Full        | Lots  | Little       |
-| Secondary (`/compact`, `/handoff`) | Lossy       | Less  | Lots         |
+| Context form | Information retained | Noise retained | Portability |
+| --- | --- | --- | --- |
+| Current context | Highest | Highest | Low |
+| Fresh context | None beyond durable artifacts | Lowest | Medium |
+| Isolated worker result | Task-specific | Low | Medium |
+| Handoff / summary transfer | Selected, lossy | Low | High |
 
-This is why question 1 comes first. You only pay the lossiness when staying costs more than it saves.
+This is why Continue is considered first: do not pay information loss when the next phase truly needs the original reasoning. It is also why fresh context is preferable when only durable artifacts matter: carrying irrelevant history has no engineering value.
 
-## These are judgement calls
+## Mid-phase rule
 
-The questions are not objective — each has taste in it, and the same boundary can go two ways on two days. The value is in asking them **in order**, at the boundary rather than in the middle of the work.
+Do not switch context strategy merely because the session feels long. Mid-phase, finish the coherent unit if possible. If a separable side task appears, isolate only that side task when the harness supports it. Reconsider the parent context at the next real phase boundary.

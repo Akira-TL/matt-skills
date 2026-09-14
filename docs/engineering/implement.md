@@ -12,7 +12,7 @@ Where the work currently lives decides whether this is the right skill:
 
 | The work is… | Reach for |
 | --- | --- |
-| An ordinary ticket on the tracker | `/implement #42`, one ticket per session, clearing context between tickets |
+| An ordinary ticket on the tracker | `/implement #42`, one focused context per ticket; independent tickets normally start fresh and reload durable Source Spec/ADR evidence |
 | An Akira Parallel Task | `/implement <task>`; the run loads `parallel-execution`, claims the task, follows its Parent Gate and Source Matt Ticket back to the Source Spec, then returns to the normal Matt loop |
 | A spec, not yet split up, and the build spans sessions | to-tickets first, then `/implement` per ticket |
 | A spec, and the build is small | `/implement` directly against the spec |

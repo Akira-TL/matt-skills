@@ -60,7 +60,7 @@ Less well, and this is a known limitation. The template leans hard on user stori
 No to both. It reads and respects the ADRs covering the area it touches, but it doesn't link them, and it doesn't search the tracker for overlapping issues before drafting — so a spec can quietly duplicate work someone already filed. Search the tracker yourself first if the area is busy.
 
 **`/to-tickets` couldn't read my spec — it kept truncating.**
-Very large specs can outgrow what a tracker issue will serve back cleanly, and there is no local copy to fall back on. The fix is context hygiene: don't clear or compact between `/to-spec` and `/to-tickets`. Run them in the same window and the spec never has to be re-fetched at all.
+Very large specs can outgrow what a tracker issue will serve back cleanly, and there may be no local copy to fall back on. Prefer keeping `/to-spec → /to-tickets` in the same reliable working context so ticket decomposition can use the already-loaded spec rather than repeatedly fetching it. If the context must move, use the current harness's summary/handoff mechanism deliberately instead of assuming a specific clear/compact command exists.
 
 ## It's working if
 

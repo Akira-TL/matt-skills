@@ -73,13 +73,13 @@ Same class of problem, [reported in issue #513](https://github.com/mattpocock/sk
 They did, and that was a bug — a single shared file also raced when parallel agents wrote to it. Local mode now writes one file per ticket under `.scratch/<feature-slug>/issues/<NN>-<slug>.md`, in dependency order, matching the layout the local tracker template already described. The `NN` prefix is a real ticket ID, so `/implement 03` works instead of retyping a long title.
 
 **It kept truncating when it tried to read my spec.**
-A very large spec can outgrow what a tracker issue serves back cleanly, and there is no local copy to fall back on — the agent then burns tool calls re-fetching chunks and never reaches the end. Don't clear or compact between `/to-spec` and `/to-tickets`. Run them in the same context window and the spec never has to be fetched back at all.
+A very large spec can outgrow what a tracker issue serves back cleanly, and there may be no local copy to fall back on. Prefer running `/to-spec → /to-tickets` in the same reliable working context so the full spec is already available. If the context must change, transfer the relevant source deliberately with the current harness's supported summary/handoff mechanism rather than relying on product-specific clear/compact commands.
 
 **The acceptance criteria graded nothing — some passed before any work was done.**
 The template asks for criteria and says nothing about whether they can fail, so this happens. Three shapes recur: a criterion already true at the base commit, a criterion that can only be satisfied by work another ticket owns, and one that restates the request rather than deriving from the artifact. Vertical slicing prevents most of it — a slice that delivers behaviour which didn't exist before is red at the base commit by construction — but the check is worth doing by hand. For each criterion, name the observation that would show it false, and confirm it fails at the commit the implementer starts from.
 
 **The tickets are published. How do I actually run them?**
-The skill stops at the artifact. In ordinary execution, work the frontier with one implement session per ticket and clear context between tickets. In the Akira-maintained environment, coordinated multi-Agent execution can hand the same Matt tickets to the Akira Parallel Coordinator, which publishes execution-only Parallel Tasks while keeping these tickets and their Source Spec as the engineering source of truth.
+The skill stops at the artifact. In ordinary execution, work the frontier with one focused `/implement` context per ticket; independent tickets normally start from a fresh context and reload their durable Source Spec/ADR evidence instead of inheriting conversational history from the previous ticket. The current harness decides how that fresh context is created. In the Akira-maintained environment, coordinated multi-Agent execution can hand the same Matt tickets to the Akira Parallel Coordinator, which publishes execution-only Parallel Tasks while keeping these tickets and their Source Spec as the engineering source of truth.
 
 ## It's working if
 

@@ -34,17 +34,17 @@ The word the skill gives you to think with is **flow**: a path *through* the ski
 
 ## The phase boundary
 
-The other idea it hands you is the **phase boundary**. A phase is a chunk of work inside a session — the grilling, the implementation, the QA — and the boundary between two of them is the only place the question "what do I do with this context?" belongs. Mid-phase there is nothing to decide: continue, or split what is left into subagents.
+The other idea it hands you is the **phase boundary**. A phase is a coherent chunk of work — grilling, implementation, review, QA — and the boundary between two of them is where context strategy belongs. Matt chooses the semantic move; the current Agent harness chooses the concrete mechanism.
 
-| Option | Take it when |
+| Move | Take it when |
 | --- | --- |
-| **Continue** | The next phase wants this one verbatim, or you have smart zone left. It is the only move that keeps the session as a primary source, so rule it out first |
-| **`/clear`** | Everything behind you is disposable. Cheapest move on the board, and one-way if you were wrong |
-| **handoff** | Something has to travel: a new harness, a new directory, a colleague, a side task forked mid-phase |
-| **Subagent** | The task is scoped tightly enough to run with you away from the keyboard |
-| **`/compact`** | None of the above. The default, and it lands here often |
+| **Continue** | The next phase materially needs the full current reasoning and the context remains reliable |
+| **Fresh context** | Durable artifacts contain everything the next phase needs, so prior conversational history is disposable |
+| **Handoff artifact** | Work must travel to another harness, directory/repository, collaborator, or independently resumable thread |
+| **Isolated worker** | A separable side task can run without steering and the current harness genuinely provides isolation |
+| **Summary transfer** | The next phase still needs selected reasoning but carrying the full context is undesirable |
 
-Two of those are routinely got wrong, which is why the router carries the order rather than the list. `/handoff` reads like the general bridge between windows and is not: portability is the whole of what it buys. `/compact` is the bottom of the tree rather than the first reach, because the four questions above it are each cheaper or more precise.
+Commands such as `/clear`, `/compact`, new-session/fork controls and sub-agent tools are possible executor-specific adapters for those moves; they are not universal Matt requirements. The decision order still prefers preserving primary-source reasoning when it is genuinely needed, and otherwise sheds context deliberately rather than by a fixed token threshold.
 
 ## Common questions
 
@@ -62,7 +62,7 @@ Also real, also unfixed. The router answers from its own one-line summary of eac
 
 **Why is it prose instead of a numbered checklist?**
 
-A fair complaint, filed as an open issue arguing that most of the routing is deterministic and the narrative makes it hard to scan. Nothing stops you asking for the compressed form — "just give me the sequence" gets you the sequence. What the prose is carrying is the conditional half: the branches, where a human decision is expected, and where to clear or compact between steps. A flat checklist drops exactly that.
+A fair complaint, filed as an open issue arguing that most of the routing is deterministic and the narrative makes it hard to scan. Nothing stops you asking for the compressed form — "just give me the sequence" gets you the sequence. What the prose is carrying is the conditional half: the branches, where a human decision is expected, and where context should continue, restart, hand off, isolate a side task or transfer a summary. A flat checklist drops exactly that.
 
 **Can it route over my own skills, or another author's?**
 
@@ -79,7 +79,7 @@ Check the changelog for a rename before assuming it is gone. `writing-great-skil
 ## It's working if
 
 - It ends by naming what to type and stops there, instead of starting the work itself.
-- The route it gives back mentions where to clear or compact context and where you are expected to review, not just a list of skill names.
+- The route it gives back identifies the important phase boundaries and whether to continue, start fresh, hand off, isolate a side task or transfer a summary, rather than assuming one product's context commands.
 - Where two skills are close, it says which one and why the other is wrong for you.
 - Any claim it makes about another skill's behaviour shows up in the trace as it reading that skill's `SKILL.md`.
 - You recognise your own situation in what it hands back, rather than the nearest generic scenario.
