@@ -17,10 +17,10 @@ Read the referenced work item before changing code.
 
 Use /tdd where possible, at pre-agreed seams.
 
-Run typechecking regularly, single test files regularly, and the full test suite once at the end.
+Run focused tests, typechecking, build or other validators as the current slice requires. Do not automatically expand an ordinary work item into an unrelated full-project suite; run broader validation only when the repository contract, acceptance criteria, scope or risk of the change actually requires it.
 
-Once done, use /code-review to review the work.
+When the implementation slice and its required targeted validation are complete, commit that atomic implementation state to the current branch using the repository's guarded commit path. Then use /code-review against the fixed point so the review sees the actual committed change.
 
-Commit your work to the current branch.
+If review finds issues that require code changes, fix them as separate atomic changes, validate them at the appropriate scope, commit them, and rerun only the affected review/validation needed to establish closure. Do not amend or hide an already meaningful implementation commit merely to make the review history look cleaner.
 
-If this was a Parallel Task, return to `parallel-execution` after the commit: record the task as `ready-for-review` and emit its Parallel Task Report. The worker does not accept or close the task; the Coordinator owns that review boundary.
+If this was a Parallel Task, return to `parallel-execution` only after the implementation commit and its required review/fixes are complete: record the task as `ready-for-review` and emit its Parallel Task Report. The worker does not accept or close the task; the Coordinator owns that review boundary.

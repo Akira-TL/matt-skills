@@ -1,6 +1,6 @@
 ## What it does
 
-`implement` builds work that has already been decided. You point it at a ticket, a spec, or the plan you just agreed in the conversation, and it writes the code, drives tdd at the seams, typechecks as it goes, runs code-review at the end, and commits to the current branch.
+`implement` builds work that has already been decided. You point it at a ticket, a spec, or the plan you just agreed in the conversation, and it writes the code, drives TDD at the seams where appropriate, runs validation proportionate to the slice, commits the completed atomic implementation state, and then reviews that real commit against a fixed point.
 
 It never reopens the plan. For a ticket, it follows the ticket's local scope and loads its Source Spec and linked ADRs when present, so cross-ticket implementation decisions stay canonical upstream rather than being silently reinvented in a fresh agent session. In an Akira Parallel Task, the coordination layer adds claim and lifecycle handling around the same Matt implementation loop; it does not replace it.
 
@@ -36,10 +36,10 @@ A run first resolves the work's evidence chain: ticket → Source Spec → relev
 The Matt loop remains five beats:
 
 1. Work out the seams from the resolved ticket/spec context.
-2. Drive tdd at the pre-agreed seams, one red-green slice at a time.
-3. Typecheck often, run single test files as it goes.
-4. Run the full test suite once, at the end.
-5. Run code-review, then commit to the current branch.
+2. Drive TDD at the pre-agreed seams where it is appropriate, one red-green slice at a time.
+3. Run focused tests, typechecking, build or other validators required by the current slice.
+4. Commit the completed atomic implementation state through the repository's guarded commit path. A full-project suite is not automatic; run broader validation only when the repository contract, acceptance criteria, scope or risk requires it.
+5. Run code-review against the fixed point so it reviews the committed change. Findings that require edits become separate atomic fix commits with the necessary focused re-validation/review.
 
 One run covers one implementation work item. Matt tickets are tracer-bullet vertical slices sized to fit a single fresh context window; their Source Spec pointer is what makes the previous session's context disposable without turning each ticket into a duplicate specification. A Parallel Task adds only execution scope and coordination state around that source chain.
 
@@ -63,15 +63,13 @@ One `/implement` invocation still owns one implementation work item. Raw side-by
 
 Not built in. It commits straight to the current branch, which several people find too eager: the code lands before they have had a chance to verify it works. There is no configuration flag and no PR mode. People override it in the invocation ("commit to a branch and open a PR") or by editing their local copy of the skill.
 
-**`code-review` says it cannot see my changes.**
+**Why does implementation commit before code-review?**
 
-`code-review` reviews `git diff <fixed-point>...HEAD`, which excludes staged and working-tree changes. `implement` runs it before committing, so unless an interim commit already exists there is nothing in that diff to review. Multiple people have reported this and it is unfixed on both sides. Commit first, then review against the point you branched from.
+Because `code-review` reviews a Git range against a fixed point. Committing the finished atomic slice first makes the review target deterministic and prevents the previous failure mode where the review ran before the new work existed in `HEAD`. If review finds a real defect, fix it in a separate atomic commit and review the affected area again. For particularly independent final review, a fresh session or isolated reviewer context is still stronger than the authoring context when the current harness provides one.
 
-Separately, some people deliberately do not want the review inside the run at all, because an agent reviewing the code it just wrote is biased toward its own solution. Running code-review in a fresh session against a fixed point is a legitimate alternative, and is the same reason that skill runs its two axes in separate sub-agents.
+**One ticket is exhausting the available context. Am I using it wrong?**
 
-**One ticket burned 150k tokens. Am I using it wrong?**
-
-Probably the ticket is too big rather than the skill being misused. A run does codebase exploration, a red-green loop per seam, a full suite, and a review, so a non-trivial ticket exceeding 100k tokens is normal rather than a sign something broke. The lever is upstream: right-size the tickets in to-tickets so each fits one fresh window. If a single ticket keeps blowing out, split it rather than raising the effort level.
+Treat that as evidence that the slice may be too large or its source context too diffuse; do not rely on a fixed token threshold that assumes a particular model or harness. The upstream lever is to right-size tickets in `to-tickets`, keep shared decisions in the Source Spec/ADRs, and split a work item when it no longer fits a reliable implementation/review cycle.
 
 **`/implement #2` in a fresh session worked on something completely unrelated.**
 
@@ -81,8 +79,8 @@ Probably the ticket is too big rather than the skill being misused. A run does c
 
 - The session opens by resolving the ticket/spec source chain rather than asking you what to build; a published Matt ticket loads its Source Spec, and a Parallel Task resolves through its Parent Gate and Source Matt Ticket.
 - You can see an actual `/tdd` invocation in the trace, not just tests appearing in the diff.
-- Typechecks and single test files run repeatedly during the run, and the full suite runs once near the end.
-- The run reaches a commit on your current branch without you prompting it to carry on.
+- Focused tests/typechecks/build checks run at the scope justified by the change; a full suite appears only when the project contract or risk warrants it.
+- The run reaches an atomic implementation commit on the current branch before code-review, so the review sees the actual Git state.
 - The diff is one ticket's worth of change: a vertical slice through every layer, not several tickets swept together.
 
 ## Where it fits
@@ -93,7 +91,7 @@ Probably the ticket is too big rather than the skill being misused. A run does c
 grill-with-docs → to-spec → to-tickets → implement → code-review
 ```
 
-Its neighbours are to-tickets, which produces the Matt tickets and their Source Spec pointers; tdd, which it drives internally at each seam; and code-review, which it runs before committing. In the Akira coordinated path, `parallel-execution` wraps this step with claim, Parent Gate context, lifecycle state, and worker reporting while leaving Matt's implementation method unchanged.
+Its neighbours are to-tickets, which produces the Matt tickets and their Source Spec pointers; TDD, which it uses at appropriate seams; and code-review, which reviews the committed implementation state before the work item is considered closed. In the Akira coordinated path, `parallel-execution` wraps this step with claim, Parent Gate context, lifecycle state, and worker reporting while leaving Matt's implementation method unchanged.
 
 That trust is why wayfinder merges onto the chain at to-spec rather than looping its map straight into `implement`. Go straight to `implement` from a map only when the effort turned out genuinely small.
 
