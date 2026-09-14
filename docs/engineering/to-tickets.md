@@ -20,7 +20,7 @@ Tickets that `to-tickets` produced are agent-ready by construction. Don't run tr
 
 ## Prerequisites
 
-`to-tickets` publishes into a tracker, so setup-matt-pocock-skills must have configured one for this repo, along with the triage-label vocabulary. Either kind works: a real tracker like GitHub or Linear, or local markdown files under `.scratch/`, which is supported out of the box.
+`to-tickets` publishes into the repository's configured tracker, so the user-invoked `setup-matt-pocock-skills` Skill must already have established both the tracker and workflow-role mapping. If either is absent, to-tickets stops and tells you to run setup explicitly; it does not invoke setup itself. A real tracker such as GitHub or Linear, or local markdown under `.scratch/`, are all supported.
 
 ## Tracer bullets, not layers
 
@@ -36,7 +36,7 @@ The edges are the point of the artifact. They read two ways depending on the tra
 
 | Tracker | Where the edges live | How you work them |
 | --- | --- | --- |
-| Local markdown | Text in one file per ticket under `.scratch/<feature>/issues/<NN>-<slug>.md`, numbered blockers-first | Top to bottom, by hand |
+| Local markdown | One file per ticket under `.scratch/<feature>/issues/<NN>-<slug>.md`, with machine-readable `Blocked by:` and `Status:` fields near the top | Work the open/unblocked files; `Status:` uses the configured local value for canonical role `ready-for-agent` |
 | A real tracker (GitHub, Linear) | Native blocking links, or sub-issues where the tracker has them | Any ticket whose blockers are done is on the **frontier** and can be grabbed |
 
 The edges live in the ticket either way. When the tickets came from a published spec, the Source Spec lives there too. A ticket is independently executable, but it is not a second copy of the spec: shared architecture, interfaces, schema/API contracts, and testing decisions remain in the spec or its linked ADRs.
@@ -64,13 +64,13 @@ Over-decomposition is the most reported friction on this skill, and it is consis
 This is the failure the vertical-slice rule is written against, and the skill still produces it sometimes. Catch it at the quiz step by asking one question per ticket: what can I demo when this is done? A ticket with no answer is a horizontal slice. Some people add a "demo path" line to each ticket for this reason, and report it nudges the model toward vertical decomposition.
 
 **On GitHub the tickets weren't created as sub-issues of the spec issue.**
-Known and unfixed. It has been reported across a dozen runs and several models, [most fully in issue #554](https://github.com/mattpocock/skills/issues/554), and it is worse on Codex than on Claude. `gh` has supported this natively since v2.94: `gh issue create --parent <n>`, and `gh issue edit <parent> --add-sub-issue <n>` after the fact. Until the tracker template prefers those, wiring the parent links yourself after a run is the reliable move.
+The current GitHub tracker adapter prefers the CLI's native sub-issue operations: create with `gh issue create --parent <n>`, or attach an existing issue with `gh issue edit <child> --parent <n>` / `gh issue edit <parent> --add-sub-issue <child>`. If a run still emits unlinked issues, that run did not follow the configured tracker contract; repair the links with the same native operation rather than treating body text as equivalent.
 
 **"Blocked by" was written into the issue body instead of a real blocking link.**
-Same class of problem, [reported in issue #513](https://github.com/mattpocock/skills/issues/513), where the agent went as far as asserting GitHub has no native blocking relationship at all. It does — `gh issue create --blocked-by 12,15`. Because blockers are published first, their numbers are always available at creation time. The body text is meant to be the fallback for trackers with no native edge, not the default.
+On current GitHub CLI, native dependency edges are the default: `gh issue create --blocked-by 12,15` at creation time or `gh issue edit <child> --add-blocked-by 12,15` afterwards. Because blockers are published first, their identifiers are available when each dependent ticket is created. Body text is only the compatibility fallback when the active tracker or CLI cannot represent a native edge.
 
 **Where do the local tickets go? The v1.1 notes said a root-level `tickets.md`.**
-They did, and that was a bug — a single shared file also raced when parallel agents wrote to it. Local mode now writes one file per ticket under `.scratch/<feature-slug>/issues/<NN>-<slug>.md`, in dependency order, matching the layout the local tracker template already described. The `NN` prefix is a real ticket ID, so `/implement 03` works instead of retyping a long title.
+They did, and that was a bug — a single shared file also raced when parallel Agents wrote to it. Local mode now writes one file per ticket under `.scratch/<feature-slug>/issues/<NN>-<slug>.md`, in dependency order, matching the local tracker contract. `Blocked by:` and `Status:` are plain machine-readable header fields rather than bold prose; `Status:` uses the configured local value mapped from canonical role `ready-for-agent`. The `NN` prefix is a real ticket ID, so `/implement 03` works instead of retyping a long title.
 
 **It kept truncating when it tried to read my spec.**
 A very large spec can outgrow what a tracker issue serves back cleanly, and there may be no local copy to fall back on. Prefer running `/to-spec → /to-tickets` in the same reliable working context so the full spec is already available. If the context must change, transfer the relevant source deliberately with the current harness's supported summary/handoff mechanism rather than relying on product-specific clear/compact commands.

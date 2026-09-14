@@ -1,6 +1,6 @@
 ---
 name: setup-matt-pocock-skills
-description: Configure this repo for the engineering skills — set up its issue tracker, triage label vocabulary, and domain doc layout. Run once before first use of the other engineering skills.
+description: Configure this repo for the engineering skills — set up its issue tracker, workflow-role mapping, and domain doc layout. Run once before first use of the other engineering skills.
 disable-model-invocation: true
 ---
 
@@ -9,7 +9,7 @@ disable-model-invocation: true
 Scaffold the per-repo configuration that the engineering skills assume:
 
 - **Issue tracker** — where issues live (GitHub by default; local markdown is also supported out of the box)
-- **Triage labels** — the strings used for the five canonical triage roles
+- **Workflow roles** — the role-to-value mapping required by installed engineering flows: tracker label strings on real trackers and machine-readable field values in local markdown
 - **Domain docs** — where `CONTEXT.md` and ADRs live, and the consumer rules for reading them
 
 This is a prompt-driven skill, not a deterministic script. Explore, present what you found, confirm with the user, then write.
@@ -26,14 +26,14 @@ Look at the current repo to understand its starting state. Read whatever exists;
 - `docs/adr/` and any `src/*/docs/adr/` directories
 - `docs/agents/` — does this skill's prior output already exist?
 - `.scratch/` — sign that a local-markdown issue tracker convention is already in use
-- Is the `triage` skill installed? (a `triage` skill folder alongside this one, or `triage` in your available skills.) This decides whether Section B runs at all.
+- Which workflow-role consumers are installed? `to-tickets` needs the `ready-for-agent` role; `triage` adds its category/state roles; on a real label-based tracker, `wayfinder` adds its `wayfinder:*` roles. Local Wayfinder uses `Type:` and lifecycle `Status:` fields instead of tracker labels. This determines the required role set in Section B.
 - Monorepo signals — a `pnpm-workspace.yaml`, a `workspaces` field in `package.json`, or a populated `packages/*` with its own `src/`. Present only in a genuinely large multi-package repo; their absence means single-context, which is almost every repo.
 
 ### 2. Present findings and ask
 
 Summarise what's present and what's missing. Then take the sections in order — one section, one answer, then the next.
 
-Lead each section with the recommended answer so the user can accept it in a word. Give a one-line explainer only when the choice genuinely branches; skip the section entirely when exploration already settled it (Section B when `triage` isn't installed, Section C when there's no monorepo).
+Lead each section with the recommended answer so the user can accept it in a word. Give a one-line explainer only when the choice genuinely branches; skip Section C when exploration already settled there is no monorepo.
 
 **Section A — Issue tracker.**
 
@@ -48,13 +48,17 @@ Default posture: these skills were designed for GitHub. If a `git remote` points
 
 Record the choice in `docs/agents/issue-tracker.md`. The GitHub and GitLab templates carry a "PRs as a request surface" flag, defaulted **off** — leave it off and don't raise it; a user who wants external PRs in the triage queue can flip the flag in the file later.
 
-**Section B — Triage label vocabulary.** Skip this section entirely if the `triage` skill isn't installed (exploration told you) — an uninstalled skill needs no labels.
+**Section B — Workflow-role mapping.** Build the required role set from the selected tracker and installed role-consuming flows. Skip this section only when that set is empty.
 
-If it is installed, ask exactly one question:
+- if `to-tickets` is installed: `ready-for-agent`;
+- if `triage` is installed: category roles `bug`, `enhancement`, plus state roles `needs-triage`, `needs-info`, `ready-for-agent`, `ready-for-human`, `wontfix`;
+- if `wayfinder` is installed **and the selected tracker represents Wayfinder types as labels**: `wayfinder:map`, `wayfinder:research`, `wayfinder:prototype`, `wayfinder:grilling`, `wayfinder:task`.
 
-> Do you want to keep the default triage labels? (recommended: **yes**)
+Ask exactly one naming question:
 
-The defaults are the five canonical roles, each label string equal to its name: `needs-triage`, `needs-info`, `ready-for-agent`, `ready-for-human`, `wontfix`. On **yes**, write them as-is. Only if the user says no — usually because their tracker already uses other names (e.g. `bug:triage` for `needs-triage`) — collect the overrides so `triage` applies existing labels instead of creating duplicates.
+> Do you want to keep the canonical workflow role values? (recommended: **yes**)
+
+On **yes**, map each required role to the same string. Only if the user says no — usually because the tracker already uses another vocabulary — collect the overrides needed by the installed flows so downstream skills reuse the repository's existing values rather than inventing duplicates. `docs/agents/triage-labels.md` remains the compatibility path for this broader workflow-role mapping.
 
 **Section C — Domain docs.** Default to **single-context** — one `CONTEXT.md` + `docs/adr/` at the repo root. This fits almost every repo; write it without asking.
 
@@ -76,7 +80,8 @@ Then show the user a draft of:
 
 - the target canonical instruction file and any proposed compatibility-pointer change;
 - the `## Agent skills` block to add or update there;
-- the contents of `docs/agents/issue-tracker.md`, `docs/agents/domain.md`, and `docs/agents/triage-labels.md` (the last only when `triage` is installed).
+- the contents of `docs/agents/issue-tracker.md` and `docs/agents/domain.md`;
+- when Section B has a non-empty role set, the required-role subset of `docs/agents/triage-labels.md` and, for a real tracker, the labels that already exist plus the exact missing labels setup proposes to create after approval.
 
 Let them edit before writing.
 
@@ -95,27 +100,31 @@ The block:
 
 [one-line summary of where issues are tracked]. See `docs/agents/issue-tracker.md`.
 
-### Triage labels
+### Workflow roles
 
-[one-line summary of the label vocabulary]. See `docs/agents/triage-labels.md`.
+[one-line summary of the configured workflow-role mapping]. See `docs/agents/triage-labels.md`.
 
 ### Domain docs
 
 [one-line summary of layout — "single-context" or "multi-context"]. See `docs/agents/domain.md`.
 ```
 
-Include the `### Triage labels` sub-block, and write `docs/agents/triage-labels.md`, only when `triage` is installed and Section B ran. When it isn't, both are omitted.
+Include the `### Workflow roles` sub-block and write `docs/agents/triage-labels.md` only when Section B has a non-empty required-role set, containing only the roles required by the installed flows.
+
+When Section B has a non-empty role set, verify the required labels after writing the configuration for GitHub or GitLab. Create **only missing labels**, using the configured label strings; never rewrite the color or description of an existing label. Label creation is part of the setup the user already approved in step 3, but it must remain idempotent. For local markdown there is no remote label registry to mutate. For an `Other` tracker, create labels only when the recorded tracker workflow provides a deterministic label-create operation; otherwise record the missing labels as an explicit setup gap instead of pretending setup is complete.
 
 Then write the docs files using the seed templates in this skill folder as a starting point:
 
 - [issue-tracker-github.md](./issue-tracker-github.md) — GitHub issue tracker
 - [issue-tracker-gitlab.md](./issue-tracker-gitlab.md) — GitLab issue tracker
 - [issue-tracker-local.md](./issue-tracker-local.md) — local-markdown issue tracker
-- [triage-labels.md](./triage-labels.md) — label mapping (only if `triage` is installed)
+- [triage-labels.md](./triage-labels.md) — compatibility-path template for the workflow-role mapping
 - [domain.md](./domain.md) — domain doc consumer rules + layout
+
+When materialising a GitHub/GitLab tracker template, render canonical workflow-role label references with the configured tracker label strings from `docs/agents/triage-labels.md`; do not leave literal `ready-for-agent` or `wayfinder:*` tracker commands behind when the user chose overrides. Local markdown likewise uses the configured mapping for triage/implementation `Status:` and `Category:` values; Wayfinder's `Type: research|prototype|grilling|task` and lifecycle `Status: claimed|resolved` remain canonical local protocol values rather than tracker-label mappings.
 
 For "other" issue trackers, write `docs/agents/issue-tracker.md` from scratch using the user's description.
 
 ### 5. Done
 
-Tell the user the setup is complete and which engineering skills will now read from these files. Mention they can edit `docs/agents/*.md` directly later — re-running this skill is only necessary if they want to switch issue trackers or restart from scratch.
+Tell the user setup is complete only after the required repository files exist and, for a real tracker with supported label operations, every required mapped label exists. Name which engineering skills will read the files and which labels were created versus already present. Mention they can edit `docs/agents/*.md` directly later — re-running this skill is only necessary if they want to switch issue trackers, change the workflow-role mapping, or restart from scratch.

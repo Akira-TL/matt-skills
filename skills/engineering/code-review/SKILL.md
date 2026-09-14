@@ -10,7 +10,7 @@ Two-axis review of the diff between `HEAD` and a fixed point the user supplies:
 
 Keep the two axes logically separate. When the current harness provides genuinely isolated reviewer contexts, run them independently (parallel when useful) so one review cannot bias the other. When isolation is unavailable, run the same two briefs sequentially in the current context and label the result **non-isolated two-axis review**; never represent two passes in one context as independent reviewers.
 
-The issue tracker should have been provided to you — run `/setup-matt-pocock-skills` if `docs/agents/issue-tracker.md` is missing.
+Issue-tracker configuration is **conditional**, not a global prerequisite. A review can run from a user-supplied spec path or local source with no tracker setup. Only the issue-reference lookup branch in step 2 needs `docs/agents/issue-tracker.md`; if an issue reference is the only available spec pointer and tracker configuration is missing, stop that lookup and tell the user to supply the spec directly or explicitly run the user-invoked `setup-matt-pocock-skills` Skill. Do not start setup on the user's behalf or invent tracker configuration.
 
 ## Process
 
@@ -26,7 +26,7 @@ Before going further, confirm the fixed point resolves (`git rev-parse <fixed-po
 
 Look for the originating spec, in this order:
 
-1. Issue references in the commit messages (`#123`, `Closes #45`, GitLab `!67`, etc.) — fetch via the workflow in `docs/agents/issue-tracker.md`.
+1. Issue references in the commit messages (`#123`, `Closes #45`, GitLab `!67`, etc.) — when `docs/agents/issue-tracker.md` exists, fetch via that configured workflow; without tracker configuration, retain the reference as unresolved and continue to the remaining local/user-supplied sources.
 2. A path the user passed as an argument.
 3. A spec file under `docs/`, `specs/`, or `.scratch/` matching the branch name or feature.
 4. If nothing is found, ask the user where the spec is. If they say there isn't one, skip the **Spec** axis and report "no spec available".

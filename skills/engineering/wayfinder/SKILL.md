@@ -18,11 +18,11 @@ Every map and ticket is an issue, so it has a **name** — its title. In everyth
 
 ## The Map
 
-The map is a single issue on this repo's issue tracker, labelled `wayfinder:map` — the canonical artifact. Its tickets are child issues of the map.
+The map is one canonical tracker artifact. On label-based trackers it carries workflow role `wayfinder:map`, resolved through the repository's workflow-role mapping before tracker mutation; in local markdown it is the canonical `map.md` path and needs no label mapping. Its tickets are child work items of the map.
 
 The map is an **index**, not a store. It lists the decisions made and points at the tickets that hold their detail; a decision lives in exactly one place — its ticket — so the map never restates it, only gists it and links.
 
-**Where the map, its child tickets, blocking, and frontier queries physically live is tracker-specific.** The issue tracker should already be configured. If the repository has no tracker configuration, stop and tell the user to explicitly run the user-invoked `setup-matt-pocock-skills` Skill; Wayfinder must not start setup on the user's behalf or invent a tracker contract. Once configured, consult the tracker doc's "Wayfinding operations" section for how _this_ repo expresses the map.
+**Where the map, its child tickets, blocking, frontier queries, and type markers physically live is tracker-specific.** The issue tracker should already be configured. If the repository has no tracker configuration, stop and tell the user to explicitly run the user-invoked `setup-matt-pocock-skills` Skill; Wayfinder must not start setup on the user's behalf or invent a tracker contract. Once configured, consult the tracker doc's "Wayfinding operations" section. Load `docs/agents/triage-labels.md` only when that tracker adapter represents Wayfinder roles as configurable labels; local markdown uses canonical `Type:` values and does not require a Wayfinder label mapping.
 
 ### The map body
 
@@ -62,7 +62,7 @@ Each ticket is a **child issue** of the map; the tracker's issue id is its ident
 <the decision or investigation this ticket resolves>
 ```
 
-Each ticket carries a `wayfinder:<type>` label — one of `research`, `prototype`, `grilling`, `task` (see [Ticket Types](#ticket-types)).
+Each ticket has one canonical Wayfinder type — `research`, `prototype`, `grilling`, or `task` (see [Ticket Types](#ticket-types)). On label-based trackers resolve the corresponding `wayfinder:<type>` workflow role through `docs/agents/triage-labels.md`; in local markdown record the canonical type directly in `Type:`.
 
 A session **claims** a ticket using the tracker-specific claim operation, **first**, before any work. If workers have distinct tracker identities, assignment may be sufficient; if several Agents can share one identity or local status text, assignment/status is visibility only and must not be treated as mutual exclusion. In that case either use the coordinating workflow's deterministic claim primitive or keep Wayfinder ticket resolution serial. The frontier only contains tickets that are genuinely unclaimed under the active tracker contract.
 
@@ -110,7 +110,7 @@ User invokes with a loose idea.
 
 1. **Name the destination.** Load the required `grilling` and `domain-modeling` dependencies, then use them together to pin down what this map is finding its way to — the spec, decision, or change. The destination fixes the scope, so it's settled first.
 2. **Map the frontier.** Grill again, **breadth-first** this time: fan out across the whole space rather than deep on any one thread, surfacing the open decisions and the first steps takeable now. **If this surfaces no fog** — the way to the destination is already clear, the whole journey small enough for one session — you don't need a map. Stop and ask the user how they'd like to proceed.
-3. **Create the map** (label `wayfinder:map`): Destination and Notes filled in, Decisions-so-far empty, the fog sketched into **Not yet specified**.
+3. **Create the map** using the configured tracker representation: on label-based trackers create the map with the label mapped from canonical role `wayfinder:map`; in local markdown create the canonical `map.md`. Fill Destination and Notes, leave Decisions-so-far empty, and sketch the fog into **Not yet specified**.
 4. **Create the tickets you can specify now** as child issues of the map — then wire blocking edges in a **second pass** (issues need ids before they can reference each other). Wiring sorts them into the frontier and the blocked; everything you can't yet specify stays in the fog — the **Not yet specified** section.
 5. **Schedule ready Research tickets.** If the current harness provides isolated workers and the tracker claim contract can distinguish them, ready `research` tickets may be claimed and resolved concurrently with `/research`. Otherwise leave them on the frontier for serial resolution. Store or link the resulting research artifact according to the repository/tracker convention; do not create throwaway branches merely to simulate isolation.
 6. Stop — charting is one session's work; it does not synchronously resolve ordinary decision tickets merely because no background worker exists.

@@ -1,6 +1,6 @@
 ## What it does
 
-`setup-matt-pocock-skills` answers three questions about one repo — where issues live, what the triage labels are called, and where the domain docs sit — and records the answers as markdown files under `docs/agents/`.
+`setup-matt-pocock-skills` answers three questions about one repo — where issues live, which workflow-role values the installed engineering flows require, and where the domain docs sit — and records the answers as markdown files under `docs/agents/`.
 
 Those files are the only thing that varies between repos. The skills themselves are identical everywhere; they read `docs/agents/issue-tracker.md` at run time and do what it says. That is why the set is not tied to GitHub, and why no skill file ever needs editing to point it somewhere else. Invoking it with "link the skills to a custom issue tracker" works with anything you can connect to programmatically, with zero changes to the skills.
 
@@ -20,7 +20,7 @@ It writes into the repo you run it in:
 | --- | --- |
 | `issue-tracker.md` | `docs/agents/` |
 | `domain.md` | `docs/agents/` |
-| `triage-labels.md` | `docs/agents/`, only when the `triage` skill is installed |
+| `triage-labels.md` | `docs/agents/`, when at least one installed flow consumes tracker labels; compatibility path for the workflow-role mapping |
 | An `## Agent skills` block | the repository's confirmed canonical Agent instruction file; `AGENTS.md` is the neutral default when no authority is already declared |
 
 All of it is committed markdown. There is no user-level or global mode: the config lives in the repo, so every repo gets its own copy.
@@ -32,7 +32,7 @@ It leads each section with the recommended answer, and skips whatever exploratio
 | Decision | What it proposes | When it actually asks |
 | --- | --- | --- |
 | **Issue tracker** | the one matching your `git remote` | always — this is the one real choice |
-| **Triage labels** | keep the five canonical names (`needs-triage`, `needs-info`, `ready-for-agent`, `ready-for-human`, `wontfix`) | only if the `triage` skill is installed |
+| **Workflow roles** | keep canonical role names for the union required by installed flows; map them to tracker labels or local `Status:`/`Category:` values as the selected tracker requires | only when at least one installed flow consumes configurable workflow roles; one naming decision covers the required subset |
 | **Domain docs** | single-context: one `CONTEXT.md` plus `docs/adr/` at the root | only if it spots monorepo signals, and then it offers a multi-context `CONTEXT-MAP.md` |
 
 The tracker options:
@@ -62,20 +62,19 @@ Asked directly after v1.1, Matt said yes. The skill's own closing message is sof
 
 It now resolves a canonical project instruction source instead of choosing by executor filename. Existing root `AGENTS.md` is preferred as the neutral source; an executor-specific file that is a symlink or pointer to it stays a compatibility view. If a repository explicitly declares another canonical file, setup respects that. If the only existing instructions are in an executor-specific file with substantive project rules, setup recommends migration to `AGENTS.md` but asks before changing ownership, because silently duplicating the same standing rules into both files creates two sources of truth.
 
-**It didn't create my triage labels.**
+**Does setup create the labels the workflows need?**
 
-It doesn't. `docs/agents/triage-labels.md` is a *mapping* — it tells `/triage` which strings in your tracker correspond to the five canonical roles. It does not run `gh label create`. On a fresh GitHub repo the labels genuinely do not exist yet, and this has been filed as a bug more than once. Two follow-ons:
+Yes, on supported real trackers. `docs/agents/triage-labels.md` remains the compatibility-path mapping from workflow roles to tracker labels, but setup now verifies the required subset after you approve the plan and creates only names that are missing. Existing labels are never force-updated, so their color and description remain repository-owned.
 
-- If your tracker already uses the canonical names, the mapping is an identity table and there is nothing to configure. That is the intended common case, not a missing step.
-- wayfinder's `wayfinder:map` and `wayfinder:<type>` labels are not created here either, and `gh issue create --label <missing>` fails outright rather than creating the label. Create them by hand before the first wayfinder run on a GitHub repo.
+The required set is capability- and tracker-driven rather than triage-only: installed `to-tickets` needs `ready-for-agent`; installed `triage` adds `bug`, `enhancement`, `needs-triage`, `needs-info`, `ready-for-human`, and `wontfix`; installed `wayfinder` adds `wayfinder:map` plus its four ticket-type roles only when the selected tracker represents those types as labels. Local Wayfinder instead uses canonical `Type:` plus lifecycle `Status:` fields and therefore adds no Wayfinder label mapping. Setup takes the union and omits role mapping entirely when no installed flow needs configurable role values. Local markdown needs no remote label creation. A custom tracker without a deterministic label-create operation is reported as an explicit setup gap rather than silently treated as complete.
 
 **Can I configure the other skills' behaviour here — grilling cadence, question format, tone?**
 
-No. It configures three things: tracker, labels, doc layout. Project-specific standing preferences belong in the repository's canonical Agent instructions, not in this setup Skill and not in an executor-specific file merely because that executor is currently running.
+No. It configures three things: tracker, workflow-role mapping, and doc layout. Project-specific standing preferences belong in the repository's canonical Agent instructions, not in this setup Skill and not in an executor-specific file merely because that executor is currently running.
 
 **Can I keep the tracker/domain configuration in a user-level executor directory instead of committing it to every repo?**
 
-No. Tracker, domain-layout and triage-label configuration describe the repository, so every repo carries its own `docs/agents/`. Executor-level personal preferences are a separate concern and do not replace repository configuration.
+No. Tracker, domain-layout and workflow-role configuration describe the repository, so every repo carries its own `docs/agents/`. Executor-level personal preferences are a separate concern and do not replace repository configuration.
 
 **Isn't it strange to have a skill that configures the other skills?**
 
@@ -83,12 +82,12 @@ One long-standing complaint says yes, in these words: *"having a skill to set up
 
 ## It's working if
 
-- `docs/agents/issue-tracker.md` and `docs/agents/domain.md` exist, plus `triage-labels.md` if `triage` is installed.
-- An `## Agent skills` section appears in the instruction file your harness actually reads, with a one-line summary pointing at each of those files.
-- The tracker it proposed matches the remote you really use, and the label strings match labels that really exist in your tracker.
+- `docs/agents/issue-tracker.md` and `docs/agents/domain.md` exist; the compatibility-path `docs/agents/triage-labels.md` also exists when an installed flow consumes tracker labels.
+- An `## Agent skills` section appears in the repository's canonical Agent instruction source, with a one-line summary pointing at each of those files.
+- The tracker it proposed matches the remote you really use; every required workflow role has a concrete tracker value, and every required label on a label-based tracker either exists or is explicitly reported as an unsupported setup gap.
 - Afterwards, `/to-tickets` publishes without asking you where issues live, and `/triage` applies labels rather than inventing them.
 - Nothing in the skill files themselves changed. If setup edited a `SKILL.md`, something went wrong.
 
 ## Where it fits
 
-`setup-matt-pocock-skills` is the **run-once setup** for the engineering flow, the precondition everything else assumes rather than a step in the chain. Its neighbours are its readers: triage, which applies the label vocabulary written here; to-spec and to-tickets, which publish into the tracker named here; and wayfinder, which uses the tracker's shared **Work item operations** for blocking, frontier, and claim plus its Wayfinding-specific map/child rules. Those shared operations are also the extension point for coordination workflows that need stronger claim semantics than a tracker assignee or local `Status:` line can provide. The domain-doc layout it records is the one domain-modeling fills in later — it creates `CONTEXT.md` and ADRs lazily, when a term or decision actually gets resolved, so an empty repo after setup is the expected state. For which skill to reach for next, ask-matt routes the whole set.
+`setup-matt-pocock-skills` is the **run-once setup** for the engineering flow, the precondition everything else assumes rather than a step in the chain. Its neighbours are its readers: triage, which applies the category/state roles written here; to-spec, which publishes a canonical source artifact into the configured tracker; to-tickets, which publishes executable slices and relies on `ready-for-agent`; and wayfinder, which uses its configured labels plus the tracker's shared **Work item operations** for blocking, frontier, and claim and its Wayfinding-specific map/child rules. Those shared operations are also the extension point for coordination workflows that need stronger claim semantics than a tracker assignee or local `Status:` line can provide. The domain-doc layout it records is the one domain-modeling fills in later — it creates `CONTEXT.md` and ADRs lazily, when a term or decision actually gets resolved, so an empty repo after setup is the expected state. For which skill to reach for next, ask-matt routes the whole set.

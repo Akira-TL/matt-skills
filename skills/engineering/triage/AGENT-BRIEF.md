@@ -1,8 +1,8 @@
 # Writing Agent Briefs
 
-An agent brief is a structured comment posted on a GitHub issue or PR when it moves to `ready-for-agent`. It is the authoritative specification that an AFK agent will work from. The original body and discussion are context — the agent brief is the contract.
+An agent brief is a structured comment posted on the repository's configured issue or pull/merge-request surface when the work moves to canonical workflow role `ready-for-agent`. It is the authoritative specification that an AFK agent will work from. The original body and discussion are context — the agent brief is the contract.
 
-The brief states **what the agent should do**, which stretches to both surfaces: for an issue, that's building the change from nothing; for a PR, it's what's left to do *to the existing diff* — finish it, close gaps, address review points. Same principles either way; the PR example below shows the difference.
+The brief states **what the agent should do**, which stretches to both surfaces: for an issue, that's building the change from nothing; for a pull/merge request, it's what's left to do *to the existing diff* — finish it, close gaps, address review points. Same principles either way; the change-request example below shows the difference.
 
 ## Principles
 
@@ -29,7 +29,7 @@ Describe **what** the system should do, not **how** to implement it. The agent w
 
 The agent needs to know when it's done. Every agent brief must have concrete, testable acceptance criteria. Each criterion should be independently verifiable.
 
-- **Good:** "Running `gh issue list --label needs-triage` returns issues that have been through initial classification"
+- **Good:** "Querying the configured tracker for the `needs-triage` workflow role returns issues that have been through initial classification"
 - **Bad:** "Triage should work correctly"
 
 ### Explicit scope boundaries
@@ -145,9 +145,9 @@ checked for matches.
 - Bug reports (only enhancement rejections go to `.out-of-scope/`)
 ```
 
-### Good agent brief (PR)
+### Good agent brief (pull/merge request)
 
-For a PR, "Current behavior" describes the state of the diff, and the brief asks the agent to finish or fix it rather than build from scratch.
+For a pull/merge request, "Current behavior" describes the state of the diff, and the brief asks the agent to finish or fix it rather than build from scratch.
 
 ```markdown
 ## Agent Brief
@@ -179,7 +179,7 @@ is untouched when the flag is absent.
 
 **Out of scope:**
 - Adding `--json` to any other command
-- Changing the JSON shape of the success payload the PR already defined
+- Changing the JSON shape of the success payload the PR/MR already defined
 ```
 
 ### Bad agent brief

@@ -2,7 +2,7 @@
 
 `triage` works through the issues on your project's tracker, moving each one through a small state machine of **triage roles** — a category role and a state role — and leaving behind either an agent-ready brief, a specific question for the reporter, or a closed issue with a recorded reason.
 
-It is only for issues **you didn't create**. Raw bug reports, incoming feature requests, an external pull request that arrived unannounced — work that landed in the tracker from outside, in whatever shape the reporter left it. Tickets that to-tickets produced are already agent-ready by construction, and running `triage` over them is wasted work at best. The rule is flat: `/triage` is only for incoming issues, not for issues you created yourself.
+It is only for requests **you didn't create**. Raw bug reports, incoming feature requests, an external pull/merge request that arrived unannounced — work that landed in the configured tracker from outside, in whatever shape the reporter left it. Tickets that to-tickets produced are already agent-ready by construction, and running `triage` over them is wasted work at best. The rule is flat: `/triage` is only for incoming issues, not for issues you created yourself.
 
 The second thing that separates it from labelling by hand: it recommends and waits. It tells you its category and state call with reasoning, plus what it found in the codebase, and applies nothing until you direct it.
 
@@ -58,11 +58,11 @@ It runs two more checks against the codebase in the same pass — **redundancy**
 
 All of it exists to make one artifact good: the **agent brief**, the structured comment posted when an issue moves to `ready-for-agent`. Once it's posted, the brief is the contract and the original report is only context. Briefs are written to be **durable** rather than precise, because an issue can sit in `ready-for-agent` for weeks while the code moves underneath it. So they name types, signatures and behavioural contracts, and never file paths or line numbers. A confirmed reproduction makes a far stronger brief than a guess does.
 
-## A PR is an issue with attached code
+## A PR/MR is an issue with attached code
 
-Where the tracker treats external pull requests as a request surface, they run through the same machine — same categories, same states, same transitions. The states just read against the diff: `ready-for-agent` means a brief is attached and an agent should take the next step on the code, `ready-for-human` means it's ready for a person to merge. A brief on a PR describes what's left to do to the existing diff, not how to build the thing from nothing.
+Where the tracker treats external pull/merge requests as a request surface, they run through the same machine — same categories, same states, same transitions. The states just read against the diff: `ready-for-agent` means a brief is attached and an agent should take the next step on the code, `ready-for-human` means it's ready for a person to merge. A brief on a PR/MR describes what's left to do to the existing diff, not how to build the thing from nothing.
 
-Discovery surfaces only *external* PRs, because a collaborator's in-flight branch is not triage work. That filter is discovery-only — name a PR explicitly and it gets triaged whoever wrote it. One rough edge: the GitHub template's external-PR listing command asks `gh pr list` for an `authorAssociation` field that `gh` does not expose, so the command as written fails outright ([#468](https://github.com/mattpocock/skills/issues/468)).
+Discovery surfaces only *external* PRs/MRs, because a collaborator's in-flight branch is not triage work. That filter is discovery-only — name a PR/MR explicitly and it gets triaged whoever wrote it. On GitHub, the tracker adapter uses the REST pull-request payload's `author_association`; on GitLab, it compares MR author ids against the effective project-member set from the Projects Members API. Both avoid guessing externality from a CLI list field that does not carry the needed membership semantics.
 
 ## Common questions
 
@@ -72,8 +72,8 @@ No. They are already agent-ready — `to-tickets` applies the `ready-for-agent` 
 **Is `triage` still relevant now that there's a `to-spec` → `to-tickets` → `implement` flow?**
 Only if you have inbound work. `triage` predates that spine and does a different job: it is the lane for reports other people filed. If everything in your tracker came out of your own planning, you will rarely open it. If you maintain anything public, or your team files bugs at you, it is the front door. The main use is open-source repos taking issues from external contributors.
 
-**The agent tried to apply `ready-for-agent` and `gh` said the label doesn't exist.**
-Known open bug ([#616](https://github.com/mattpocock/skills/issues/616)). `setup-matt-pocock-skills` writes the label vocabulary into `docs/agents/triage-labels.md`, but does not create the labels in your tracker. Create the five state labels and two category labels yourself, once, with `gh label create` or the tracker's UI, and it stops. There is a community fix branch linked from the issue that hasn't been merged.
+**The agent tried to apply a workflow label and the tracker says it doesn't exist.**
+A completed setup on supported GitHub/GitLab trackers verifies the required workflow-label subset and creates names that are missing, without force-updating labels that already exist. Treat a missing required label after setup as configuration drift: re-run setup or inspect `docs/agents/triage-labels.md` against the tracker. On a custom tracker whose configuration does not provide a deterministic label-create operation, setup must report that capability gap explicitly rather than claiming the repository is fully configured.
 
 **Five states aren't enough — what about blocked, or deferred, or implemented?**
 This is the most-filed gap on the skill, in three shapes. An issue that is fully specified but waiting on another issue to close ([#139](https://github.com/mattpocock/skills/issues/139)) — the reporter's complaint was that `ready-for-agent` is "technically true" there but misleading, so an agent picks it up and hits a wall. Trigger-gated future work that is intended but not actionable yet ([#297](https://github.com/mattpocock/skills/issues/297)). And a terminal state for "implemented, awaiting verification", without which an AFK runner can re-queue finished tickets. Matt has agreed the blocked case is real and is undecided on the name (`blocked` versus `paused`). None of it has shipped. The workaround people use is a repo-local extra label alongside the category, which keeps the canonical state slot occupied by something honest at the cost of the skill not knowing about it. One community derivative goes further, adding `needs-slicing`, `tracking` and effort labels — that works, but it is theirs, not the skill's.
@@ -91,7 +91,7 @@ Yes — the tracker is config, not a hard-coded assumption, and people run it ag
 
 - Every item it touches ends with exactly one category role and one state role — never zero, never two states in conflict.
 - It gives you a recommendation with reasoning and stops, rather than relabelling and moving on.
-- The bug got reproduced, or the PR got checked out and run, before anything reached `ready-for-agent`.
+- The bug got reproduced, or the PR/MR got checked out and run, before anything reached `ready-for-agent`.
 - The briefs it writes name types and behaviours, and contain no file paths and no line numbers.
 - A request that was rejected six months ago comes back, and it says so and quotes the old reason instead of triaging it fresh.
 - Every comment it posts opens with `> *This was generated by AI during triage.*`

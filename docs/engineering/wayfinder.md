@@ -22,13 +22,13 @@ Greenfield is not a requirement. Wayfinder is used routinely on legacy and half-
 
 ## Prerequisites
 
-The map and its tickets live on the repo's configured issue tracker, so the user-invoked `setup-matt-pocock-skills` Skill must have established the tracker contract first. If that configuration is absent, Wayfinder stops and tells the user to run setup explicitly; it does not silently choose local markdown or start another user-invoked Skill on the user's behalf. The setup output includes the "Wayfinding operations" needed for child tickets, blocking edges, frontier queries and claim behavior.
+The map and its tickets live on the repo's configured issue tracker, so the user-invoked `setup-matt-pocock-skills` Skill must have established the tracker contract first. If that configuration is absent, Wayfinder stops and tells the user to run setup explicitly; it does not silently choose local markdown or start another user-invoked Skill on the user's behalf. The setup output includes the "Wayfinding operations" needed for child tickets, blocking edges, frontier queries, claim behavior and type representation. Label-based trackers additionally use the workflow-role mapping for `wayfinder:*`; local markdown records canonical `Type:` values directly and does not require those label mappings.
 
 The tracker is not decoration. Blocking is what renders the frontier visually in the tracker's own UI, and a tracker without native dependency links — a self-hosted Gitea, say — degrades wayfinder to inferring blockers from the map text, which works but needs closer supervision.
 
 ## The map, the fog, and the frontier
 
-The **map** is a single issue labelled `wayfinder:map`; its tickets are its child issues. It is an **index, not a store** — a decision lives in exactly one place, its ticket, and the map only gists it and links. A session loads the map at low resolution and zooms into individual tickets on demand, which is what lets a map keep growing without every session paying for its whole history.
+The **map** is one canonical tracker artifact: a map issue carrying workflow role `wayfinder:map` on label-based trackers, or `map.md` in local markdown. Where a label is used, its actual string is resolved through `docs/agents/triage-labels.md`. Its tickets are its child work items. It is an **index, not a store** — a decision lives in exactly one place, its ticket, and the map only gists it and links. A session loads the map at low resolution and zooms into individual tickets on demand, which is what lets a map keep growing without every session paying for its whole history.
 
 Four things live on it:
 
@@ -41,7 +41,7 @@ The **frontier** is the open, unblocked, genuinely unclaimed tickets — the edg
 
 ## The four decision-ticket types
 
-Every ticket carries a `wayfinder:<type>` label, and is either **HITL** — worked with a human who speaks for themselves — or **AFK**, driven by the agent alone. A HITL ticket only resolves through the live exchange; an agent that answers its own grilling questions has broken it.
+Every ticket has one canonical Wayfinder type (`research`, `prototype`, `grilling`, or `task`) and is either **HITL** — worked with a human who speaks for themselves — or **AFK**, driven by the agent alone. Label-based trackers resolve the matching `wayfinder:<type>` workflow role before mutation; local markdown writes the canonical type into `Type:` directly. A HITL ticket only resolves through the live exchange; an agent that answers its own grilling questions has broken it.
 
 | Type | Mode | Reach for it when | Resolved by |
 | --- | --- | --- | --- |
