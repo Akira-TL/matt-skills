@@ -1,6 +1,6 @@
 ## What it does
 
-`resolving-merge-conflicts` works through an in-progress git merge or rebase, hunk by hunk, then runs the project's own checks and finishes the operation with a commit.
+`resolving-merge-conflicts` works through an in-progress git merge or rebase, hunk by hunk, then runs the project's own checks and finishes the existing Git operation without sweeping unrelated worktree changes into it.
 
 It refuses to treat a conflict as a text problem. Before touching a hunk it traces each side back to its **primary source** — the commit message, the PR, the original issue — so it is choosing between two intents rather than between two blocks of text, and it preserves both wherever they are compatible. Where they genuinely are not, it picks the side matching the merge's stated goal and names the trade-off. It invents no new behaviour to paper over a clash, and `--abort` is not an option it has: the merge is always carried to a finished commit.
 
@@ -20,7 +20,7 @@ Reach for it when git has already stopped on conflicts it could not resolve itse
 
 The failure mode this exists to kill is resolving by flag: `--ours`, `--theirs`, or hand-deleting whichever block looks less important, so the markers go away and the build compiles. That resolution can be syntactically perfect and still silently drop a change somebody made on purpose.
 
-You cannot preserve an intent you have not read. So the work starts in the history — commits, PRs, tickets — and only then moves to the diff. Another step in the loop exists for the same reason: the skill finds the repo's own automated checks and runs them before committing, because a merge is the easiest place in git to produce code that satisfies both branches and passes neither's tests.
+You cannot preserve an intent you have not read. So the work starts in the history — commits, PRs, tickets — and only then moves to the diff. It also snapshots the current index/worktree state before resolution so pre-existing unrelated changes remain outside the merge/rebase operation. The repository's relevant checks run before completion, because a conflict is an easy place to produce code that satisfies both branches and passes neither's tests.
 
 ## Common questions
 
@@ -43,8 +43,10 @@ Aborting throws away the resolution work and returns you to the same conflict, u
 - The agent quotes commit messages, PRs or issues at you while resolving, not just diff hunks.
 - Every hunk ends up with both sides' behaviour, or with an explicit note naming what was dropped and why.
 - Nothing appears in the result that was on neither branch.
-- Typecheck, tests and format were located and run green *before* the commit, not after you noticed something broken.
-- You end on a clean tree with the operation completed — including every remaining commit in a multi-commit rebase.
+- The checks justified by the conflicted scope were located and run green before the Git operation completed.
+- Only conflict-resolution paths and resolution-specific follow-up files were staged; unrelated pre-existing changes remain exactly outside the operation as they were found.
+- A rebase proceeds with `rebase --continue` rather than an invented extra commit; a merge follows the repository's guarded/normal merge-completion contract.
+- The merge/rebase itself is completed — including every remaining commit in a multi-commit rebase — without claiming the whole working tree must be clean when unrelated pre-existing changes legitimately remain.
 
 ## Where it fits
 
