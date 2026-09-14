@@ -1,30 +1,27 @@
-# Matt Pocock Skills
+# Akira Matt Skills
 
-A collection of agent skills (slash commands and behaviors) loaded by Claude Code. Skills are organized into buckets and consumed by per-repo configuration emitted by `/setup-matt-pocock-skills`.
+本仓库维护 Akira 自己的 Matt 系列工程 Skills。现有能力起源于 `mattpocock/skills`，但当前 canonical product 是 `Akira-TL/matt-skills`；上游只作为选择性参考来源。
 
 ## Language
 
-**Issue tracker**:
-The tool that hosts a repo's issues — GitHub Issues, Linear, a local `.scratch/` markdown convention, or similar. Skills like `to-tickets`, `to-spec`, and `triage` read from and write to it.
-_Avoid_: backlog manager, backlog backend, issue host
+**Issue tracker**：承载项目 Issue 的系统，例如 GitHub Issues、GitLab Issues 或项目内本地 Markdown 约定。
 
-**Issue**:
-A single tracked unit of work inside an **Issue tracker** — a bug, task, spec, or slice produced by `to-tickets`.
-_Avoid_: ticket (use only when quoting external systems that call them tickets, or for a **Decision ticket** — see below)
+**Issue**：Issue tracker 中一个可跟踪的工作单元，可以是缺陷、任务、Spec 或由 `to-tickets` 产生的实现切片。
 
-**Decision ticket**:
-A `wayfinder` unit — a child **Issue** of a `wayfinder:map` holding a *question* whose resolution is a decision, not a slice of a build to execute. The **decision** qualifier is what keeps it distinct from an implementation ticket; `wayfinder` introduces the term, then uses "ticket".
+**Decision ticket**：`wayfinder` 使用的一类 Issue，用于记录需要解决的决策问题，而不是直接表示实现交付物。
 
-**Triage role**:
-A canonical state-machine label applied to an **Issue** during triage (e.g. `needs-triage`, `ready-for-afk`). Each role maps to a real label string in the **Issue tracker** via `docs/agents/triage-labels.md`.
+**Triage role**：Issue 在 triage 流程中的状态角色；实际标签字符串由项目自己的 issue-tracker 配置映射。
 
 ## Relationships
 
-- An **Issue tracker** holds many **Issues**
-- An **Issue** carries one **Triage role** at a time
-- A **Decision ticket** is an **Issue** (a child of a `wayfinder:map`)
+- 一个 Issue tracker 包含多个 Issue。
+- 一个 Issue 在 triage 流程中具有一个当前 Triage role。
+- Decision ticket 是一种 Issue。
+- `ask-matt` 负责在 Matt 系列能力之间进行顶层路由。
+- `ask-akira` 与 Parallel 系列是 Akira 对 Matt 工程流的扩展，不构成第二套独立工程体系。
 
-## Flagged ambiguities
+## Maintenance boundary
 
-- "backlog" was previously used to mean both the *tool* hosting issues and the *body of work* inside it — resolved: the tool is the **Issue tracker**; "backlog" is no longer used as a domain term.
-- "backlog backend" / "backlog manager" — resolved: collapsed into **Issue tracker**.
+- 本仓不继承上游的 plugin、marketplace、npm release 或网站发布体系。
+- 上游方法和实现只有在当前 Akira 工程流需要时才选择性吸收。
+- 历史上游 Skill 名称与正文可以作为当前重写基线保留；后续按实际设计逐项替换，不因为仓库所有权改变而一次性机械重命名。
