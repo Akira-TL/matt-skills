@@ -1,6 +1,6 @@
 ---
 name: setup-matt-pocock-skills
-description: Configure this repo for the engineering skills — set up its issue tracker, workflow-role mapping, and domain doc layout. Run once before first use of the other engineering skills.
+description: Configure per-repo tracker, workflow-role mapping, and domain-doc conventions for Matt flows that consume repository configuration. Run before tracker-backed flows such as triage, to-spec, to-tickets or wayfinder when that configuration is absent; it is not a prerequisite for every engineering Skill.
 disable-model-invocation: true
 ---
 
