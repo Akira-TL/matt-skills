@@ -20,7 +20,7 @@ You invoke this by typing `/triage` and then describing what you want in plain l
 
 ## Prerequisites
 
-`triage` reads and writes your issue tracker, so setup-matt-pocock-skills has to have configured that tracker and its label vocabulary first. The role names below are **canonical**; the label strings in your tracker may differ, and the mapping is what setup provides. If your tracker already uses the canonical names exactly, there is nothing to map and nothing to set up.
+`triage` reads and writes your issue tracker, so the user-invoked `setup-matt-pocock-skills` Skill has to have configured that tracker and its label vocabulary first. If the repository configuration is absent, triage stops and tells the user to run setup explicitly; it does not start another user-invoked Skill on the user's behalf or invent a label mapping. The role names below are **canonical**; the label strings in your tracker may differ, and the mapping is what setup provides.
 
 The tracker config also decides whether external pull requests count as a request surface, and who counts as external. That flag defaults to off and is no longer a setup question — flip it in `docs/agents/issue-tracker.md` if you want PRs in scope.
 
@@ -47,6 +47,8 @@ That is the whole vocabulary, and the "exactly one state role" invariant is what
 | Rejected enhancement | A file in `.out-of-scope/`, linked from the closing comment, then close. |
 
 `.out-of-scope/` is one markdown file per rejected **concept**, not per issue, written as a short design document rather than a database row: what was rejected, why, and every issue that has asked for it. `triage` reads the whole directory before it evaluates anything, and matches by concept rather than keyword — "night theme" matches `dark-mode.md`. When it hits a match it surfaces the old decision and asks whether you still feel the same way, instead of re-litigating the request from scratch.
+
+When a request needs additional product/design decisions, that branch conditionally requires the model-invoked `grilling` and `domain-modeling` Skills. Both canonical dependencies must be loaded before the interview starts; if either cannot be loaded, triage reports the dependency gap rather than improvising the missing method.
 
 ## Verify before you brief
 

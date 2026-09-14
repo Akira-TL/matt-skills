@@ -1,19 +1,30 @@
 # Model-invoked vs user-invoked
 
-Every `SKILL.md` in this repo is a skill. The one axis that splits them is **invocation** — who can reach it:
+Every `SKILL.md` in this repo is a Skill. The primary invocation axis is **who may start it**:
 
-- **User-invoked** — reachable **only by the human typing its name**. Set `disable-model-invocation: true` in the frontmatter (Claude Code) and `policy.allow_implicit_invocation: false` in `agents/openai.yaml` (Codex). The `description` is **human-facing**: a one-line summary read by a person browsing slash-commands. Strip trigger lists ("Use when the user says…").
-- **Model-invoked** — reachable by **model or user**. The default: omit `disable-model-invocation` and the `policy` block from `agents/openai.yaml`. The `description` is **model-facing** and keeps rich trigger phrasing ("Use when the user wants…, mentions…, asks for…") so auto-invocation fires. The test for whether a skill should stay model-invoked: _could the model usefully reach for this autonomously?_ (Reuse is the reason to extract a skill, not the test.)
+- **User-invoked** — only an explicit user action starts the Skill. Set the repository's supported invocation metadata so implicit/model invocation is disabled. The `description` is human-facing: a compact summary for browsing or explicit invocation, not a trigger list.
+- **Model-invoked** — model or user may start the Skill. Omit the repository's implicit-invocation prohibition. The `description` is model-facing and keeps enough trigger phrasing for reliable routing. The test is: _could the model usefully reach for this autonomously?_
 
-Each harness excludes a user-invoked skill from the model's reach in its own way, so nothing but the human can fire it — no other skill can. A user-invoked skill may invoke model-invoked skills, but it can never reach another user-invoked skill.
+Different Agent executors expose these metadata fields differently. The repository keeps the frontmatter and `agents/openai.yaml` representations consistent, but the engineering method must not depend on one executor's command syntax or UI.
 
-Every skill also carries an `agents/openai.yaml` beside its `SKILL.md`. It holds Codex UI metadata — `interface.display_name` and `interface.short_description` for the skill picker — and, for user-invoked skills, the `policy.allow_implicit_invocation: false` that pairs with `disable-model-invocation`. Keep the two in sync: a skill is user-invoked in both harnesses or neither.
+A user-invoked Skill may depend on model-invoked Skills; it must not silently start another user-invoked Skill that requires separate human intent.
 
 Bucket `README.md`s and the top-level `README.md` group entries into **User-invoked** and **Model-invoked**.
 
 ## Dependencies between them
 
-Dependencies are expressed as **`/skill`-style prose invocation** ("Run the `/grilling` skill"), not deep `../other-skill/FILE.md` cross-references. Shared reference docs live inside the skill that owns them; other skills reach that material by invoking the skill, not by linking across folders.
+Cross-Skill dependencies are expressed by **Skill name and capability contract**, not deep `../other-skill/FILE.md` cross-references and not one executor's slash-command syntax. Shared reference docs stay inside the Skill that owns them.
+
+When one Skill depends on another:
+
+1. distinguish **required** dependencies from **conditional** branch dependencies;
+2. before relying on the dependency's behavior, load/follow the canonical installed Skill through the current executor's Skill mechanism;
+3. naming a Skill in prose is not evidence that its instructions were loaded;
+4. if a required dependency cannot be loaded, fail closed and report the missing capability rather than recreating the method from model memory;
+5. if the machine-level Skill itself is missing, hand that capability gap to the `akira` Router for normal source/user-approval handling rather than locally copying another Skill's rules;
+6. conditional dependencies are loaded only when that branch is actually taken, preserving progressive disclosure.
+
+A wrapper must never claim that `grilling`, `domain-modeling`, `tdd`, `code-review` or another dependency ran unless the dependency's canonical instructions were actually loaded and followed.
 
 ## Passive vs active domain work
 

@@ -1,6 +1,6 @@
 ## What it does
 
-`grill-me` takes a **loose idea** and interviews you until you can commit to it. You do not need a worked-out plan to start — producing one is what the session is for. It asks in **rounds**: each round is the whole **frontier** — every question whose prerequisites you have already settled — so you are never asked something that hinges on an answer it hasn't heard yet.
+`grill-me` is the user-invoked front door for the model-invoked `grilling` primitive. It takes a **loose idea** and interviews you until you can commit to it. Before the interview starts, the wrapper must actually load the canonical `grilling` Skill; naming it is not enough, and the wrapper must fail closed rather than improvise its own interview if that dependency is unavailable.
 
 It is **stateless**. It writes no files and leaves no workspace behind. The only thing it leaves is a sharper version of the idea, in your own head.
 
@@ -49,14 +49,10 @@ Talking your way through an ungrillable question is where sessions balloon. The 
 Count rounds, not questions. Forty-six questions across four rounds is an ordinary session. It ends when the frontier is empty — every branch visited, nothing left silently assumed.
 
 **It asked me two hundred questions. What went wrong?**
-Usually the scope was too large. Ask the agent to break the work into smaller pieces first, then grill each one. Very long sessions also drift into the **dumb zone**, where the context window is full enough that the questions get worse.
+Usually the scope was too large. Ask the agent to break the work into smaller pieces first, then grill each one. Very long sessions can also accumulate enough irrelevant or stale context that question quality degrades; use the phase-boundary rules rather than a fixed token threshold to decide whether the next coherent phase should continue or move to a fresh/summary-transferred context.
 
 **Can I go back to one question at a time?**
-Yes. Add this to your global `CLAUDE.md`:
-
-```
-When grilling, ask one question at a time.
-```
+Yes. Put a standing instruction such as `When grilling, ask one question at a time.` in the canonical Agent instructions for the scope where you want that preference to apply.
 
 **What if I genuinely don't know the answer?**
 Say so. "I don't know" is a real answer, and a question you can't answer is usually a sign to prototype rather than to guess.

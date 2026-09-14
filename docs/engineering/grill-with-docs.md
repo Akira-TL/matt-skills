@@ -24,7 +24,7 @@ The wayfinder split comes down to session count: `/grill-with-docs` for single-s
 
 The skill writes into your repo, so you need to be somewhere it is safe to write. Resolved terms go to a `CONTEXT.md` glossary at the root — or to the relevant context's `CONTEXT.md`, if a `CONTEXT-MAP.md` at the root marks the repo as multi-context. Decisions go to `docs/adr/`. Both are created lazily; nothing exists until the first term or decision crystallises, so there is nothing to scaffold up front.
 
-It also needs two other skills present, because its own `SKILL.md` is one line that delegates to them: grilling supplies the interview, domain-modeling supplies the writing. Installing `grill-with-docs` alone gets you a skill that does not work.
+It has two **required internal dependencies**: `grilling` supplies the interview and `domain-modeling` supplies the glossary/ADR discipline. The wrapper must actually load both canonical Skills before it starts; installing or naming them is not the same as loading them. If either dependency cannot be loaded, the wrapper stops and reports the missing capability rather than running a partial imitation.
 
 ## The paper trail
 
@@ -52,10 +52,10 @@ Related: running the skill repeatedly across unrelated changes in one repo tends
 Scope decides it. Use this for anything you can settle in one session; use wayfinder when the effort is too big to hold in one, and it charts the work as a map of decision tickets first. Wayfinder is slower and denser, and reaching for it on a well-scoped feature is the common mistake. It does not replace this skill — it can drop into a grilling session for the parts of the map that suit one.
 
 **It ran, but no `CONTEXT.md` and no ADRs appeared.**
-Two known causes. The mundane one: nothing qualified. ADRs need all three gates, and a session about a change with no new vocabulary genuinely has nothing to write. The real bug: when the skill runs inside another orchestration layer — a spec-driven-development wrapper, a multi-agent framework, a rule that invokes it as a step in someone else's pipeline — the file-writing half is reported to silently not happen, while the interview still runs. This is filed and unfixed. If you are in that setup, check the working directory before you trust the session's output.
+The normal case is that nothing qualified: ADRs need all three gates, and a session with no new vocabulary may legitimately write nothing. If terms or durable decisions clearly did resolve, verify that both required dependencies were actually loaded and that the session is operating in the intended repository. A wrapper that cannot load `domain-modeling` must now fail closed rather than silently continuing with only the interview half.
 
 **It asked everything at once, with no recommendations, and never mentioned `CONTEXT.md`.**
-That is the skill failing to load its two dependencies. Because `SKILL.md` is a one-line delegation, an agent that does not pick up grilling and domain-modeling guesses at what grilling means, and you get an undifferentiated question dump. Partial loading is the more confusing case — `grilling` loads, `domain-modeling` does not, and you get a good interview with no paper trail. It correlates with model and effort level, and it is the most reported problem with this skill. If you suspect it, ask the agent directly which skills it loaded.
+That indicates the wrapper contract was not followed. `grill-with-docs` must load both `grilling` and `domain-modeling` before it starts. A run that cannot establish those dependencies should stop with a missing-capability report; it must not guess what either method means from their names.
 
 **Where did all my other decisions go?**
 Into the conversation only. This is the most substantive open complaint about the skill: the glossary is not a spec, most answers do not earn an ADR, and there is no ledger tying each resolved answer through to a spec, a ticket and a test. Precise answers — ordering guarantees, negative requirements, numeric defaults — get softened into weaker prose downstream, and the result can look complete while missing the thing you actually decided. The mitigation available today is to keep the session and feed it straight to to-spec, and to re-read the spec against your own answers rather than assuming it captured them.

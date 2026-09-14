@@ -22,7 +22,7 @@ Greenfield is not a requirement. Wayfinder is used routinely on legacy and half-
 
 ## Prerequisites
 
-The map and its tickets live on the repo's issue tracker, so wayfinder needs the tracker wiring that setup-matt-pocock-skills lays down. That step writes a "Wayfinding operations" section describing how the map, its child tickets, blocking edges, and frontier queries are expressed for GitHub, GitLab, or local markdown. Wayfinder resolves that doc through the repository's canonical Agent instructions rather than a fixed executor-specific path; with no tracker configured at all it falls back to local markdown files.
+The map and its tickets live on the repo's configured issue tracker, so the user-invoked `setup-matt-pocock-skills` Skill must have established the tracker contract first. If that configuration is absent, Wayfinder stops and tells the user to run setup explicitly; it does not silently choose local markdown or start another user-invoked Skill on the user's behalf. The setup output includes the "Wayfinding operations" needed for child tickets, blocking edges, frontier queries and claim behavior.
 
 The tracker is not decoration. Blocking is what renders the frontier visually in the tracker's own UI, and a tracker without native dependency links — a self-hosted Gitea, say — degrades wayfinder to inferring blockers from the map text, which works but needs closer supervision.
 
@@ -45,9 +45,9 @@ Every ticket carries a `wayfinder:<type>` label, and is either **HITL** — work
 
 | Type | Mode | Reach for it when | Resolved by |
 | --- | --- | --- | --- |
-| `grilling` | HITL | The default. The question can be settled by talking it through. | grilling plus domain-modeling, in a fresh session |
-| `prototype` | HITL | "How should this look" or "how should this behave" — a question talking cannot settle. | prototype, with the built artifact linked from the ticket as an asset |
-| `research` | AFK | A fact outside the working directory is blocking a decision. | `/research`; isolated worker when available, synchronous current-session fallback otherwise |
+| `grilling` | HITL | The default. The question can be settled by talking it through. | load required `grilling` + `domain-modeling`, then resolve in a fresh focused context |
+| `prototype` | HITL | "How should this look" or "how should this behave" — a question talking cannot settle. | load `prototype`, with the built artifact linked from the ticket as an asset |
+| `research` | AFK | A fact outside the working directory is blocking a decision. | load `research`; isolated worker when available, synchronous current-session fallback otherwise |
 | `task` | Either | Nothing to decide, but manual work blocks a decision — provisioning access, signing up for a service, moving data so its shape can be seen. | The agent alone where it can, otherwise a precise checklist for the human |
 
 `task` is the only type that *does* rather than decides, and it earns its place by unblocking a decision — never by delivering a piece of the destination. This is the type that goes wrong most often in practice: agents interpret it as an implementation step and start writing product code inside the map.
@@ -100,4 +100,4 @@ It is this skill, renamed to `wayfinder` in v1.1 and invoked as `/wayfinder`. "D
 
 `wayfinder` is a **situational on-ramp**, not the default front door. The grill-led idea → ship chain is still where most work starts; wayfinder is what you climb onto when the idea is too big to hold in one session, and it merges back onto that chain at to-spec, because a cleared map hands off rather than builds.
 
-Underneath, it is mostly other skills wearing wayfinder's scheduling: grilling and domain-modeling resolve the default ticket type, prototype resolves the tickets that talking cannot, and research resolves AFK fact-finding tickets. Research may use an isolated worker when available, but Wayfinder does not require one. handoff is the bridge in and out — into a map from a conversation that outgrew itself, out of one when a side quest appears mid-session. For anything else, ask-matt routes over the whole set.
+Underneath, it is mostly other Skills wearing Wayfinder's scheduling. Those are real dependencies, not prose aliases: Grilling tickets load `grilling` + `domain-modeling`, Prototype tickets load `prototype`, and Research tickets load `research`. If a branch dependency cannot be loaded, Wayfinder reports the gap rather than simulating the missing method. Research may use an isolated worker when available, but Wayfinder does not require one. `handoff` is the bridge for work that must travel independently; `ask-matt` routes the wider set.

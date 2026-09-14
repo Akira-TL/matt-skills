@@ -27,7 +27,7 @@ The same-session case is worth naming because the skill's own first line doesn't
 
 `implement` commits to the branch you are on. It does not create one, and it does not ask. Check you are on the branch you want the work on before you start.
 
-If the tickets came from to-tickets, the tracker they live on was configured by setup-matt-pocock-skills. `code-review` reads the same configuration to find the originating spec at close-out.
+If the tickets came from to-tickets, the tracker they live on was configured by setup-matt-pocock-skills. Internal methods are loaded progressively: `parallel-execution` is required only for a Parallel Task, `tdd` only when the slice actually takes the TDD branch, and `code-review` is required at close-out. A missing required dependency is reported rather than approximated from memory.
 
 ## What one run does
 
@@ -78,7 +78,7 @@ Treat that as evidence that the slice may be too large or its source context too
 ## It's working if
 
 - The session opens by resolving the ticket/spec source chain rather than asking you what to build; a published Matt ticket loads its Source Spec, and a Parallel Task resolves through its Parent Gate and Source Matt Ticket.
-- You can see an actual `/tdd` invocation in the trace, not just tests appearing in the diff.
+- When the slice uses TDD, the canonical `tdd` Skill was actually loaded and followed; ordinary tests appearing in the diff are not enough to claim the TDD method ran.
 - Focused tests/typechecks/build checks run at the scope justified by the change; a full suite appears only when the project contract or risk warrants it.
 - The run reaches an atomic implementation commit on the current branch before code-review, so the review sees the actual Git state.
 - The diff is one ticket's worth of change: a vertical slice through every layer, not several tickets swept together.
