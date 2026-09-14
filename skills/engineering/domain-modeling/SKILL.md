@@ -37,7 +37,7 @@ If a `CONTEXT-MAP.md` exists at the root, the repo has multiple contexts. The ma
 │       └── docs/adr/
 ```
 
-Create files lazily — only when you have something to write. If no `CONTEXT.md` exists, create one when the first term is resolved. If no `docs/adr/` exists, create it when the first ADR is needed.
+Create files lazily — only when you have something to write. If no `CONTEXT.md` exists, create one when the first term is resolved. ADR location and format are repository-owned: consult `docs/agents/domain.md`, repository instructions and existing decision records first. Only when no repository ADR convention exists may you fall back to `docs/adr/` and the bundled ADR format.
 
 ## During the session
 
@@ -80,4 +80,4 @@ Only offer to create an ADR when all three are true:
 2. **Surprising without context** — a future reader will wonder "why did they do it this way?"
 3. **The result of a real trade-off** — there were genuine alternatives and you picked one for specific reasons
 
-If any of the three is missing, skip the ADR. Use the format in [ADR-FORMAT.md](./ADR-FORMAT.md).
+If any of the three is missing, skip the ADR. When one qualifies, write it using the repository's established ADR location, naming and template. Use [ADR-FORMAT.md](./ADR-FORMAT.md) only as the fallback when the repository has no existing ADR convention; never create a competing Matt-specific ADR system beside an established one.

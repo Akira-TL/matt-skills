@@ -1,8 +1,8 @@
 # ADR Format
 
-ADRs live in `docs/adr/` and use sequential numbering: `0001-slug.md`, `0002-slug.md`, etc.
+This is Matt's **fallback ADR convention**, used only when the repository has no established ADR location, naming scheme or template. Repository instructions, `docs/agents/domain.md`, and existing decision records take precedence.
 
-Create the `docs/adr/` directory lazily — only when the first ADR is needed.
+Under this fallback, ADRs live in `docs/adr/` and use sequential numbering: `0001-slug.md`, `0002-slug.md`, etc. Create the directory lazily — only when the first ADR is needed.
 
 ## Template
 

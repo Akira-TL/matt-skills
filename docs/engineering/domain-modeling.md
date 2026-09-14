@@ -32,12 +32,14 @@ Nothing needs to exist before you start, and nothing is created speculatively.
 
 The glossary and the ADR are held to different standards, and conflating them is where most of the trouble in this skill comes from.
 
-| | `CONTEXT.md` | `docs/adr/NNNN-slug.md` |
+| | `CONTEXT.md` | Repository ADR convention |
 | --- | --- | --- |
-| Holds | Terms. What a thing **is**, in one or two sentences, with rejected synonyms under `_Avoid_` | One decision, in one to three sentences: context, choice, reason |
+| Holds | Terms. What a thing **is**, in one or two sentences, with rejected synonyms under `_Avoid_` | One decision, using the repository's established ADR location, naming and template |
 | Bar to write | A vague term became canonical | **All three**: hard to reverse, surprising without context, the result of a real trade-off |
 | Written | Inline, the moment the term is settled | Offered, not assumed |
 | Never holds | Implementation details, a spec, a scratch pad, general programming concepts | A diary of every choice made this session |
+
+If the repository has no ADR convention at all, Matt falls back to `docs/adr/NNNN-slug.md` and the bundled `ADR-FORMAT.md`. Existing project conventions always win over that fallback.
 
 Miss any one of the ADR's three tests and there is no ADR. An easily-reversed decision will just get reversed; an unsurprising one is nobody's question; one with no real alternative records that you did the obvious thing.
 
@@ -64,7 +66,7 @@ It was removed, and it was not deprecated. Its job moved into `domain-modeling`,
 Ask for it explicitly rather than waiting for it to accumulate. `/grill-with-docs help me scaffold my existing repo with a CONTEXT.md` is the documented route; expect a long interrogation — one user reported 50+ questions before the file was in shape. Incidental use builds the glossary far too slowly on a brownfield repo.
 
 **Can I keep the domain model and use my own ADR format?**
-Not cleanly today. The glossary half and the ADR half ship in one skill, so a team with an established ADR convention — different template, different location, different naming — gets instructions that conflict with its house style. The current options are to copy the skill locally and edit it, or to override the ADR conventions in your repo's own agent docs. Splitting the two apart is [an open request](https://github.com/mattpocock/skills/issues/557).
+Yes. The repository's existing ADR convention has authority over Matt's fallback: keep the project's established directory, numbering/naming scheme and template, and let setup record that convention in `docs/agents/domain.md`. The bundled `ADR-FORMAT.md` is used only when the repository has no ADR convention yet. The glossary and ADR disciplines still ship in one Skill, but they no longer require the project to adopt Matt's storage format.
 
 **Does a glossary actually earn its keep? It is one more artifact to review, and it can go stale.**
 Sometimes it does not, and it is worth being honest about where. DDD gets less useful the closer it gets to the implementation — the payoff is upstream, in naming and concept alignment, not in aggregates and layer ceremony. Synonym control matters at naming boundaries: module names, table names, status enums, issue titles, CLI commands. It matters much less in ordinary prose. There is also a live objection that domain terms compress communication *between humans* who already share them, and that an agent responds the same way to the plain-English description — on that reading, the glossary's value is keeping you and your reviewers aligned with what the agent is doing, not making the agent better. On a one-day build, skip it. And an unreviewed, agent-authored glossary is worse than none: it becomes confident-sounding lore that later sessions treat as truth.

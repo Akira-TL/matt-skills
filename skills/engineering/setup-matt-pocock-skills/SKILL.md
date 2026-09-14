@@ -23,7 +23,7 @@ Look at the current repo to understand its starting state. Read whatever exists;
 - `git remote -v` and `.git/config` — is this a GitHub repo? Which one?
 - Project Agent instruction files at the repo root, especially `AGENTS.md` and executor-specific compatibility files such as `CLAUDE.md` — which file is canonical, is one a symlink/pointer to another, and is there already an `## Agent skills` section?
 - `CONTEXT.md` and `CONTEXT-MAP.md` at the repo root
-- `docs/adr/` and any `src/*/docs/adr/` directories
+- Existing ADR locations, naming patterns and templates/conventions — start with `docs/adr/` and any `src/*/docs/adr/`, but also follow repository instructions, contribution docs and existing decision records if the project already uses another convention
 - `docs/agents/` — does this skill's prior output already exist?
 - `.scratch/` — sign that a local-markdown issue tracker convention is already in use
 - Which workflow-role consumers are installed? `to-tickets` needs the `ready-for-agent` role; `triage` adds its category/state roles; on a real label-based tracker, `wayfinder` adds its `wayfinder:*` roles. Local Wayfinder uses `Type:` and lifecycle `Status:` fields instead of tracker labels. This determines the required role set in Section B.
@@ -60,9 +60,9 @@ Ask exactly one naming question:
 
 On **yes**, map each required role to the same string. Only if the user says no — usually because the tracker already uses another vocabulary — collect the overrides needed by the installed flows so downstream skills reuse the repository's existing values rather than inventing duplicates. `docs/agents/triage-labels.md` remains the compatibility path for this broader workflow-role mapping.
 
-**Section C — Domain docs.** Default to **single-context** — one `CONTEXT.md` + `docs/adr/` at the repo root. This fits almost every repo; write it without asking.
+**Section C — Domain docs.** Default to **single-context** — one `CONTEXT.md` at the repo root. For ADRs, preserve any established repository location, naming scheme and template; only default to `docs/adr/` plus Matt's bundled ADR format when exploration found no existing ADR convention.
 
-Offer **multi-context** — a root `CONTEXT-MAP.md` pointing to per-context `CONTEXT.md` files — only when exploration found monorepo signals. Then confirm which layout they want.
+Offer **multi-context** — a root `CONTEXT-MAP.md` pointing to per-context `CONTEXT.md` files — only when exploration found monorepo signals. Then confirm which context layout they want. Existing ADR ownership remains independent of that context-layout choice unless the repository already scopes ADRs per context.
 
 ### 3. Confirm and edit
 
