@@ -2,7 +2,7 @@
 
 `improve-codebase-architecture` surveys a codebase for **deepening opportunities** — places where a shallow module (an interface nearly as complex as the thing it hides) could become a deep one — writes them up as a self-contained HTML report, and then grills you through whichever one you pick.
 
-It never changes the code. The whole run produces one HTML file in your OS temp directory and a conversation; the refactor itself happens later, in a separate session, through the normal build flow. That is what makes it a survey rather than a refactoring tool, and it is why the skill is worth running on a codebase you are not ready to touch yet.
+It never changes production code. The whole run produces one **offline, self-contained** HTML file in your OS temp directory and a conversation; the refactor itself happens later through the normal build flow. Exploration uses whatever execution model the current harness actually provides: an isolated read-only worker may scan when available, otherwise the current agent scans directly. That choice does not change the architecture method.
 
 Two filters keep the report from becoming generic cleanup advice. Every candidate has to pass the **deletion test** — would removing this module concentrate complexity behind a smaller interface, or just spread it across callers? Only the "concentrates" cases earn a card. And unless you point it at a specific area, it reads recent commit history first and biases the scan toward paths that are actively changing, on the grounds that a deepening in code nobody touches is a refactor you will never cash in.
 
@@ -55,9 +55,9 @@ Picking a candidate starts a grilling session over it: constraints, what sits be
 
 Yes — say so when you invoke it ("don't grill me, just show the report"). This is the loudest complaint the skill has. One user put it bluntly: they liked it as "a convenient way to get a thorough analysis of improvements," and after the grilling loop was added found it "borderline unusable," reporting sessions where it proposed a single solution and then asked "10's or 100's of questions." The design intent is that the report comes first and the grill only starts on a candidate you chose, but weaker models skip straight to interviewing you about the first idea they had. Reports in that thread vary sharply by model, and it is an open issue — the skill does not yet have a documented no-grill mode.
 
-**The report opened as unstyled raw HTML with no diagrams. What happened?**
+**Does the HTML report need network access?**
 
-The report loads Tailwind and Mermaid from CDNs, so it needs network access when you open it, and it breaks silently when something blocks those scripts. The filed case was a security hook demanding SRI hashes: the agent added them, the CDN served different bytes to the browser than to the `curl` used to compute the hash, and the browser blocked the script. Offline and locked-down environments hit the same wall. The agent cannot see this, because it never renders the page. The workaround is to ask for inline CSS and hand-built SVG diagrams instead of the CDN scaffold. This is an open issue and a real rough edge.
+No. The report contract is now literally self-contained: layout uses inline CSS and diagrams use inline SVG/HTML, with system fonts and no CDN dependency. If a generated report contains Tailwind, Mermaid, remote fonts, remote images or other network-loaded runtime assets, it violates the Skill contract rather than representing an accepted fallback.
 
 **It gave me twelve candidates. Do I work through them in the same session or start a new one?**
 
@@ -79,9 +79,9 @@ Partly. It is strong on big existing codebases lacking consistent structure, and
 
 Rarely, and you should know that going in. The skill is built to output findings, so the framing pushes it toward producing candidates rather than concluding that nothing is wrong. The strength badges are the defence — a report where everything is `Speculative` is the skill telling you it found nothing, in the only way it knows how.
 
-**Does it work in Codex or another harness?**
+**Does it depend on a particular Agent harness?**
 
-Partially. The exploration step names Claude Code's `Agent` tool with `subagent_type=Explore` directly, so a harness without that tool may skip the parallel exploration rather than substitute its own. The skill still runs; the scan is just less thorough. A harness-neutral rewrite has been proposed but is not merged.
+No. The exploration method is the same in every environment: freeze scope, inspect the relevant code, apply the deletion test, and return evidence-backed candidates. A harness with isolated read-only workers may use one for the scan; a harness without them performs the same work in the current context. Worker isolation is an execution optimisation, not a prerequisite for the Skill.
 
 **How do I actually implement deep modules in TypeScript?**
 

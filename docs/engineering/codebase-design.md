@@ -43,7 +43,7 @@ Depth is deliberately *not* defined as the ratio of implementation lines to inte
 - **The interface is the test surface.** Callers and tests cross the same seam. If you want to test *past* the interface, the module is the wrong shape.
 - **One adapter means a hypothetical seam. Two adapters means a real one.** Don't cut a seam until something actually varies across it. A single-adapter seam is just indirection.
 
-Two supporting files go further, and the skill reads them on demand rather than up front. [DEEPENING.md](https://github.com/mattpocock/skills/blob/main/skills/engineering/codebase-design/DEEPENING.md) classifies a candidate's dependencies — in-process, local-substitutable, remote-but-owned, true-external — because the category decides how the deepened module gets tested across its seam. [DESIGN-IT-TWICE.md](https://github.com/mattpocock/skills/blob/main/skills/engineering/codebase-design/DESIGN-IT-TWICE.md) spins up parallel sub-agents to produce three or more radically different interfaces for the same module, then compares them on depth, locality and seam placement.
+Two supporting files go further, and the skill reads them on demand rather than up front. [DEEPENING.md](https://github.com/mattpocock/skills/blob/main/skills/engineering/codebase-design/DEEPENING.md) classifies a candidate's dependencies — in-process, local-substitutable, remote-but-owned, true-external — because the category decides how the deepened module gets tested across its seam. [DESIGN-IT-TWICE.md](https://github.com/mattpocock/skills/blob/main/skills/engineering/codebase-design/DESIGN-IT-TWICE.md) freezes one problem frame, produces at least three radically different interfaces, and compares them on depth, locality and seam placement. Isolated workers are an optional execution strategy, not part of the method's contract.
 
 ## Common questions
 
@@ -53,11 +53,11 @@ This is the most-asked question about the skill and the skill does not answer it
 
 **I pointed a session at it and it burned 100k tokens redesigning things I never asked about.**
 
-Known, and filed as [issue #449](https://github.com/mattpocock/skills/issues/449). The skill is model-invoked and describes itself as vocabulary, but nothing in it hard-stops an agent from treating it as a runnable process. Told to "resume in /codebase-design and drive the open decisions", an agent reached for the most action-shaped content it could find — the parallel sub-agents in `DESIGN-IT-TWICE.md` — re-explored code a previous session had already mapped, and ran a long way before asking anything. None of the guardrails a driver skill has (checkpoints, one question at a time, no auto-advance) are present here, because a reference has none. The workaround is to name a driver skill and let this one sit underneath it: `/grill-with-docs`, `/improve-codebase-architecture` or `/tdd` with `codebase-design` as the vocabulary. The issue is open.
+Known, and filed as [issue #449](https://github.com/mattpocock/skills/issues/449). The skill is model-invoked and describes itself as vocabulary, but a caller can still misuse `DESIGN-IT-TWICE.md` as a session driver and re-explore code a previous phase already mapped. In this fork the boundary is explicit: `codebase-design` remains a reference, while `/grill-with-docs`, `/improve-codebase-architecture`, `/tdd` or another driver owns scope, checkpoints and stopping conditions. `DESIGN-IT-TWICE.md` only explores alternatives inside an already-frozen design problem.
 
 **Where did `design-an-interface` go? And is there an `/interface-design` skill?**
 
-`design-an-interface` was removed and absorbed into this skill. Nothing was lost: its "design it twice" technique — parallel sub-agents generating radically different designs, from Ousterhout — ships here as `DESIGN-IT-TWICE.md`. Separately, several people have asked for a dedicated `/interface-design` skill for the deep-module/thin-interface philosophy; that philosophy already lives here, and no separate skill is planned. If you came looking for either name, this is the page.
+`design-an-interface` was removed and absorbed into this skill. Nothing was lost: its "design it twice" technique — generating at least three radically different designs from one frozen problem frame, from Ousterhout — ships here as `DESIGN-IT-TWICE.md`. Isolated workers can generate those alternatives independently when the current harness supports them; otherwise the current context generates them sequentially and labels that limitation honestly. Separately, several people have asked for a dedicated `/interface-design` skill for the deep-module/thin-interface philosophy; that philosophy already lives here, and no separate skill is planned.
 
 **Isn't this a file-structure convention — folders, barrel files, feature slices?**
 
@@ -67,9 +67,9 @@ No, and the skill has held that line under repeated pushback. [Issue #95](https:
 
 It does now. For a long time it did not. The inline deep-module notes that used to live inside `tdd` were removed in v1.0 in favour of this shared skill, but the pointer replacing them was never added — so `tdd` defined "seam" for itself and referenced nothing. The gap is closed: the pointer is now in the skill, reached when the shape of the interface is the open question rather than the tests. `tdd` still owns "seam" as the boundary you *test* at; this skill owns the module shape behind it.
 
-**Does the design-it-twice pattern work outside Claude Code?**
+**Does the design-it-twice pattern depend on a particular Agent harness?**
 
-Not cleanly. `DESIGN-IT-TWICE.md` says "spawn 3+ sub-agents in parallel using the Agent tool", which is Claude Code's tool by Claude Code's name. The repo ships metadata for other harnesses, including Codex, and those may expose nothing under that name — so the parallel-design phase is less portable than the skill's metadata suggests. Tracked in [issue #564](https://github.com/mattpocock/skills/issues/564), open.
+No. The invariant is three or more genuinely different interface designs from the same frozen frame. A harness with isolated worker contexts can generate them independently and in parallel; a harness without that capability generates them sequentially in the current context. The sequential fallback is valid exploration, but it must not be described as independent or parallel work.
 
 **Can I add my own concepts to the glossary — connascence, module secrets, progressive disclosure?**
 
