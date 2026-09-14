@@ -33,7 +33,7 @@ It leads each section with the recommended answer, and skips whatever exploratio
 | --- | --- | --- |
 | **Issue tracker** | the one matching your `git remote` | always — this is the one real choice |
 | **Workflow roles** | keep canonical role names for the union required by installed flows; map them to tracker labels or local `Status:`/`Category:` values as the selected tracker requires | only when at least one installed flow consumes configurable workflow roles; one naming decision covers the required subset |
-| **Domain docs** | single-context: one `CONTEXT.md` plus `docs/adr/` at the root | only if it spots monorepo signals, and then it offers a multi-context `CONTEXT-MAP.md` |
+| **Domain docs** | single-context: one root `CONTEXT.md`; preserve any existing ADR location/naming/template, falling back to `docs/adr/` only when the repo has no ADR convention | only if it spots monorepo signals, and then it offers a multi-context `CONTEXT-MAP.md` |
 
 The tracker options:
 

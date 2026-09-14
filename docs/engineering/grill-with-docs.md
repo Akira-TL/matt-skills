@@ -22,7 +22,7 @@ The wayfinder split comes down to session count: `/grill-with-docs` for single-s
 
 ## Prerequisites
 
-The skill writes into your repo, so you need to be somewhere it is safe to write. Resolved terms go to a `CONTEXT.md` glossary at the root — or to the relevant context's `CONTEXT.md`, if a `CONTEXT-MAP.md` at the root marks the repo as multi-context. Decisions go to `docs/adr/`. Both are created lazily; nothing exists until the first term or decision crystallises, so there is nothing to scaffold up front.
+The skill writes into your repo, so you need to be somewhere it is safe to write. Resolved terms go to a `CONTEXT.md` glossary at the root — or to the relevant context's `CONTEXT.md`, if a `CONTEXT-MAP.md` at the root marks the repo as multi-context. Decisions go to the repository's established ADR location; only repos with no ADR convention fall back to Matt's `docs/adr/` layout. Both artifacts are created lazily, so there is nothing to scaffold up front.
 
 It has two **required internal dependencies**: `grilling` supplies the interview and `domain-modeling` supplies the glossary/ADR discipline. The wrapper must actually load both canonical Skills before it starts; installing or naming them is not the same as loading them. If either dependency cannot be loaded, the wrapper stops and reports the missing capability rather than running a partial imitation.
 
@@ -33,7 +33,7 @@ Three things come out of a session, and they are not equal.
 | What resolved | Where it lands |
 | --- | --- |
 | A term — the project's own word for a thing | `CONTEXT.md`, inline, the moment it resolves |
-| A decision that is hard to reverse, surprising without context, and a real trade-off | An ADR under `docs/adr/` |
+| A decision that is hard to reverse, surprising without context, and a real trade-off | An ADR using the repository's established ADR location/template (Matt fallback: `docs/adr/`) |
 | Everything else you decided | The conversation, and nowhere else |
 
 That third row is the one that catches people out. `CONTEXT.md` is a glossary and is deliberately kept as one — no implementation details, no spec, no scratch notes. ADRs are gated on all three conditions at once, so most decisions do not qualify and most sessions produce none. A session that yields a sharper glossary and zero ADRs is working as designed, but it means the bulk of what you agreed exists only in the context window you agreed it in. Hand that same conversation to to-spec rather than clearing it.

@@ -24,7 +24,7 @@ Reach for it when the *words* are the problem:
 None up front. The skill writes into two places and creates both lazily:
 
 - **`CONTEXT.md`** at the repo root, created by the first resolved term. In a repo with a `CONTEXT-MAP.md` at the root, terms go into the per-context `CONTEXT.md` the map points at instead.
-- **`docs/adr/`**, created by the first ADR that clears the bar.
+- **The repository's established ADR location**, created lazily if the project convention says to do so. If the repository has no ADR convention, Matt falls back to `docs/adr/`.
 
 Nothing needs to exist before you start, and nothing is created speculatively.
 

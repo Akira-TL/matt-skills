@@ -27,7 +27,7 @@ Where it is confusable with siblings:
 
 ## Prerequisites
 
-`codebase-design` is a required internal dependency and must be loaded before the scan so the report uses one canonical architecture vocabulary. `grilling` and `domain-modeling` are conditional dependencies only after the user picks a candidate. If a required dependency cannot be loaded, the Skill reports the gap rather than reconstructing the method from memory. It also reads `CONTEXT.md` and any ADRs in `docs/adr/` if they exist, and speaks in your domain's own nouns when they do — a candidate reads as "deepen the Order intake module," not "refactor the FooBarHandler."
+`codebase-design` is a required internal dependency and must be loaded before the scan so the report uses one canonical architecture vocabulary. `grilling` and `domain-modeling` are conditional dependencies only after the user picks a candidate. If a required dependency cannot be loaded, the Skill reports the gap rather than reconstructing the method from memory. It also reads `CONTEXT.md` and the ADRs named by the repository's recorded ADR convention when they exist, and speaks in your domain's own nouns when they do — a candidate reads as "deepen the Order intake module," not "refactor the FooBarHandler."
 
 It writes in two places. The report goes to `<tmpdir>/architecture-review-<timestamp>.html`, outside the repo. During the grilling loop it will add or sharpen terms in `CONTEXT.md`, creating that file if it does not exist, and offer to record a rejected candidate as an ADR so a future run does not re-suggest it.
 

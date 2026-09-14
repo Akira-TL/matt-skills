@@ -11,7 +11,7 @@ Surface architectural friction and propose **deepening opportunities** — refac
 This command is _informed_ by the project's domain model and built on a shared design vocabulary. `codebase-design` is a **required internal dependency**: load and follow its canonical Skill instructions before scanning. If it cannot be loaded, report the missing dependency and stop rather than reconstructing the vocabulary from memory.
 
 - Use `codebase-design` for the architecture vocabulary (**module**, **interface**, **depth**, **seam**, **adapter**, **leverage**, **locality**) and its principles (the deletion test, "the interface is the test surface", "one adapter = hypothetical seam, two = real"). Use these terms exactly in every suggestion — don't drift into "component," "service," "API," or "boundary."
-- The domain language in `CONTEXT.md` gives names to good seams; ADRs in `docs/adr/` record decisions this command should not re-litigate.
+- The domain language in `CONTEXT.md` gives names to good seams; ADRs resolved through the repository's recorded ADR convention (`docs/agents/domain.md`, repository instructions, and existing decision records) capture decisions this command should not re-litigate.
 
 ## Process
 
