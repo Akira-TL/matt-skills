@@ -102,7 +102,7 @@ Ruling something out of scope is a scoping act, not a step on the route. When a 
 
 ## Invocation
 
-Two modes. Either way, **never resolve more than one ticket per session** — with the exception of research tickets.
+Two modes. A **decision-ticket boundary is a checkpoint, not a session boundary**. After resolving each ordinary ticket, report that resolution to the user before advancing, then re-query the frontier and prepare the next ticket. Continue in the same session while the next step is already authorized and the current context remains reliable; pause only at a real interaction, blocker, scope, or context boundary. Research tickets may still be scheduled concurrently when the tracker and executor make that safe.
 
 ### Chart the map
 
@@ -124,5 +124,6 @@ User invokes with a map (URL or number). A ticket is **optional** — without on
 3. Resolve it — **zoom as needed**: fetch the full body of any related or closed ticket on demand; load/follow the canonical model-invoked Skills the `## Notes` block names. For a Grilling ticket, `grilling` and `domain-modeling` are required dependencies and must actually be loaded before proceeding.
 4. Record the resolution: post the answer as a **resolution comment**, **close** the issue, and **append a context pointer** to the map's Decisions-so-far.
 5. Add newly-surfaced tickets (create-then-wire); graduate any fog the answer has made specifiable, clearing each graduated patch from **Not yet specified** so it lives only as its new ticket. If the answer reveals a ticket — this one or another — sits beyond the destination, **rule it out of scope** rather than resolving it on the route. If the decision invalidates other parts of the map, update or delete those tickets.
+6. **Checkpoint, then advance.** Tell the user which ticket just closed, the decision gist, and any frontier change. Then query the frontier again rather than relying on the pre-resolution view. If the map is clear, hand off toward the destination. Otherwise name the next frontier ticket, claim it, load its body and required dependencies, and prepare it immediately. Do not ask for a redundant permission to continue when the map and prior user decisions already authorize the next ticket. AFK work may continue directly; HITL work continues by presenting the first concrete question or artifact that actually needs the human. Stop only when that real interaction is reached, the frontier is blocked, the destination or scope must be renegotiated, or the current context is no longer reliable.
 
 The user may run unblocked tickets in parallel, so expect other sessions to be editing the tracker concurrently.

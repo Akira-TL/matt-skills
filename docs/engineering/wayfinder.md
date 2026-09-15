@@ -52,7 +52,7 @@ Every ticket has one canonical Wayfinder type (`research`, `prototype`, `grillin
 
 `task` is the only type that *does* rather than decides, and it earns its place by unblocking a decision — never by delivering a piece of the destination. This is the type that goes wrong most often in practice: agents interpret it as an implementation step and start writing product code inside the map.
 
-Research is the only exception to *one ticket per session*.
+Tickets still follow the dependency graph and claim contract, but a ticket closure is a **checkpoint rather than a forced session stop**. One session may therefore work through several ordinary tickets sequentially: after each closure the agent reports the decision, refreshes the frontier, and prepares the next already-authorized ticket before continuing. Research remains the natural case for safe concurrent work when isolated workers and distinct claims are available.
 
 ## Common questions
 
@@ -91,7 +91,7 @@ It is this skill, renamed to `wayfinder` in v1.1 and invoked as `/wayfinder`. "D
 - The destination is written down and agreed before a single ticket exists.
 - Every open ticket reads as a question. Any ticket that reads "build the X" is either mis-typed or belongs downstream of the map.
 - You can look at your tracker and see which tickets are takeable without opening the map — that is the frontier rendering itself through native blocking.
-- A session resolves one ticket, posts the answer as a resolution comment, closes it, and leaves one line on the map's *Decisions so far*. Then it stops.
+- Each resolved ticket gets a visible checkpoint: the agent posts the answer as a resolution comment, closes it, leaves one line on the map's *Decisions so far*, tells you what changed, refreshes the frontier, and prepares the next ticket without asking for redundant permission. It waits only when the next ticket actually needs human input, the frontier is blocked, scope must change, or the current context is no longer reliable.
 - **Not yet specified** shrinks over time. A patch of fog that graduates into a ticket disappears from that section rather than living in both places.
 - When the opening breadth-first grill turns up no fog at all, the skill stops and tells you the effort is small enough to skip the map.
 - The session that finishes the map hands you toward a spec, not a pull request.
