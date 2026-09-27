@@ -1,7 +1,6 @@
 ---
 name: grill-with-docs
 description: A relentless interview to sharpen a plan or design, which also creates docs (ADR's and glossary) as we go.
-disable-model-invocation: true
 ---
 
 `grilling` and `domain-modeling` are **required internal dependencies**. Before starting, load and follow both canonical installed Skills through the current executor's Skill mechanism. Do not approximate either method from memory merely because this wrapper names it.

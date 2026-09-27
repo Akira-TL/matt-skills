@@ -1,7 +1,6 @@
 ---
 name: ask-akira
 description: 软件工程任务的 Akira Primary Router；默认进入 standard Matt flow，需要快速交付、事故恢复、竞赛冲刺或正式多 Agent 协作时选择相应执行策略，并按需路由到 canonical engineering Skills。
-argument-hint: "[standard|rapid|emergency|competition] [scope=task|session]"
 ---
 
 # Ask Akira

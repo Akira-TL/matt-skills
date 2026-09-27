@@ -1,7 +1,6 @@
 ---
 name: implement
 description: "Implement one already-decided work item from a ticket, spec, or the current conversation."
-disable-model-invocation: true
 ---
 
 Implement one already-decided work item from the referenced ticket/spec or, when no external reference exists, from the concrete plan already established in the current conversation.

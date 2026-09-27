@@ -1,7 +1,6 @@
 ---
 name: grill-me
 description: A relentless interview to sharpen a plan or design.
-disable-model-invocation: true
 ---
 
 `grilling` is a **required internal dependency**. Before interviewing, load and follow the canonical installed `grilling` Skill through the current executor's Skill mechanism. Do not reproduce the grilling method from memory merely because this wrapper names it.

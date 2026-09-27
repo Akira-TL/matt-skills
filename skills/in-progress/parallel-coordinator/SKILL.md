@@ -1,7 +1,6 @@
 ---
 name: parallel-coordinator
 description: 以当前会话作为主 Agent，基于既有 Matt Spec/Tickets 或 Akira 模式 Work State 建立或恢复 Execution Map、Gate 与 Parallel Tasks，维护动态 frontier，并负责 Task 与 Gate 的跨任务验收。
-disable-model-invocation: true
 ---
 
 # Parallel Coordinator

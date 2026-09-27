@@ -43,6 +43,7 @@ uv run python ~/.agents/skills/akira/scripts/skills.py install \
 ## Skill 编写
 
 - 每个 Skill 只有一个 canonical `SKILL.md`；目录名与 frontmatter `name` 必须一致。
+- 每个 Skill 包维护 `skiloom-package.toml`，仓库发现范围由根目录 `skiloom-repo.toml` 定义；canonical `SKILL.md` 只使用标准 Agent Skill frontmatter，执行器专属调用策略留在对应 metadata 文件中。
 - 调用模式遵循 [`.agents/invocation.md`](.agents/invocation.md)。
 - Skill 之间通过能力名和明确 pointer 协作，不复制彼此正文。
 - 工程方法先定义**语义不变量**，再映射当前 Agent executor 实际提供的执行原语。稳定 Skill 不把某一产品的 Agent tool、sub-agent 类型、context 命令、固定模型名或固定 token 阈值写成方法成立的前提；真实存在隔离/并行能力时可以使用，没有时必须有合法退化路径，并如实区分 isolated/parallel 与同上下文串行执行。
@@ -53,5 +54,6 @@ uv run python ~/.agents/skills/akira/scripts/skills.py install \
 ## 检查与提交
 
 - `scripts/list-skills.sh` 只用于列出本仓 Skill，不承担安装或发布职责。
+- 修改 Skill 或 Skiloom metadata 后，从本仓根目录运行 `skiloom validate . --json`，验证仓库发现规则、标准 frontmatter 与 Package metadata。
 - 机械结构检查与正式提交使用 Akira Guard；Lattice 只拥有自身静态配置与仓库拓扑检查。
 - 修改应保持原子提交；上游吸收与 Akira 自有功能修改不要混在同一个提交里。

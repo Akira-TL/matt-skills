@@ -6,7 +6,7 @@ It never reopens the plan. For a ticket, it follows the ticket's local scope and
 
 ## When to reach for it
 
-You invoke this by typing `/implement` — the agent won't reach for it on its own. It ships with `disable-model-invocation: true`, so no other skill can call it either. Wherever ask-matt or to-tickets says "then `/implement` per ticket", that is an instruction to you, not something the agent will do unprompted.
+You invoke this by typing `/implement` — the agent won't reach for it on its own. Its executor policy disables implicit invocation; in the OpenAI package this is `policy.allow_implicit_invocation: false` in `agents/openai.yaml`. Wherever ask-matt or to-tickets says "then `/implement` per ticket", that is an instruction to you, not something the agent will do unprompted.
 
 Where the work currently lives decides whether this is the right skill:
 

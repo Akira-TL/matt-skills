@@ -1,8 +1,6 @@
 ---
 name: handoff
 description: Summarise the current working context into a portable handoff document for another agent, harness, directory, repository, or collaborator to pick up.
-argument-hint: "What will the next session be used for?"
-disable-model-invocation: true
 ---
 
 Write a portable handoff document summarising the current working context so a fresh agent can continue the work somewhere else. Save to the temporary directory of the user's OS - not the current workspace.

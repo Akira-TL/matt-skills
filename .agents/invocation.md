@@ -2,10 +2,10 @@
 
 Every `SKILL.md` in this repo is a Skill. The primary invocation axis is **who may start it**:
 
-- **User-invoked** — only an explicit user action starts the Skill. Set the repository's supported invocation metadata so implicit/model invocation is disabled. The `description` is human-facing: a compact summary for browsing or explicit invocation, not a trigger list.
-- **Model-invoked** — model or user may start the Skill. Omit the repository's implicit-invocation prohibition. The `description` is model-facing and keeps enough trigger phrasing for reliable routing. The test is: _could the model usefully reach for this autonomously?_
+- **User-invoked** — only an explicit user action starts the Skill. Keep canonical `SKILL.md` frontmatter portable; for OpenAI set `policy.allow_implicit_invocation: false` in `agents/openai.yaml`, and use the equivalent supported policy surface on other executors. The `description` is human-facing: a compact summary for browsing or explicit invocation, not a trigger list.
+- **Model-invoked** — model or user may start the Skill. Keep the `description` model-facing with enough trigger phrasing for reliable routing; OpenAI metadata must not prohibit implicit invocation. The test is: _could the model usefully reach for this autonomously?_
 
-Different Agent executors expose these metadata fields differently. The repository keeps the frontmatter and `agents/openai.yaml` representations consistent, but the engineering method must not depend on one executor's command syntax or UI.
+Different Agent executors expose invocation policy differently. The repository keeps the portable `SKILL.md` and executor metadata semantically aligned, but does not encode executor-private invocation keys as top-level canonical frontmatter. The engineering method must not depend on one executor's command syntax or UI.
 
 A user-invoked Skill may depend on model-invoked Skills. No Skill may start a user-invoked Skill unless that target was already entered by explicit user action in the current flow; model-invoked Skills may recommend the user-invoked Skill and pass forward context, but must stop short of starting it on the user's behalf.
 

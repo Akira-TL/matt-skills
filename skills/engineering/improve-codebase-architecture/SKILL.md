@@ -1,7 +1,6 @@
 ---
 name: improve-codebase-architecture
 description: Scan a codebase for deepening opportunities and present them as a visual HTML report; optionally continue into a grilling/design session for a candidate the user chooses.
-disable-model-invocation: true
 ---
 
 # Improve Codebase Architecture
