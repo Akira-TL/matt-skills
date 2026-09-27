@@ -1,0 +1,6 @@
+schema = 1
+
+[dependencies]
+"akira-tl/matt-skills/code-review" = "*"
+"akira-tl/matt-skills/parallel-execution" = "*"
+"akira-tl/matt-skills/tdd" = "*"

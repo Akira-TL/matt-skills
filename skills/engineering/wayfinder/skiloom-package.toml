@@ -1,0 +1,8 @@
+schema = 1
+
+[dependencies]
+"akira-tl/matt-skills/domain-modeling" = "*"
+"akira-tl/matt-skills/grilling" = "*"
+"akira-tl/matt-skills/prototype" = "*"
+"akira-tl/matt-skills/research" = "*"
+"akira-tl/matt-skills/setup-matt-pocock-skills" = "*"
