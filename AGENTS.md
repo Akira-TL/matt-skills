@@ -14,17 +14,7 @@
 
 ## 安装边界
 
-本仓不维护 Claude plugin、marketplace、npm/Changesets 发布链或本地执行器 Skill 链接脚本。运行时安装统一由 `akira` Router 从远端 GitHub source 执行：
-
-```bash
-uv run python ~/.agents/skills/akira/scripts/skills.py install \
-  https://github.com/Akira-TL/matt-skills.git \
-  --all \
-  --root skills/engineering \
-  --root skills/productivity \
-  --skill parallel-coordinator \
-  --skill parallel-execution
-```
+本仓不维护 Claude plugin、marketplace、npm/Changesets 发布链或本地执行器 Skill 链接脚本。Matt Engineering 是项目级专业工作流：运行时由 `akira` Router 从目标软件项目根目录通过 Skiloom `--scope workspace` 安装 `akira-tl/matt-skills/ask-akira`；需要正式 Parallel 主协调时再额外安装 `parallel-coordinator`。不得把 Matt suite 安装到用户级 `~/.agents/skills` Target 作为项目配置的替代品。
 
 本地 `skills/matt` checkout 只用于开发、review、测试与固定 revision，不作为运行时安装 source，也不得直接链接到具体执行器的 Skill 目录。
 

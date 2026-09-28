@@ -20,21 +20,22 @@ scripts/list-skills.sh
 
 ## 安装
 
-运行时只从远端 `Akira-TL/matt-skills` 安装，不使用 Lattice 本地 submodule checkout：
+Matt Engineering 是项目级专业工作流。运行时由 `akira` Router 从远端 `Akira-TL/matt-skills` 选择入口 Package，并从目标软件项目根目录通过 Skiloom 安装到 `workspace` Target；不使用 Lattice 本地 submodule checkout，也不进入用户级 `~/.agents/skills` Target。
 
-```bash
-uv run python ~/.agents/skills/akira/scripts/skills.py install \
-  https://github.com/Akira-TL/matt-skills.git \
-  --all \
-  --root skills/engineering \
-  --root skills/productivity \
-  --skill parallel-coordinator \
-  --skill parallel-execution
+标准工程入口：
+
+```text
+skiloom install akira-tl/matt-skills/ask-akira --git main --scope workspace --plan --json
+skiloom install akira-tl/matt-skills/ask-akira --git main --scope workspace --yes --json
 ```
 
-该命令安装稳定 Engineering / Productivity Skills（其中已包含 `ask-akira`），并显式加入仍处于实验阶段的 Parallel 扩展；其他实验性 Skill 不会因为整仓存在而自动进入机器级注册表。
+完整 Matt standard dependency closure 由 `ask-akira` / `ask-matt` 的 `skiloom-package.toml` 自动解析。需要正式 Parallel 主协调时，再按真实任务额外安装：
 
-本仓不再提供 Claude plugin、marketplace、`skills.sh`、npm/Changesets 或本地执行器链接作为正式安装路径。
+```text
+skiloom install akira-tl/matt-skills/parallel-coordinator --git main --scope workspace --plan --json
+```
+
+本仓不再提供旧 Akira installer、Claude plugin、marketplace、`skills.sh`、npm/Changesets 或本地执行器链接作为正式安装路径。
 
 ## 上游
 
